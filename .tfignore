@@ -1,0 +1,2 @@
+# Ignore .pdf files in this folder and all its sub-folders
+*.pdf
