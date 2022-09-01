@@ -9,7 +9,7 @@ function getExifTagIndex(exifData, exifTag) {
   }
 }
 
-function MoveLayerTo(fLayer,fX,fY, anchorPosition) {
+function moveLayerToAbsolutePosition(fLayer,fX,fY, anchorPosition) {
 
   var Position = fLayer.bounds;
   var Width = fLayer.bounds[2].value - fLayer.bounds[0].value;
@@ -78,14 +78,12 @@ function addIcon (selectedFilePath, targetGroupName, targetWidth) {
   var doc = app.activeDocument;
 
   // Resize image
-  var imageWidth = doc.activeLayer.bounds[2].value - app.activeDocument.activeLayer.bounds[0].value;
-  var resizeRatio = targetWidth / imageWidth * 180;
+  var itemWidth = doc.activeLayer.bounds[2].value - app.activeDocument.activeLayer.bounds[0].value;
+  var resizeRatio = targetWidth / itemWidth * 180;
   doc.activeLayer.resize(resizeRatio, resizeRatio, AnchorPosition.MIDDLECENTER);
 
   // Move inside group
   doc.activeLayer.move(doc.layerSets.getByName(targetGroupName), ElementPlacement.INSIDE);
-
-    
 }
 
 function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, fontSizePixels) {
@@ -175,6 +173,78 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
 
 }
 
+function addLocation () {
+    // Save current preferences
+    var startRulerUnits = app.preferences.rulerUnits;
+    var startTypeUnits = app.preferences.typeUnits;
+    var startTypeDialogs = app.displayDialogs;
+
+    // Set own preferences
+    app.preferences.rulerUnits = Units.PIXELS;
+    app.preferences.typeUnits = TypeUnits.PIXELS;
+    app.displayDialogs = DialogModes.ERROR;
+
+    // Document size
+    var doc = app.activeDocument;
+    var docHeight = doc.height.value;
+    var docWidth = doc.width.value;
+
+    // Group for both the image and the text
+    var group = app.activeDocument.layerSets.add();
+    //group.name = ;
+
+}
+
+function resizeToFit (leftMargin, topMargin, rightMargin, bottomMargin) {
+
+    // Save current preferences
+    var startRulerUnits = app.preferences.rulerUnits;
+    var startTypeUnits = app.preferences.typeUnits;
+    var startTypeDialogs = app.displayDialogs;
+
+    // Set own preferences
+    app.preferences.rulerUnits = Units.PIXELS;
+    app.preferences.typeUnits = TypeUnits.PIXELS;
+    app.displayDialogs = DialogModes.ERROR;
+
+    // Doc selection
+    var doc = app.activeDocument;
+
+    // Doc parameters calculation
+    var docHeight = doc.height.value;
+    var docWidth = doc.width.value;
+    var targetWidth = (1 - rightMargin - leftMargin) * docWidth;
+    var targetHeight = (1 - topMargin - bottomMargin) * docHeight;
+
+    // Resize image
+	if (doc.activeLayer.textItem.kind == TextType.PARAGRAPHTEXT) {
+		doc.activeLayer.textItem.width = targetWidth;
+		doc.activeLayer.textItem.height = targetHeight;
+
+		//TO-DO: define box dimensions, and calculate fontsize based on canvas size
+
+	} else {
+		var itemWidth = doc.activeLayer.bounds[2].value - doc.activeLayer.bounds[0].value;
+    	var itemHeight = doc.activeLayer.bounds[3].value - doc.activeLayer.bounds[1].value;
+		var widthResizeRatio = targetWidth / itemWidth * 100;
+		var heightResizeRatio = targetHeight / itemHeight * 100;
+		doc.activeLayer.resize(widthResizeRatio, heightResizeRatio, AnchorPosition.MIDDLECENTER);
+	}
+
+    // Calculate image position using anchor center
+    var xPosition = leftMargin * docWidth + targetWidth / 2;
+    var yPosition = topMargin * docHeight + targetHeight / 2;
+
+    // Move image
+    moveLayerToAbsolutePosition(doc.activeLayer, xPosition, yPosition, "middlecenter");
+
+    // Reset application preferences
+    app.preferences.rulerUnits = startRulerUnits;
+    app.preferences.typeUnits = startTypeUnits;
+    app.displayDialogs = startTypeDialogs;
+
+}
+
 function addMetadataWithIcons(exifTagsArray) {
 
   // Save current preferences
@@ -232,11 +302,11 @@ function addMetadataWithIcons(exifTagsArray) {
     
     if (!(exifTagsArray[i] == 'headline' || exifTagsArray[i] == 'caption')) {
         addIcon (selectedFilePath, exifTagsArray[i], rowsHeightPixels);
-        MoveLayerTo(doc.activeLayer, imageXPosition, exifItemYPosition, "middlecenter");
+        moveLayerToAbsolutePosition(doc.activeLayer, imageXPosition, exifItemYPosition, "middlecenter");
     }
 
     addMetadataAsText(exifTagsArray[i], exifTagsArray[i], "FFFFFF", "Comfortaa-Bold", rowsHeightPixels);
-    MoveLayerTo(doc.activeLayer, exifDataXPosition, exifItemYPosition, "middleleft");
+    moveLayerToAbsolutePosition(doc.activeLayer, exifDataXPosition, exifItemYPosition, "middleleft");
 
     // Next Y position
     exifItemYPosition = exifItemYPosition + rowIndentsHeightPixels + rowsHeightPixels;
@@ -276,8 +346,6 @@ function addMetadataWithIcons(exifTagsArray) {
 // 
 // }
 
-
-
 // ExifTags selection
 //37377 Shutter Speed
 //37378 Aperture
@@ -288,9 +356,11 @@ function addMetadataWithIcons(exifTagsArray) {
 //37386 Lens Focal Length
 // 'caption' Caption
 
-
-nameFile();
+//nameFile();
 
 //addMetadataVerticallyDistributed([37377, 37378, 34855, 37386], "exifData");
 
-addMetadataWithIcons(['date', 'location', 'caption']);
+//addMetadataWithIcons(['headline']);
+
+
+resizeToFit(0,0,0,0);
