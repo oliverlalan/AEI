@@ -117,7 +117,14 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
 
     // Font size. There is a bug. textItem.size always converts "px" to "pt". 
     // https://community.adobe.com/t5/photoshop-ecosystem-discussions/photoshop-script-change-textitem-size-javascript/td-p/11478075
-    textItemRef.size = new UnitValue(fontSizePixels * 72 / doc.resolution, 'pt');;
+    if(exifTag == 'headline') {
+		textItemRef.size = new UnitValue(700, 'pt');
+	} else {
+		textItemRef.size = new UnitValue(fontSizePixels * 72 / doc.resolution, 'pt');
+	}
+	// TO-DO: Define LayerSize for TextType.PARAGRAHTEXT
+
+
 
     // Finding the exif entry index (Variable and Value) for the desired exifTag 
     // as defined in https://web.archive.org/web/20190624045241if_/http://www.cipa.jp:80/std/documents/e/DC-008-Translation-2019-E.pdf
@@ -195,6 +202,36 @@ function addLocation () {
 
 }
 
+
+// Based on https://stackoverflow.com/questions/28900505/extendscript-how-to-check-whether-text-content-overflows-the-containing-rectang
+function scaleTextToFitBox(textLayer) {     
+    var fitInsideBoxDimensions = getLayerDimensions(textLayer);
+
+    while(fitInsideBoxDimensions.height < getRealTextLayerDimensions(textLayer).height) {
+        var fontSize = parseInt(textLayer.textItem.size);
+        textLayer.textItem.size = new UnitValue(fontSize * 0.95, "px");
+    }
+}
+
+function getRealTextLayerDimensions(textLayer) {
+    var textLayerCopy = textLayer.duplicate(activeDocument, ElementPlacement.INSIDE);
+
+    textLayerCopy.textItem.height = activeDocument.height;
+    textLayerCopy.rasterize(RasterizeType.TEXTCONTENTS);
+
+    var dimensions = getLayerDimensions(textLayerCopy);
+    textLayerCopy.remove();
+
+    return dimensions;
+}
+
+function getLayerDimensions(layer) {
+    return { 
+        width : layer.bounds[2] - layer.bounds[0],
+        height : layer.bounds[3] - layer.bounds[1]
+    };
+}
+
 function resizeToFit (leftMargin, topMargin, rightMargin, bottomMargin) {
 
     // Save current preferences
@@ -213,23 +250,24 @@ function resizeToFit (leftMargin, topMargin, rightMargin, bottomMargin) {
     // Doc parameters calculation
     var docHeight = doc.height.value;
     var docWidth = doc.width.value;
-    var targetWidth = (1 - rightMargin - leftMargin) * docWidth;
+    var targetWidth = (1 - rightMargin - leftMargin)* docWidth;
     var targetHeight = (1 - topMargin - bottomMargin) * docHeight;
 
     // Resize image
-	if (doc.activeLayer.textItem.kind == TextType.PARAGRAPHTEXT) {
-		doc.activeLayer.textItem.width = targetWidth;
-		doc.activeLayer.textItem.height = targetHeight;
-
-		//TO-DO: define box dimensions, and calculate fontsize based on canvas size
-
-	} else {
+	if (doc.activeLayer.textItem.kind == TextType.POINTTEXT) {
 		var itemWidth = doc.activeLayer.bounds[2].value - doc.activeLayer.bounds[0].value;
-    	var itemHeight = doc.activeLayer.bounds[3].value - doc.activeLayer.bounds[1].value;
+		var itemHeight = doc.activeLayer.bounds[3].value - doc.activeLayer.bounds[1].value;
 		var widthResizeRatio = targetWidth / itemWidth * 100;
 		var heightResizeRatio = targetHeight / itemHeight * 100;
 		doc.activeLayer.resize(widthResizeRatio, heightResizeRatio, AnchorPosition.MIDDLECENTER);
+	} else {
+		doc.activeLayer.textItem.height = new UnitValue(targetHeight * 72 / doc.resolution, 'pt');
+		doc.activeLayer.textItem.width = new UnitValue(targetWidth * 72 / doc.resolution, 'pt');
+
+		// Resize text
+		scaleTextToFitBox(doc.activeLayer);
 	}
+
 
     // Calculate image position using anchor center
     var xPosition = leftMargin * docWidth + targetWidth / 2;
@@ -360,7 +398,7 @@ function addMetadataWithIcons(exifTagsArray) {
 
 //addMetadataVerticallyDistributed([37377, 37378, 34855, 37386], "exifData");
 
-//addMetadataWithIcons(['headline']);
+addMetadataWithIcons(['headline']);
 
 
-resizeToFit(0,0,0,0);
+resizeToFit(0.2,0.3,0.2,0.3);
