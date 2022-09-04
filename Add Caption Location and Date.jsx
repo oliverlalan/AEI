@@ -47,6 +47,20 @@ function nameFile() {
     doc.activeLayer.name = "photoStory";
 }
 
+function placeInGroup (layer, targetGroupName) {
+    // Document Selection
+    var doc = app.activeDocument;
+
+    // Check in LayerSet exists and, if not, create
+    if(doc.layerSets.getByName(targetGroupName) == false) {
+        var layerGroup = app.activeDocument.layerSets.add();
+        layerGroup.name = targetGroupName;
+    }
+
+    // Mover layer into targetGroupName;
+    doc.activeLayer.move(doc.layerSets.getByName(targetGroupName), ElementPlacement.INSIDE);
+}
+
 // Based on https://www.codeproject.com/Questions/882480/Place-Embedded-through-photoshop-scripting-Javascr
 function addIcon (selectedFilePath, targetGroupName, targetWidth) {
   
@@ -197,8 +211,7 @@ function addLocation () {
     var docWidth = doc.width.value;
 
     // Group for both the image and the text
-    var group = app.activeDocument.layerSets.add();
-    //group.name = ;
+    //placeInGroup(doc.activeLayer, targetGroupName);
 
 }
 
@@ -330,8 +343,7 @@ function addMetadataWithIcons(exifTagsArray) {
   for (var i=0; i<exifTagsArray.length; i++) {
 
     // Group for both the image and the text
-    var group = app.activeDocument.layerSets.add();
-    group.name = exifTagsArray[i];
+    placeInGroup(doc.activeLayer, exifTagsArray[i])
 
     // Be careful with the encoding for the "Ó": http://www.javascripter.net/faq/accentedcharacters.htm
     var selectedFilePath = "D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Icons/" + exifTagsArray[i] + ".svg";
