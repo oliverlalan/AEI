@@ -47,22 +47,31 @@ function nameFile() {
     doc.activeLayer.name = "photoStory";
 }
 
+function checkLayerGroupExistance(document, name) {
+    var layerSets = document.layerSets;
+    for (i=0; i<layerSets.length; i++) {
+        if (layerSets[i].name==name) return true;
+    }
+    return false;
+}
+
 function placeInGroup (layer, targetGroupName) {
     // Document Selection
     var doc = app.activeDocument;
 
-    // Check in LayerSet exists and, if not, create
-    if(doc.layerSets.getByName(targetGroupName) == false) {
+    // Check if LayerSet exists and, if not, create
+
+    if(!checkLayerGroupExistance(doc, targetGroupName)){
         var layerGroup = app.activeDocument.layerSets.add();
         layerGroup.name = targetGroupName;
     }
 
     // Mover layer into targetGroupName;
-    doc.activeLayer.move(doc.layerSets.getByName(targetGroupName), ElementPlacement.INSIDE);
+    layer.move(doc.layerSets.getByName(targetGroupName), ElementPlacement.INSIDE);
 }
 
 // Based on https://www.codeproject.com/Questions/882480/Place-Embedded-through-photoshop-scripting-Javascr
-function addIcon (selectedFilePath, targetGroupName, targetWidth) {
+function addIcon (selectedFilePath, targetWidth) {
   
   var idPlc = charIDToTypeID( "Plc " ); 
   var desc11 = new ActionDescriptor();  
@@ -96,23 +105,23 @@ function addIcon (selectedFilePath, targetGroupName, targetWidth) {
   var resizeRatio = targetWidth / itemWidth * 180;
   doc.activeLayer.resize(resizeRatio, resizeRatio, AnchorPosition.MIDDLECENTER);
 
-  // Move inside group
-  doc.activeLayer.move(doc.layerSets.getByName(targetGroupName), ElementPlacement.INSIDE);
+  doc.activeLayer.name += " Icon";
+
 }
 
-function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, fontSizePixels) {
+function addMetadataAsText (exifTag, colorHexValue, fontName, fontSizePixels) {
 
     // Document selection
     var doc = app.activeDocument;
 
-    // Group selection
-    var layerGroup = doc.layerSets.getByName(targetGroupName);
-
-    // Layer creation
-    var txtLayer = layerGroup.artLayers.add();
+    // Layer creation and kind
+    var txtLayer = doc.artLayers.add();
     txtLayer.kind = LayerKind.TEXT;
 
-    // Text 
+    // Layer name
+    txtLayer.name = exifTag + " Metadata";
+
+    // Text Reference
     var textItemRef = txtLayer.textItem;
 
     // Text color
@@ -123,6 +132,7 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
     // Text font
     textItemRef.font = fontName;
 
+    // Text type
     if(exifTag == 'headline') {
         textItemRef.kind = TextType.PARAGRAPHTEXT;
     } else {
@@ -136,9 +146,6 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
 	} else {
 		textItemRef.size = new UnitValue(fontSizePixels * 72 / doc.resolution, 'pt');
 	}
-	// TO-DO: Define LayerSize for TextType.PARAGRAHTEXT
-
-
 
     // Finding the exif entry index (Variable and Value) for the desired exifTag 
     // as defined in https://web.archive.org/web/20190624045241if_/http://www.cipa.jp:80/std/documents/e/DC-008-Translation-2019-E.pdf
@@ -157,6 +164,7 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
         }
         break;
 
+        // GPS
         case 'GPS':
         textItemRef.contents = doc.info.exif[2][1] + doc.info.exif[1][1] + doc.info.exif[4][1] +doc.info.exif[3][1];
         break;
@@ -186,11 +194,6 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
         textItemRef.contents = doc.info.exif[exifTagIndex][1];
     }
 
-    // Text center
-    //textItemRef.kind = TextType.PARAGRAPHTEXT;
-    //var YCenterOffset = textItemRef.height / 2;
-    //var textCenterOffset = textItemRef.size / 2;
-    //textItemRef.baselineShift = textCenterOffset - YCenterOffset;
 
 }
 
@@ -209,9 +212,6 @@ function addLocation () {
     var doc = app.activeDocument;
     var docHeight = doc.height.value;
     var docWidth = doc.width.value;
-
-    // Group for both the image and the text
-    //placeInGroup(doc.activeLayer, targetGroupName);
 
 }
 
@@ -245,7 +245,7 @@ function getLayerDimensions(layer) {
     };
 }
 
-function resizeToFit (leftMargin, topMargin, rightMargin, bottomMargin) {
+function resizeToFit (layerName, leftMargin, topMargin, rightMargin, bottomMargin) {
 
     // Save current preferences
     var startRulerUnits = app.preferences.rulerUnits;
@@ -267,27 +267,26 @@ function resizeToFit (leftMargin, topMargin, rightMargin, bottomMargin) {
     var targetHeight = (1 - topMargin - bottomMargin) * docHeight;
 
     // Resize image
-	if (doc.activeLayer.textItem.kind == TextType.POINTTEXT) {
-		var itemWidth = doc.activeLayer.bounds[2].value - doc.activeLayer.bounds[0].value;
-		var itemHeight = doc.activeLayer.bounds[3].value - doc.activeLayer.bounds[1].value;
+	if (refLayer.textItem.kind == TextType.POINTTEXT) {
+		var itemWidth = refLayer.bounds[2].value - refLayer.bounds[0].value;
+		var itemHeight = refLayer.bounds[3].value - refLayer.bounds[1].value;
 		var widthResizeRatio = targetWidth / itemWidth * 100;
 		var heightResizeRatio = targetHeight / itemHeight * 100;
-		doc.activeLayer.resize(widthResizeRatio, heightResizeRatio, AnchorPosition.MIDDLECENTER);
+		refLayer.resize(widthResizeRatio, heightResizeRatio, AnchorPosition.MIDDLECENTER);
 	} else {
-		doc.activeLayer.textItem.height = new UnitValue(targetHeight * 72 / doc.resolution, 'pt');
-		doc.activeLayer.textItem.width = new UnitValue(targetWidth * 72 / doc.resolution, 'pt');
+		refLayer.textItem.height = new UnitValue(targetHeight * 72 / doc.resolution, 'pt');
+		refLayer.textItem.width = new UnitValue(targetWidth * 72 / doc.resolution, 'pt');
 
 		// Resize text
-		scaleTextToFitBox(doc.activeLayer);
+		scaleTextToFitBox(refLayer);
 	}
-
 
     // Calculate image position using anchor center
     var xPosition = leftMargin * docWidth + targetWidth / 2;
     var yPosition = topMargin * docHeight + targetHeight / 2;
 
     // Move image
-    moveLayerToAbsolutePosition(doc.activeLayer, xPosition, yPosition, "middlecenter");
+    moveLayerToAbsolutePosition(refLayer, xPosition, yPosition, "middlecenter");
 
     // Reset application preferences
     app.preferences.rulerUnits = startRulerUnits;
@@ -342,20 +341,17 @@ function addMetadataWithIcons(exifTagsArray) {
 
   for (var i=0; i<exifTagsArray.length; i++) {
 
-    // Group for both the image and the text
-    placeInGroup(doc.activeLayer, exifTagsArray[i])
-
     // Be careful with the encoding for the "Ó": http://www.javascripter.net/faq/accentedcharacters.htm
     var selectedFilePath = "D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Icons/" + exifTagsArray[i] + ".svg";
 
     var nonIconItems = ['headline', 'caption', 'GPS'];
     
     if (!(exifTagsArray[i] == 'headline' || exifTagsArray[i] == 'caption')) {
-        addIcon (selectedFilePath, exifTagsArray[i], rowsHeightPixels);
+        //addIcon (selectedFilePath, rowsHeightPixels);
         moveLayerToAbsolutePosition(doc.activeLayer, imageXPosition, exifItemYPosition, "middlecenter");
     }
 
-    addMetadataAsText(exifTagsArray[i], exifTagsArray[i], "FFFFFF", "Comfortaa-Bold", rowsHeightPixels);
+    addMetadataAsText(exifTagsArray[i], "FFFFFF", "Comfortaa-Bold", rowsHeightPixels);
     moveLayerToAbsolutePosition(doc.activeLayer, exifDataXPosition, exifItemYPosition, "middleleft");
 
     // Next Y position
@@ -370,31 +366,6 @@ function addMetadataWithIcons(exifTagsArray) {
 
 }
 
-// function makeDarkerNoisierBlurier(targetGroupName) {
-// 
-//     // Document selection
-//     var doc = activeDocument;
-// 
-//     // Group definition
-//     var layerGroup = app.activeDocument.layerSets.add();
-//     layerGroup.name = targetGroupName;
-// 
-//     // Gaussian Blur adjustments
-//     var gaussianBlurLayer = layerGroup.ArtLayers.add();
-//     gaussianBlurLayer.kind = LayerKind.;
-//     gaussianBlurLayer.applyGaussianBlur(100);
-// 
-//     // Curves adjustments
-//     var adjustCurvesLayer = layerGroup.ArtLayers.add();
-//     adjustCurvesLayer.kind = LayerKind.CURVES;
-//     adjustCurvesLayer.adjustCurves([[0,0],[253,127]]);
-// 
-//     // Add Noise
-//     var addNoiseLayer = layerGroup.ArtLayers.add();
-//     addNoiseLayer.kind = LayerKind.;
-//     addNoiseLayer.applyAddNoise(8, NoiseDistribution.GAUSSIAN, true);
-// 
-// }
 
 // ExifTags selection
 //37377 Shutter Speed
@@ -410,7 +381,7 @@ function addMetadataWithIcons(exifTagsArray) {
 
 //addMetadataVerticallyDistributed([37377, 37378, 34855, 37386], "exifData");
 
-addMetadataWithIcons(['headline']);
+addMetadataWithIcons([37337]);
 
 
-resizeToFit(0.2,0.3,0.2,0.3);
+resizeToFit(37337, 0.2,0.3,0.2,0.3);

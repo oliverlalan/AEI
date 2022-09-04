@@ -218,33 +218,6 @@ function addMetadataWithIcons(exifTagsArray) {
 
 }
 
-// function makeDarkerNoisierBlurier(targetGroupName) {
-// 
-//     // Document selection
-//     var doc = activeDocument;
-// 
-//     // Group definition
-//     var layerGroup = app.activeDocument.layerSets.add();
-//     layerGroup.name = targetGroupName;
-// 
-//     // Gaussian Blur adjustments
-//     var gaussianBlurLayer = layerGroup.ArtLayers.add();
-//     gaussianBlurLayer.kind = LayerKind.;
-//     gaussianBlurLayer.applyGaussianBlur(100);
-// 
-//     // Curves adjustments
-//     var adjustCurvesLayer = layerGroup.ArtLayers.add();
-//     adjustCurvesLayer.kind = LayerKind.CURVES;
-//     adjustCurvesLayer.adjustCurves([[0,0],[253,127]]);
-// 
-//     // Add Noise
-//     var addNoiseLayer = layerGroup.ArtLayers.add();
-//     addNoiseLayer.kind = LayerKind.;
-//     addNoiseLayer.applyAddNoise(8, NoiseDistribution.GAUSSIAN, true);
-// 
-// }
-
-
 
 // ExifTags selection
 //37377 Shutter Speed
