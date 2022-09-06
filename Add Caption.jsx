@@ -249,4 +249,4 @@ app.displayDialogs = startTypeDialogs;
 
 //nameFile();
 // function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize, leftMargin, topMargin, rightMargin, bottomMargin)
-addMetadataAsParagraphText ('caption', "FFFFFF", "Comfortaa-Bold", 0.035, 0.15, 0.3, 0.15, 0.1);
+addMetadataAsParagraphText ('caption', "FFFFFF", "Comfortaa-Bold", 0.035, 0.15, 0.3, 0.15, 0.15);
