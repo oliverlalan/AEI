@@ -59,6 +59,26 @@ function nameFile() {
     doc.activeLayer.name = "photoParameters";
 }
 
+function returnMonth(monthNumber) {
+    var month = new Array();
+    month[0] = "Unknown";
+    month[1] = "Enero"	;
+    month[2] = "Febrero";
+    month[3] = "Marzo";
+    month[4] = "Abril";
+    month[5] = "Mayo";
+    month[6] = "Junio";
+    month[7] = "Julio";
+    month[8] = "Agosto";
+    month[9] = "Septiembre";
+    month[10] = "Octubre";
+    month[11] = "Noviembre";
+    month[12] = "Diciembre";
+
+    return month[monthNumber];
+
+}
+
 // Based on https://www.codeproject.com/Questions/882480/Place-Embedded-through-photoshop-scripting-Javascr
 function addIcon (exifTag, targetGroupName, targetWidth) {
   
@@ -141,7 +161,7 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
 
     // Text content
     switch (exifTag) {
-        // Location TO-DO: Format to "City, Country" or "Unknown" if there is no data.
+        // Location
         case 'location':
         if(doc.info.city == "" && doc.info.country == "") {
             textItemRef.contents = "Unknown";
@@ -157,9 +177,20 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
         textItemRef.contents = doc.info.exif[2][1] + doc.info.exif[1][1] + doc.info.exif[4][1] +doc.info.exif[3][1];
         break;
         
-        // Date  TO-DO: Format to "MMM del YYYY" or "Unknown" if there is no data. TO-DO: Change icon
+        // Date 
         case 'date':
-        textItemRef.contents = doc.info.creationDate;
+
+        if(doc.info.creationDate=="") {
+            textItemRef.contents = "Unknown";
+        } else {
+            var dateString = doc.info.creationDate;
+            var year = dateString.substring(0,4);
+            var month = parseInt(dateString.substring(4,6));
+            var day = parseInt(dateString.substring(6,8)).toString();
+
+            textItemRef.contents = returnMonth(month) + " del " + year;
+        }
+
         break;
 
         // Headline
