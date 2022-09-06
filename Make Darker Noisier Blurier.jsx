@@ -10,7 +10,7 @@ function makeDarkerNoisierBlurier() {// Document selection
 
     targetLayer.adjustCurves([[0,0],[253,127]]);
 
-    targetLayer.applyAddNoise(2, NoiseDistribution.GAUSSIAN, true);
+    targetLayer.applyAddNoise(10, NoiseDistribution.GAUSSIAN, true);
 
 }
 
