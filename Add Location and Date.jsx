@@ -141,10 +141,10 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
 
     // Text content
     switch (exifTag) {
-        // Location 
+        // Location TO-DO: Format to "City, Country" or "Unknown" if there is no data.
         case 'location':
         if(doc.info.city == "" && doc.info.country == "") {
-            textItemRef.contents = "";
+            textItemRef.contents = "Unknown";
         } else if (doc.info.city == "") {
             textItemRef.contents = doc.info.country;
         } else {
@@ -157,7 +157,7 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
         textItemRef.contents = doc.info.exif[2][1] + doc.info.exif[1][1] + doc.info.exif[4][1] +doc.info.exif[3][1];
         break;
         
-        // Date
+        // Date  TO-DO: Format to "MMM del YYYY" or "Unknown" if there is no data. TO-DO: Change icon
         case 'date':
         textItemRef.contents = doc.info.creationDate;
         break;

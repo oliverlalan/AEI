@@ -78,9 +78,11 @@ function increaseLeadingToFitBox(textLayer) {
 
     do {
         var leading = parseInt(textLayer.textItem.leading);
-        textLayer.textItem.leading = new UnitValue(leading * 1.05, "px");
+        textLayer.textItem.leading = new UnitValue(leading * 1.2, "px"); // To decrease iterations.
     }
     while(fitInsideBoxDimensions.height * 300 / 72 > getRealTextLayerDimensions(textLayer).height);
+
+    textLayer.textItem.leading = new UnitValue(leading * 0.9, "px"); //To ensure it fits.
 
 }
 
@@ -153,7 +155,7 @@ function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize,
     textItemRef.font = fontName;
 
     // Text justification
-    textItemRef.justification = Justification.CENTERJUSTIFIED;
+    textItemRef.justification = Justification.CENTER;
 
     // Font size. There is a bug. textItem.size always converts "px" to "pt". 
     // https://community.adobe.com/t5/photoshop-ecosystem-discussions/photoshop-script-change-textitem-size-javascript/td-p/11478075
