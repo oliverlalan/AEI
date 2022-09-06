@@ -133,7 +133,7 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
 
     // Font size. There is a bug. textItem.size always converts "px" to "pt". 
     // https://community.adobe.com/t5/photoshop-ecosystem-discussions/photoshop-script-change-textitem-size-javascript/td-p/11478075
-    textItemRef.size = new UnitValue(fontSizePixels * 72 / doc.resolution, 'pt');;
+    textItemRef.size = new UnitValue(fontSizePixels * 72 / doc.resolution, 'pt');
 
     // Finding the exif entry index (Variable and Value) for the desired exifTag 
     // as defined in https://web.archive.org/web/20190624045241if_/http://www.cipa.jp:80/std/documents/e/DC-008-Translation-2019-E.pdf
@@ -273,8 +273,8 @@ function addMetadataWithIcon(exifTag, size, metadataWithIconXPosition, metadataW
 
 //addMetadataVerticallyDistributed([37377, 37378, 34855, 37386], "exifData");
 
-addMetadataWithIcon('location', 0.04, 0.15, 0.2);
+addMetadataWithIcon('location', 0.035, 0.15, 0.2);
 
-addMetadataWithIcon('date', 0.04, 0.85, 0.2);
+addMetadataWithIcon('date', 0.035, 0.85, 0.2);
 
 //addMetadataWithIcon('date', 0.4, 0.8, 0.2);
