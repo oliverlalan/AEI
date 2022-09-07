@@ -27,7 +27,7 @@ function resizeLongEdgeAndExport(longEdgeLength, processName) {
         var docNewHeight = longEdgeLength / docAspectRatio;
         doc.resizeImage(docNewWidth, docNewHeight, 300, ResampleMethod.AUTOMATIC);
     } else {
-        var docNewWidth = longEdgeLength / docAspectRatio;
+        var docNewWidth = longEdgeLength * docAspectRatio;
         var docNewHeight = longEdgeLength;
         doc.resizeImage(docNewWidth, docNewHeight, 300, ResampleMethod.AUTOMATIC);
     }

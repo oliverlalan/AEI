@@ -7,9 +7,9 @@ function resizeLongEdgeAndExport(longEdgeLength, processName) {
     var fileName = doc.fullName.toString();
     if(fileName.lastIndexOf(".") >= 0) { fileName = fileName.substr(0, fileName.lastIndexOf("."));}
     if (processName == "") {
-        fileName += " " + longEdgeLenght + "p.jpg";
+        fileName += "_" + longEdgeLength + "p.jpg";
     } else {
-        fileName += " " + longEdgeLenght + "p + " + processName +".jpg";
+        fileName += "+" + processName + "_" + longEdgeLength + "p.jpg";
     }
 
     var docHeight = doc.height.value;
@@ -21,7 +21,7 @@ function resizeLongEdgeAndExport(longEdgeLength, processName) {
         var docNewHeight = longEdgeLength / docAspectRatio;
         doc.resizeImage(docNewWidth, docNewHeight, 300, ResampleMethod.AUTOMATIC);
     } else {
-        var docNewWidth = longEdgeLength / docAspectRatio;
+        var docNewWidth = longEdgeLength * docAspectRatio;
         var docNewHeight = longEdgeLength;
         doc.resizeImage(docNewWidth, docNewHeight, 300, ResampleMethod.AUTOMATIC);
     }
@@ -31,14 +31,15 @@ function resizeLongEdgeAndExport(longEdgeLength, processName) {
     saveOptions.quality = 90;
 
     doc.exportDocument(new File(fileName), ExportType.SAVEFORWEB, saveOptions);
-    doc.activeHistoryState = app.activeDocument.historyStates[0];
-
 
 }
 
+// resizeLongEdgeAndExport(2160, "");
+
 resizeLongEdgeAndExport(1080, "");
+
+activeDocument.activeHistoryState = app.activeDocument.historyStates[0];
 
 //doc.close(SaveOptions.DONOTSAVECHANGES);
 //var idquit = charIDToTypeID("quit");
 //executeAction(idquit, undefined, DialogModes.ALL);
-

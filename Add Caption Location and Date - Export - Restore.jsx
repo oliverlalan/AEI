@@ -22,12 +22,22 @@ function getExifTagIndex(exifData, exifTag) {
 
 function MoveLayerTo(fLayer,fX,fY, anchorPosition) {
     
+    // Save current preferences
+    var startRulerUnits = app.preferences.rulerUnits;
+    var startTypeUnits = app.preferences.typeUnits;
+    var startTypeDialogs = app.displayDialogs;
+
+    // Set own preferences
+    app.preferences.rulerUnits = Units.PIXELS;
+    app.preferences.typeUnits = TypeUnits.PIXELS;
+    app.displayDialogs = DialogModes.ERROR;
+
     var doc = activeDocument;
     doc.activeLayer = fLayer;
 
     var Position = fLayer.bounds;
-    var Width = fLayer.bounds[2].value - fLayer.bounds[0].value;
-    var Height = fLayer.bounds[3].value - fLayer.bounds[1].value;
+    var Width = new UnitValue(fLayer.bounds[2].value - fLayer.bounds[0].value, "px");
+    var Height = new UnitValue(fLayer.bounds[3].value - fLayer.bounds[1].value, "px");
 
     switch (anchorPosition) {
         case "middlecenter":
@@ -50,25 +60,29 @@ function MoveLayerTo(fLayer,fX,fY, anchorPosition) {
         Position[1] = fY - Position[1]
 
     }
-    
 
     fLayer.translate(-Position[0],-Position[1]);
+
+    // Reset application preferences
+    app.preferences.rulerUnits = startRulerUnits;
+    app.preferences.typeUnits = startTypeUnits;
+    app.displayDialogs = startTypeDialogs;
 }
 
 // Based on https://stackoverflow.com/questions/28900505/extendscript-how-to-check-whether-text-content-overflows-the-containing-rectang
 function increaseLeadingToFitBox(textLayer) {     
     textLayer.textItem.useAutoLeading = false;
-    textLayer.textItem.leading = 300;
+    textLayer.textItem.leading = 250;
 
     var fitInsideBoxDimensions = getTextBoxDimensions(textLayer);
 
     do {
         var leading = parseInt(textLayer.textItem.leading);
-        textLayer.textItem.leading = new UnitValue(leading * 1.2, "px"); // To decrease iterations.
+        textLayer.textItem.leading = new UnitValue(leading * 1.05, "px"); // To decrease iterations.
     }
     while(fitInsideBoxDimensions.height * 300 / 72 > getRealTextLayerDimensions(textLayer).height);
 
-    textLayer.textItem.leading = new UnitValue(leading * 0.9, "px"); //To ensure it fits.
+    textLayer.textItem.leading = new UnitValue(leading * 0.95, "px"); //To ensure it fits.
 
 }
 
@@ -96,6 +110,23 @@ function getTextBoxDimensions(layer) {
         width : layer.textItem.width,
         height : layer.textItem.height
     };
+}
+
+function cropFromHorizontalToVertical (document) {
+    var docWidth = document.width;
+    var docHeight = document.height;
+    var aspectRatio = docWidth / docHeight;
+    var targetHeight = docHeight;
+    var targetWidth = targetHeight / aspectRatio;
+
+    var newBounds = [
+        docWidth / 2 - targetWidth /2,
+        0,
+        docWidth / 2 + targetWidth /2,
+        docHeight];
+    
+    document.crop(newBounds);
+
 }
 
 function nameFile() {
@@ -193,6 +224,27 @@ function addIcon (exifTag, targetGroupName, targetWidth) {
 
 }
 
+function addIconAndPosition (exifTag, targetHeight, iconXPosition, iconYPosition, iconAnchorPosition) {
+
+    // Document size
+    var doc = activeDocument;
+    var docHeight = doc.height.value;
+    var docWidth = doc.width.value;
+
+    // Group for both the image and the text
+    var iconGroup = app.activeDocument.layerSets.add();
+    var iconGroupName = exifTag + ' group';
+    iconGroup.name = iconGroupName;
+
+    iconXPosition *= docWidth;
+    iconYPosition *= docHeight;
+
+
+    addIcon(exifTag, exifTag + ' group', targetHeight * docHeight);
+    doc.activeLayer.rasterize(RasterizeType.ENTIRELAYER);
+    MoveLayerTo(doc.activeLayer, iconXPosition, iconYPosition, iconAnchorPosition);
+}
+
 function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, fontSizePixels) {
 
     // Document selection
@@ -232,7 +284,7 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
         // Location
         case 'location':
         if(doc.info.city == "" && doc.info.country == "") {
-            textItemRef.contents = "Unknown";
+            textItemRef.contents = "Perdido";
         } else if (doc.info.city == "") {
             textItemRef.contents = doc.info.country;
         } else {
@@ -249,14 +301,14 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
         case 'date':
 
         if(doc.info.creationDate=="") {
-            textItemRef.contents = "Unknown";
+            textItemRef.contents = "Desconocido";
         } else {
             var dateString = doc.info.creationDate;
             var year = dateString.substring(0,4);
             var month = parseInt(dateString.substring(4,6));
             var day = parseInt(dateString.substring(6,8)).toString();
 
-            textItemRef.contents = returnMonth(month) + " " + year;
+            textItemRef.contents = returnMonth(month) + " del " + year;
         }
 
         break;
@@ -289,7 +341,7 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
 
 }
 
-function addMetadataWithIcon(exifTag, size, metadataWithIconXPosition, metadataWithIconYPosition) {
+function addMetadataWithIcon(exifTag, size, metadataWithIconXPosition, metadataWithIconYPosition, metadataWithIconAnchorPosition) {
 
     // Save current preferences
     var startRulerUnits = app.preferences.rulerUnits;
@@ -312,7 +364,11 @@ function addMetadataWithIcon(exifTag, size, metadataWithIconXPosition, metadataW
     var iconHeightPixels = rowsHeightPixels;
     
     // X position - Static
-    var exifIconXPosition = 0.45 * docWidth;
+    if(docWidth > docHeight) {
+        var exifIconXPosition = 0.45 * docWidth;
+    } else {
+        var exifIconXPosition = 0.4 * docWidth;
+    }
     var exifValueXPosition = 0.5 * docWidth;
 
     // Y Position - Static and equal for both
@@ -336,18 +392,6 @@ function addMetadataWithIcon(exifTag, size, metadataWithIconXPosition, metadataW
     metadataWithIconXPosition *= docWidth;
     metadataWithIconYPosition *= docHeight;
 
-    switch (exifTag) {
-        case 'location':
-        var metadataWithIconAnchorPosition = "middleleft";
-        break;
-
-        case 'date':
-        var metadataWithIconAnchorPosition = "middleright";
-        break;
-
-        default:
-        var metadataWithIconAnchorPosition = "middlecenter";
-    }
     MoveLayerTo(metadataWithIconGroup, metadataWithIconXPosition, metadataWithIconYPosition, metadataWithIconAnchorPosition);
 
     // Reset application preferences
@@ -415,10 +459,10 @@ function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize,
 
     // Text content
     switch (exifTag) {
-        // Location 
+        // Location
         case 'location':
         if(doc.info.city == "" && doc.info.country == "") {
-            textItemRef.contents = "";
+            textItemRef.contents = "Perdido";
         } else if (doc.info.city == "") {
             textItemRef.contents = doc.info.country;
         } else {
@@ -431,9 +475,20 @@ function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize,
         textItemRef.contents = doc.info.exif[2][1] + doc.info.exif[1][1] + doc.info.exif[4][1] +doc.info.exif[3][1];
         break;
         
-        // Date
+        // Date 
         case 'date':
-        textItemRef.contents = doc.info.creationDate;
+
+        if(doc.info.creationDate=="") {
+            textItemRef.contents = "Desconocido";
+        } else {
+            var dateString = doc.info.creationDate;
+            var year = dateString.substring(0,4);
+            var month = parseInt(dateString.substring(4,6));
+            var day = parseInt(dateString.substring(6,8)).toString();
+
+            textItemRef.contents = returnMonth(month) + " del " + year;
+        }
+
         break;
 
         // Headline
@@ -445,7 +500,7 @@ function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize,
         case 'caption':
         textItemRef.contents = doc.info.caption;
         break;
-
+        
         // ISO
         case 34855:
         textItemRef.contents = "ISO " + doc.info.exif[exifTagIndex][1];
@@ -456,9 +511,9 @@ function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize,
         textItemRef.contents = doc.info.exif[exifTagIndex][1];
     }
 
-
-    increaseLeadingToFitBox(doc.activeLayer);
-    // Position - Static
+    if(textItemRef.contents != " ") {
+        increaseLeadingToFitBox(doc.activeLayer);
+    }
 
     // Calculate image position using anchor center
     var exifValueXPosition = leftMargin * docWidth + targetWidth / 2;
@@ -482,7 +537,11 @@ function resizeLongEdgeAndExport(longEdgeLength, processName) {
     
     var fileName = doc.fullName.toString();
     if(fileName.lastIndexOf(".") >= 0) { fileName = fileName.substr(0, fileName.lastIndexOf("."));}
-    fileName += "_lp+" + processName +".jpg".replace("l", longEdgeLength);
+    if (processName == "") {
+        fileName += "_" + longEdgeLength + "p.jpg";
+    } else {
+        fileName += "+" + processName + "_" + longEdgeLength + "p.jpg";
+    }
 
     var docHeight = doc.height.value;
     var docWidth = doc.width.value;
@@ -493,7 +552,7 @@ function resizeLongEdgeAndExport(longEdgeLength, processName) {
         var docNewHeight = longEdgeLength / docAspectRatio;
         doc.resizeImage(docNewWidth, docNewHeight, 300, ResampleMethod.AUTOMATIC);
     } else {
-        var docNewWidth = longEdgeLength / docAspectRatio;
+        var docNewWidth = longEdgeLength * docAspectRatio;
         var docNewHeight = longEdgeLength;
         doc.resizeImage(docNewWidth, docNewHeight, 300, ResampleMethod.AUTOMATIC);
     }
@@ -503,8 +562,6 @@ function resizeLongEdgeAndExport(longEdgeLength, processName) {
     saveOptions.quality = 90;
 
     doc.exportDocument(new File(fileName), ExportType.SAVEFORWEB, saveOptions);
-
-    doc.activeHistoryState = app.activeDocument.historyStates[0];
 
     //doc.close(SaveOptions.DONOTSAVECHANGES);
 
@@ -529,10 +586,23 @@ nameFile();
 
 makeDarkerNoisierBlurier();
 
-addMetadataWithIcon('location', 0.035, 0.15, 0.2);
+if(activeDocument.height < activeDocument.width) {
+    cropFromHorizontalToVertical(activeDocument);
+    }
 
-addMetadataWithIcon('date', 0.035, 0.85, 0.2);
+addMetadataWithIcon('location', 0.025, 0.15, 0.1, 'middleleft');
+addMetadataWithIcon('date', 0.025, 0.15, 0.2, 'middleleft');
+addMetadataAsParagraphText ('caption', "FFFFFF", "Comfortaa-Bold", 0.025, 0.15, 0.3, 0.15, 0.20);
+addIconAndPosition('O_White_Filled', 0.025, 0.5, 0.9, 'middlecenter');
 
-addMetadataAsParagraphText ('caption', "FFFFFF", "Comfortaa-Bold", 0.035, 0.15, 0.3, 0.15, 0.15);
+    // Specs for horizontal images
+    //{addMetadataWithIcon('location', 0.035, 0.15, 0.2, 'middleleft');
+    //addMetadataWithIcon('date', 0.035, 0.85, 0.2, 'middleright');
+    //addMetadataAsParagraphText ('caption', "FFFFFF", "Comfortaa-Bold", 0.035, 0.15, 0.35, 0.15, 0.25);
+    //addIconAndPosition('O_White_Filled', 0.025, 0.5, 0.9, 'middlecenter');}
 
+
+// resizeLongEdgeAndExport(2160, "Caption");
 resizeLongEdgeAndExport(1080, "Caption");
+
+activeDocument.activeHistoryState = app.activeDocument.historyStates[0];

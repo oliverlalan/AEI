@@ -41,6 +41,23 @@ function MoveLayerTo(fLayer,fX,fY, anchorPosition) {
   fLayer.translate(-Position[0],-Position[1]);
 }
 
+function cropFromHorizontalToVertical (document) {
+    var docWidth = document.width;
+    var docHeight = document.height;
+    var aspectRatio = docWidth / docHeight;
+    var targetHeight = docHeight;
+    var targetWidth = targetHeight / aspectRatio;
+
+    var newBounds = [
+        docWidth / 2 - targetWidth /2,
+        0,
+        docWidth / 2 + targetWidth /2,
+        docHeight];
+    
+    document.crop(newBounds);
+
+}
+
 function toTitleCase(str) {
   return str.replace(
     /\w\S*/g,
@@ -105,7 +122,7 @@ function addIcon (selectedFilePath, targetGroupName, targetWidth) {
   var resizeRatio = targetWidth / imageWidth * 180;
   doc.activeLayer.resize(resizeRatio, resizeRatio, AnchorPosition.MIDDLECENTER);
 
-  // Move inside group
+  // Move inside 
   doc.activeLayer.move(doc.layerSets.getByName(targetGroupName), ElementPlacement.INSIDE);
 
     
@@ -178,11 +195,20 @@ function addMetadataWithIcons(exifTagsArray) {
   var docWidth = doc.width.value;
 
   // Document Header and Footer Margins
-  var docMarginsHeightProportion = 0.5; // Defines percentage of margins, computed as (amount of pixels in header + footer) / document height. TODO: Define automatically
+  if(docWidth > docHeight) {
+    var docMarginsHeightProportion = 0.5;
+  } else {
+    var docMarginsHeightProportion = 0.65;
+  }
+   // Defines percentage of margins, computed as (amount of pixels in header + footer) / document height. TODO: Define automatically
   var docContentHeightProportion = 1 - docMarginsHeightProportion;
 
   // Document Content
-  var rowsProportion = 0.35; // Defines percentage of content, computed as (sum of rows height) / (sum of rows height + sum of rows indents height). TODO: Define automatically
+  if(docWidth > docHeight) {
+    var rowsProportion = 0.35; // Defines percentage of content, computed as (sum of rows height) / (sum of rows height + sum of rows indents height). TODO: Define automatically
+  } else {
+    var rowsProportion = 0.35;
+  }
   var rowIndentsProportion = 1 - rowsProportion;
 
   // Number of rows 
@@ -201,7 +227,12 @@ function addMetadataWithIcons(exifTagsArray) {
   var exifItemYPosition = exifItemInitialYPosition;
 
   // X position - Static
-  var imageXPosition = 0.4 * docWidth;
+  if(docWidth > docHeight) {
+    var imageXPosition = 0.4 * docWidth;
+  } else {
+    var imageXPosition = 0.35 * docWidth;
+  }
+  
   var exifDataXPosition = 0.5 * docWidth;
 
   for (var i=0; i<exifTagsArray.length; i++) {
@@ -234,35 +265,37 @@ function addMetadataWithIcons(exifTagsArray) {
 
 function resizeLongEdgeAndExport(longEdgeLength, processName) {
 
-    var doc = activeDocument;
-    
-    var fileName = doc.fullName.toString();
-    if(fileName.lastIndexOf(".") >= 0) { fileName = fileName.substr(0, fileName.lastIndexOf("."));}
-    fileName += "_lp+" + processName +".jpg".replace("l", longEdgeLength);
+  var doc = activeDocument;
+  
+  var fileName = doc.fullName.toString();
+  if(fileName.lastIndexOf(".") >= 0) { fileName = fileName.substr(0, fileName.lastIndexOf("."));}
+  if (processName == "") {
+    fileName += "_" + longEdgeLength + "p.jpg";
+  } else {
+    fileName += "+" + processName + "_" + longEdgeLength + "p.jpg";
+  }
 
-    var docHeight = doc.height.value;
-    var docWidth = doc.width.value;
-    var docAspectRatio = docWidth / docHeight;
+  var docHeight = doc.height.value;
+  var docWidth = doc.width.value;
+  var docAspectRatio = docWidth / docHeight;
 
-    if (docWidth > docHeight) {
-        var docNewWidth = longEdgeLength;
-        var docNewHeight = longEdgeLength / docAspectRatio;
-        doc.resizeImage(docNewWidth, docNewHeight, 300, ResampleMethod.AUTOMATIC);
-    } else {
-        var docNewWidth = longEdgeLength / docAspectRatio;
-        var docNewHeight = longEdgeLength;
-        doc.resizeImage(docNewWidth, docNewHeight, 300, ResampleMethod.AUTOMATIC);
-    }
+  if (docWidth > docHeight) {
+      var docNewWidth = longEdgeLength;
+      var docNewHeight = longEdgeLength / docAspectRatio;
+      doc.resizeImage(docNewWidth, docNewHeight, 300, ResampleMethod.AUTOMATIC);
+  } else {
+      var docNewWidth = longEdgeLength * docAspectRatio;
+      var docNewHeight = longEdgeLength;
+      doc.resizeImage(docNewWidth, docNewHeight, 300, ResampleMethod.AUTOMATIC);
+  }
 
-    var saveOptions = new ExportOptionsSaveForWeb;
-    saveOptions.format = SaveDocumentType.JPEG;
-    saveOptions.quality = 90;
+  var saveOptions = new ExportOptionsSaveForWeb;
+  saveOptions.format = SaveDocumentType.JPEG;
+  saveOptions.quality = 90;
 
-    doc.exportDocument(new File(fileName), ExportType.SAVEFORWEB, saveOptions);
+  doc.exportDocument(new File(fileName), ExportType.SAVEFORWEB, saveOptions);
 
-    doc.activeHistoryState = app.activeDocument.historyStates[0];
-
-    //doc.close(SaveOptions.DONOTSAVECHANGES);
+  //doc.close(SaveOptions.DONOTSAVECHANGES);
 
 }
 
@@ -279,6 +312,13 @@ nameFile();
 
 makeDarkerNoisierBlurier();
 
+if(activeDocument.height < activeDocument.width) {
+    cropFromHorizontalToVertical(activeDocument);
+    }
+
 addMetadataWithIcons([37377, 37378, 34855, 37386]);
 
+// resizeLongEdgeAndExport(2160, "Metadata");
 resizeLongEdgeAndExport(1080, "Metadata");
+
+activeDocument.activeHistoryState = app.activeDocument.historyStates[0];

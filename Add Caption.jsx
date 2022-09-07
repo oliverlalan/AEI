@@ -171,10 +171,10 @@ function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize,
 
     // Text content
     switch (exifTag) {
-        // Location 
+        // Location
         case 'location':
         if(doc.info.city == "" && doc.info.country == "") {
-            textItemRef.contents = "";
+            textItemRef.contents = "Perdido";
         } else if (doc.info.city == "") {
             textItemRef.contents = doc.info.country;
         } else {
@@ -187,9 +187,20 @@ function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize,
         textItemRef.contents = doc.info.exif[2][1] + doc.info.exif[1][1] + doc.info.exif[4][1] +doc.info.exif[3][1];
         break;
         
-        // Date
+        // Date 
         case 'date':
-        textItemRef.contents = doc.info.creationDate;
+
+        if(doc.info.creationDate=="") {
+            textItemRef.contents = "Desconocido";
+        } else {
+            var dateString = doc.info.creationDate;
+            var year = dateString.substring(0,4);
+            var month = parseInt(dateString.substring(4,6));
+            var day = parseInt(dateString.substring(6,8)).toString();
+
+            textItemRef.contents = returnMonth(month) + " " + year;
+        }
+
         break;
 
         // Headline
@@ -212,9 +223,9 @@ function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize,
         textItemRef.contents = doc.info.exif[exifTagIndex][1];
     }
 
-
-    increaseLeadingToFitBox(doc.activeLayer);
-    // Position - Static
+    if(textItemRef.contents != " ") {
+        increaseLeadingToFitBox(doc.activeLayer);
+    }
 
     // Calculate image position using anchor center
     var exifValueXPosition = leftMargin * docWidth + targetWidth / 2;
