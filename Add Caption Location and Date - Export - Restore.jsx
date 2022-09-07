@@ -72,7 +72,7 @@ function MoveLayerTo(fLayer,fX,fY, anchorPosition) {
 // Based on https://stackoverflow.com/questions/28900505/extendscript-how-to-check-whether-text-content-overflows-the-containing-rectang
 function increaseLeadingToFitBox(textLayer) {     
     textLayer.textItem.useAutoLeading = false;
-    textLayer.textItem.leading = 250;
+    textLayer.textItem.leading = 150;
 
     var fitInsideBoxDimensions = getTextBoxDimensions(textLayer);
 
@@ -590,9 +590,9 @@ if(activeDocument.height < activeDocument.width) {
     cropFromHorizontalToVertical(activeDocument);
     }
 
-addMetadataWithIcon('location', 0.025, 0.15, 0.1, 'middleleft');
-addMetadataWithIcon('date', 0.025, 0.15, 0.2, 'middleleft');
-addMetadataAsParagraphText ('caption', "FFFFFF", "Comfortaa-Bold", 0.025, 0.15, 0.3, 0.15, 0.20);
+addMetadataWithIcon('location', 0.025, 0.15, 0.12, 'middleleft');
+addMetadataWithIcon('date', 0.025, 0.15, 0.22, 'middleleft');
+addMetadataAsParagraphText ('caption', "FFFFFF", "Comfortaa-Bold", 0.025, 0.15, 0.3, 0.15, 0.22);
 addIconAndPosition('O_White_Filled', 0.025, 0.5, 0.9, 'middlecenter');
 
     // Specs for horizontal images
