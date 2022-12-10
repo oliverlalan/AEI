@@ -1,5 +1,8 @@
 #target photoshop
 
+var presetNamesList = ["SCF01", "SCF02", "SCF03", "SCF04", "SCF05", "SCF06", "SCF07", "SCF08", "SCF09", "SCF10", "SCF11", "SCF12", 
+"SMF01", "SMF02", "SMF03", "SMF04", "SMF05"]; // TODO: Create a way of reading the list in the Presets Inventory
+
 addLightroomPresetOverlay();
 
 function addLightroomPresetOverlay () {
@@ -8,7 +11,9 @@ function addLightroomPresetOverlay () {
 
     if(docPresetKeywords.length==1){
         
-        var selectedFilePath = "D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Preset Overlays/" + docPresetKeywords[0] + ".png";
+        var selectedFilePath = getPresetOverlayPath(docPresetKeywords[0]);
+        //app.openDialog();
+        //var selectedFilePath = "D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Presets Overlays/" + docPresetKeywords[0] + ".png";
 
         try{
             addFile(selectedFilePath);
@@ -24,18 +29,29 @@ function addLightroomPresetOverlay () {
     }
 }
 
+function getPresetOverlayPath (presetName) {
+
+    var availablePresetOverlaysPaths = Folder("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Presets Overlays/").getFiles("*.png");
+
+    for (i=0; i < availablePresetOverlaysPaths.length; i++) {
+        var presetOverlayFileName = availablePresetOverlaysPaths[i].displayName.match(/(.*)\.[^\.]+$/)[1];
+        var presetOverlayFileName = presetOverlayFileName.substr(presetOverlayFileName.lastIndexOf('-')+2, presetOverlayFileName.length);
+        if(presetOverlayFileName == presetName) {
+            return availablePresetOverlaysPaths[i];
+        }
+    }
+
+}
 
 function findPresetNamesInKeywords (docRef) {
-    var presetList = ["SCF01", "SCF02", "SCF03", "SCF04", "SCF05", "SCF06", "SCF07", "SCF08", "SCF09", "SCF10", "SCF11", "SCF12", 
-    "SMF01", "SMF02", "SMF03", "SMF04", "SMF05", "Agfa Vista 100"]; // TODO: Create a way of reading the list in the Presets Inventory
 
     var doc = activeDocument;
     var docKeywords = doc.info.keywords;
     var docPresetKeywords = [];
 
     for (var i=0; i<docKeywords.length; i++) {
-        for (var j=0; j<presetList.length; j++){
-            if(docKeywords[i] == presetList[j]) {
+        for (var j=0; j<presetNamesList.length; j++){
+            if(docKeywords[i] == presetNamesList[j]) {
                 docPresetKeywords.push(docKeywords[i]);
             }
         }
@@ -44,6 +60,8 @@ function findPresetNamesInKeywords (docRef) {
     return docPresetKeywords;
 
 }
+
+
 
 function addFile (selectedFile) {
 

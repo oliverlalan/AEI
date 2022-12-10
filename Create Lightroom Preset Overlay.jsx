@@ -1,9 +1,6 @@
 #target photoshop
 
-
-
 createLightroomPresetOverlay();
-
 
 function createLightroomPresetOverlay() {
 
@@ -21,7 +18,7 @@ function addLightroomPresetPanels() {
 
     var presetName = getDocBasename();
 
-    var selectedFolder = Folder("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Preset Overlays/");
+    var selectedFolder = Folder("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Lightroom Presets Panels/");
 
     var presetPanelsList = selectedFolder.getFiles(presetName + "*.png");
 
@@ -341,7 +338,7 @@ function getPresetPanelsTypes(presetPanelsList) {
 
     for (i=0; i<presetPanelsList.length; i++) {
 
-        //var selectedFilePath = "D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Preset Overlays/" + docPresetKeywords[0] + ".png";
+        //var selectedFilePath = "D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Presets Overlays/" + docPresetKeywords[0] + ".png";
         var selectedFilePath = presetPanelsList[i];
         var selectedFileName = presetPanelsList[i].displayName;
         var selectedFileBaseName = selectedFileName.match(/(.*)\.[^\.]+$/)[1];
