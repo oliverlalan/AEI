@@ -44,6 +44,11 @@ function MoveLayerTo(fLayer,fX,fY, anchorPosition) {
         Position[1] = fY - Position[1] + Height / 2;
         break;
 
+        case "topcenter":
+        Position[0] = fX - Position[0] + Width /2;
+        Position[1] = fY - Position[1];
+        break;
+
         default:
         Position[0] = fX - Position[0]
         Position[1] = fY - Position[1]
@@ -52,15 +57,6 @@ function MoveLayerTo(fLayer,fX,fY, anchorPosition) {
     
 
     fLayer.translate(-Position[0],-Position[1]);
-}
-
-function toTitleCase(str) {
-  return str.replace(
-    /\w\S*/g,
-    function(txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    }
-  );
 }
 
 function nameFile() {
@@ -76,13 +72,15 @@ function increaseLeadingToFitBox(textLayer) {
 
     var fitInsideBoxDimensions = getTextBoxDimensions(textLayer);
 
+    textLayer.textItem.leading = new UnitValue(20, "px");
+
     do {
         var leading = parseInt(textLayer.textItem.leading);
-        textLayer.textItem.leading = new UnitValue(leading * 1.2, "px"); // To decrease iterations.
+        textLayer.textItem.leading = new UnitValue(leading * 1.05, "px"); // To decrease iterations.
     }
-    while(fitInsideBoxDimensions.height * 300 / 72 > getRealTextLayerDimensions(textLayer).height);
+    while(fitInsideBoxDimensions.height > getRealTextLayerDimensions(textLayer).height);
 
-    textLayer.textItem.leading = new UnitValue(leading * 0.9, "px"); //To ensure it fits.
+    textLayer.textItem.leading = new UnitValue(leading * 0.95, "px"); //To ensure it fits.
 
 }
 
@@ -143,8 +141,8 @@ function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize,
     var targetHeight = (1 - bottomMargin - topMargin) * docHeight;
 
     // Resize text layer
-    txtLayer.textItem.height = new UnitValue(targetHeight * 72 / doc.resolution, 'pt');
-	txtLayer.textItem.width = new UnitValue(targetWidth * 72 / doc.resolution, 'pt');    
+    textItemRef.height = new UnitValue(targetHeight, 'pt');
+	textItemRef.width = new UnitValue(targetWidth, 'pt');    
 
     // Text color
     textColor = new SolidColor();
@@ -156,6 +154,9 @@ function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize,
 
     // Text justification
     textItemRef.justification = Justification.CENTER;
+
+    // Text tracking
+    textItemRef.tracking = 50;
 
     // Font size. There is a bug. textItem.size always converts "px" to "pt". 
     // https://community.adobe.com/t5/photoshop-ecosystem-discussions/photoshop-script-change-textitem-size-javascript/td-p/11478075
@@ -227,10 +228,10 @@ function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize,
         increaseLeadingToFitBox(doc.activeLayer);
     }
 
-    // Calculate image position using anchor center
+    // Calculate image position using anchor topcenter
     var exifValueXPosition = leftMargin * docWidth + targetWidth / 2;
-    var exifValueYPosition = topMargin * docHeight + targetHeight / 2;
-    var exifValueAnchorPosition = "middlecenter";
+    var exifValueYPosition = topMargin * docHeight;
+    var exifValueAnchorPosition = "topcenter";
 
     doc.activeLayer = activeDocument.layerSets.getByName(metadataGroupName);
 
@@ -260,4 +261,4 @@ app.displayDialogs = startTypeDialogs;
 
 //nameFile();
 // function addMetadataAsParagraphText (exifTag, colorHexValue, fontName, fontSize, leftMargin, topMargin, rightMargin, bottomMargin)
-addMetadataAsParagraphText ('caption', "FFFFFF", "Comfortaa-Bold", 0.035, 0.15, 0.3, 0.15, 0.15);
+addMetadataAsParagraphText ('caption', "FFFFFF", "Fraunces9ptSuperSoft-Light", 0.027, 0.12, 0.25, 0.12, 0.2);

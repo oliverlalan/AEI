@@ -6,11 +6,13 @@ function makeDarkerNoisierBlurier() {// Document selection
     // Layer selection
     var targetLayer= doc.activeLayer;
 
-    targetLayer.applyGaussianBlur(100);
+    targetLayer.duplicate(targetLayer, ElementPlacement.PLACEAFTER);
 
-    targetLayer.adjustCurves([[0,0],[253,127]]);
+    targetLayer.applyGaussianBlur(20);
 
-    targetLayer.applyAddNoise(10, NoiseDistribution.GAUSSIAN, true);
+    targetLayer.adjustCurves([[0,0],[253,100]]);
+
+    targetLayer.applyAddNoise(2, NoiseDistribution.GAUSSIAN, true);
 
 }
 

@@ -592,7 +592,7 @@ if(activeDocument.height < activeDocument.width) {
 
 addMetadataWithIcon('location', 0.025, 0.15, 0.12, 'middleleft');
 addMetadataWithIcon('date', 0.025, 0.15, 0.22, 'middleleft');
-addMetadataAsParagraphText ('caption', "FFFFFF", "Comfortaa-Bold", 0.025, 0.15, 0.3, 0.15, 0.2);
+addMetadataAsParagraphText ('caption', "FFFFFF", "Fraunces72ptSuperSoft-Light", 0.025, 0.15, 0.3, 0.15, 0.2);
 addIconAndPosition('O_White_Filled', 0.025, 0.5, 0.88, 'middlecenter');
 
     // Specs for horizontal images

@@ -151,9 +151,6 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
     // Text font
     textItemRef.font = fontName;
 
-    // Text tracking
-    textItemRef.tracking = 50;
-
     // Font size. There is a bug. textItem.size always converts "px" to "pt". 
     // https://community.adobe.com/t5/photoshop-ecosystem-discussions/photoshop-script-change-textitem-size-javascript/td-p/11478075
     textItemRef.size = new UnitValue(fontSizePixels * 72 / doc.resolution, 'pt');
@@ -259,8 +256,12 @@ function addMetadataWithIcon(exifTag, size, metadataWithIconXPosition, metadataW
     var metadataWithIconGroupName = exifTag + ' group';
     metadataWithIconGroup.name = metadataWithIconGroupName;
 
+    // Add and move Icon
+    addIcon (exifTag, metadataWithIconGroupName, iconHeightPixels);
+    MoveLayerTo(doc.activeLayer, exifIconXPosition, exifIconYPosition, "middlecenter");
+
     // Add and move Metadata Value
-    addMetadataAsText(exifTag, metadataWithIconGroupName, "FFFFFF", "Fraunces9ptSuperSoft-Light", rowsHeightPixels);
+    addMetadataAsText(exifTag, metadataWithIconGroupName, "FFFFFF", "Comfortaa-Bold", rowsHeightPixels);
     MoveLayerTo(doc.activeLayer, exifValueXPosition, exifValueYPosition, "middleleft");
 
     // Move group
@@ -297,13 +298,14 @@ function addMetadataWithIcon(exifTag, size, metadataWithIconXPosition, metadataW
 //42035 Lens Make
 //42036 Lens Model
 //37386 Lens Focal Length
- 
+
+
 //nameFile();
 
 //addMetadataVerticallyDistributed([37377, 37378, 34855, 37386], "exifData");
 
-addMetadataWithIcon('location', 0.027, 0.12, 0.13);
+addMetadataWithIcon('location', 0.035, 0.15, 0.2);
 
-addMetadataWithIcon('date', 0.027, 0.88, 0.13);
+addMetadataWithIcon('date', 0.035, 0.85, 0.2);
 
 //addMetadataWithIcon('date', 0.4, 0.8, 0.2);
