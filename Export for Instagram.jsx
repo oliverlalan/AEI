@@ -1,5 +1,7 @@
 #target photoshop
 
+
+/*
 // Save current preferences
 var startRulerUnits = app.preferences.rulerUnits;
 var startTypeUnits = app.preferences.typeUnits;
@@ -10,7 +12,7 @@ app.preferences.rulerUnits = Units.PIXELS;
 app.preferences.typeUnits = TypeUnits.PIXELS;
 app.displayDialogs = DialogModes.ERROR;
 
-/* var docRef = activeDocument;
+ var docRef = activeDocument;
 var docRefPath = activeDocument.path;
 var docRefName = activeDocument.name;
 
@@ -49,20 +51,16 @@ resizeImageToFitCanvas(1080, 1350);
 resizeImageToFillCanvas(1080,1350);
 
 
-addMetadataAsParagraphText ('caption', "FFFFFF", "Fraunces9ptSuperSoft-Light", 0.027, 0.12, 0.25, 0.12, 0.2);
 
 exportCopyAsPNG(activeDocument); */
-var size = new UnitValue(32, 'px');
-var color = "FFFFFF";
-var font = "WorkSansRoman-Light";
-var tracking = 50;
+//addCameraSettings([272, 42036, 37377, 37378, 34855, 37386]);
 
-addMetadataWithIcon(37377, size, color, font, tracking);
+addMetadataWithIcon('location', new UnitValue(24, 'px'), "FFFFFF", "WorkSansRoman-Light", 50);
 
 // Reset application preferences
-app.preferences.rulerUnits = startRulerUnits;
-app.preferences.typeUnits = startTypeUnits;
-app.displayDialogs = startTypeDialogs;
+// app.preferences.rulerUnits = startRulerUnits;
+// app.preferences.typeUnits = startTypeUnits;
+// app.displayDialogs = startTypeDialogs;
 
 
 function openAsLayer() {
@@ -392,28 +390,30 @@ function translateLayerTo(selectedLayer,finalX,finalY, anchorPosition) {
     var width = bounds[2] - bounds[0];
     var height = bounds[3] - bounds[1];
 
-    var rightBound = ;
-    var dY;
-
     switch (anchorPosition) {
         case "middlecenter":
-        dX = finalX - bounds[0] + width / 2;
-        dY = finalY - bounds[1] + height / 2;
+        dX = finalX - bounds[0] - width / 2;
+        dY = finalY - bounds[1] - height / 2;
         break;
 
         case "middleleft":
         dX = finalX - bounds[0];
-        dY = finalY - bounds[1] + height / 2;
+        dY = finalY - bounds[1] - height / 2;
         break;
 
         case "middleright":
-        dX = finalX - bounds[0] + width;
-        dY = finalY - bounds[1] + height / 2;
+        dX = finalX - bounds[0] - width;
+        dY = finalY - bounds[1] - height / 2;
         break;
 
         case "topcenter":
-        dX = finalX - bounds[0] + width /2;
+        dX = finalX - bounds[0] - width /2;
         dY = finalY - bounds[1];
+        break;
+
+        case "bottomleft":
+        dX = finalX - bounds[0];
+        dY = finalY - bounds[1] - height;
         break;
 
         default:
@@ -422,7 +422,7 @@ function translateLayerTo(selectedLayer,finalX,finalY, anchorPosition) {
 
     }
     
-    selectedLayer.translate(-dX,-dY);
+    selectedLayer.translate(dX,dY);
 }
 
 function returnMonth(monthNumber) {
@@ -456,19 +456,6 @@ function addIcon (exifTag, targetWidth) {
     var iconLayer = doc.activeLayer;
     iconLayer.name = exifTag + ' icon';
 
-    // Look for group, if not defined, define.
-    var metadataGroupName = exifTag + ' group';
-    try {
-        var metadataGroup = doc.layerSets.getByName(metadataGroupName);
-    }
-    catch (e) {
-        var metadataGroup = doc.layerSets.add();
-        metadataGroup.name = metadataGroupName;
-    }
-
-    // Move inside Group
-    iconLayer.move(metadataGroup, ElementPlacement.INSIDE);
-
     /// Resize image
     var imageWidth = new UnitValue(iconLayer.bounds[2].value - iconLayer.bounds[0].value, 'px');
     var resizeRatio = targetWidth / imageWidth * 100;
@@ -486,19 +473,6 @@ function addMetadata (exifTag, size, colorHexValue, fontName, fontTracking) {
     metadataLayer.name = exifTag + ' metadata';
     metadataLayer.kind = LayerKind.TEXT;
 
-    // Look for group, if not defined, define.
-    var metadataGroupName = exifTag + ' group';
-    try {
-        var metadataGroup = doc.layerSets.getByName(metadataGroupName);
-    }
-    catch (e) {
-        var metadataGroup = doc.layerSets.add();
-        metadataGroup.name = metadataGroupName;
-    }
-
-    // Move inside Group
-    metadataLayer.move(metadataGroup, ElementPlacement.INSIDE);
-
     // Text Item definition
     var textItemRef = metadataLayer.textItem;
     textItemRef.font = fontName;
@@ -510,7 +484,10 @@ function addMetadata (exifTag, size, colorHexValue, fontName, fontTracking) {
 
     // Text content
     // Exif entry index (Variable and Value) for the desired exifTag as defined in https://web.archive.org/web/20190624045241if_/http://www.cipa.jp:80/std/documents/e/DC-008-Translation-2019-E.pdf
-    var exifContent = getExifContentByExifTag(activeDocument, exifTag).replace(/(\r\n|\n|\r)/gm, "");
+    try{
+        var exifContent = getExifContentByExifTag(activeDocument, exifTag).replace(/(\r\n|\n|\r)/gm, "");
+    } 
+    catch (e) {}
 
     switch (exifTag) {
 
@@ -694,25 +671,43 @@ function addMetadataWithIcon (exifTag, size, colorHexValue, fontName, fontTracki
 
     var doc = activeDocument;
 
-    addIcon(exifTag, size);
-    var iconLayer = doc.layerSets.getByName(exifTag + ' group').layers.getByName(exifTag + ' icon');
-    var iconWidth = iconLayer.bounds[2] - iconLayer.bounds[0];
-    var iconHeight = iconLayer.bounds[3] - iconLayer.bounds[1];
+    // Create group layer
+    var metadataGroup = doc.layerSets.add();
+    metadataGroup.name = exifTag + ' group';
 
-    var iconXPosition = iconLayer.bounds[0] + iconWidth / 2;
-    var iconYPosition = iconLayer.bounds[3] + iconHeight / 2;
+    try {
+        // Add iconLayer
+        addIcon(exifTag, size);
+        var iconLayer = doc.layers.getByName(exifTag + ' icon');
 
-    var iconTextSeparation = size * 0.8;
+        // Compute metadataLayer position
+        var iconTextSeparation = size * 0.75;
 
-    var metadataXPosition = iconXPosition + iconTextSeparation;
-    var metadataYPosition = iconYPosition;
+        var iconLayer = doc.layers.getByName(exifTag + ' icon');
+        var iconWidth = iconLayer.bounds[2] - iconLayer.bounds[0];
+        var iconHeight = iconLayer.bounds[3] - iconLayer.bounds[1];
+        var iconXPosition = iconLayer.bounds[0] + iconWidth / 2;
+        var iconYPosition = iconLayer.bounds[1] + iconHeight / 2;
+        var metadataXPosition = iconXPosition + iconTextSeparation;
+        var metadataYPosition = iconYPosition;
 
-    addMetadata(exifTag, size, colorHexValue, fontName, fontTracking);
-    var metadataLayer = doc.layerSets.getByName(exifTag + ' group').layers.getByName(exifTag + ' metadata');
+        // Add metadataLayer
+        addMetadata(exifTag, size * 0.75, colorHexValue, fontName, fontTracking);
+        var metadataLayer = doc.layers.getByName(exifTag + ' metadata');
 
-    // Move layers
-    translateLayerTo(iconLayer, iconXPosition, iconYPosition, "middlecenter");
-    translateLayerTo(metadataLayer, metadataXPosition, metadataYPosition, "middlecenter");
+        // Move layer
+        translateLayerTo(iconLayer, iconXPosition, iconYPosition, "middleright");
+        translateLayerTo(metadataLayer, metadataXPosition, metadataYPosition, "middleleft");
+
+    } catch(e) {
+        // Add metadataLayer
+        addMetadata(exifTag, size * 0.75, colorHexValue, fontName, fontTracking);
+        var metadataLayer = doc.layers.getByName(exifTag + ' metadata');
+    }
+
+    // // Move inside Group
+    // iconLayer.move(metadataGroup, ElementPlacement.INSIDE);
+    // metadataLayer.move(metadataGroup, ElementPlacement.INSIDE);
 
 }
 
@@ -724,49 +719,147 @@ function moveMetadataGroup (exifTag) {
         case 'location':
         metadataGroupXPosition = new UnitValue(120, 'px');
         metadataGroupYPosition = new UnitValue(100, 'px');
+        anchorPosition = "middleleft";
         break;
         case 'GPS':
         metadataGroupXPosition = new UnitValue(120, 'px');
         metadataGroupYPosition = new UnitValue(100, 'px');
+        anchorPosition = "middleleft";
         break;
         case 'date':
         metadataGroupXPosition = new UnitValue(120, 'px');
         metadataGroupYPosition = new UnitValue(100, 'px');
+        anchorPosition = "middleleft";
         break;
         case 'headline':
         metadataGroupXPosition = new UnitValue(120, 'px');
         metadataGroupYPosition = new UnitValue(100, 'px');
+        anchorPosition = "middleleft";
         break;
         case 'caption':
-        metadataGroupXPosition = new UnitValue(120, 'px');
-        metadataGroupYPosition = new UnitValue(100, 'px');
+        metadataGroupXPosition = new UnitValue(540, 'px');
+        metadataGroupYPosition = new UnitValue(750, 'px');
+        anchorPosition = "middleleft";
         break;
         case 272: // Camera model
-        metadataGroupXPosition = new UnitValue(120, 'px');
+        metadataGroupXPosition = new UnitValue(100, 'px');
         metadataGroupYPosition = new UnitValue(100, 'px');
+        anchorPosition = "middleleft";
         break;
         case 42036: // Lens Model
         metadataGroupXPosition = new UnitValue(360, 'px');
         metadataGroupYPosition = new UnitValue(100, 'px');
+        anchorPosition = "middleleft";
         break;
         case 37377: // Shutter Speed
-        metadataGroupXPosition = new UnitValue(120, 'px');
+        metadataGroupXPosition = new UnitValue(100, 'px');
         metadataGroupYPosition = new UnitValue(180, 'px');
+        anchorPosition = "middleleft";
         break;
         case 37378: // Aperture
         metadataGroupXPosition = new UnitValue(335, 'px');
         metadataGroupYPosition = new UnitValue(180, 'px');
+        anchorPosition = "middleleft";
         break;
         case 34855: // ISO
         metadataGroupXPosition = new UnitValue(500, 'px');
         metadataGroupYPosition = new UnitValue(180, 'px');
+        anchorPosition = "middleleft";
         break;
         case 37386: // Lens Focal Length
         metadataGroupXPosition = new UnitValue(695, 'px');
         metadataGroupYPosition = new UnitValue(180, 'px');
+        anchorPosition = "middleleft";
         break;
     }
 
-    translateLayerTo(metadataGroup, metadataGroupXPosition, metadataGroupYPosition, "middleleft");
+    translateLayerTo(metadataGroup, metadataGroupXPosition, metadataGroupYPosition, anchorPosition);
 
 }
+
+function addCameraSettings(selectedSettings) {
+
+    var doc = activeDocument;
+
+    // Settings
+    var size = new UnitValue(32, 'px');
+    var color = "FFFFFF";
+    var font = "WorkSansRoman-Light";
+    var tracking = 50;
+
+    // Look for group, if not defined, define
+    var cameraSettingsGroupName = "Camera Settings";
+    try {
+        var cameraSettingsGroup = doc.layerSets.getByName(cameraSettingsGroupName);
+    }
+    catch (e) {
+        var cameraSettingsGroup = doc.layerSets.add();
+        cameraSettingsGroup.name = cameraSettingsGroupName;
+    }
+
+    for (i=0; i<selectedSettings.length; i++) {
+        deselectLayers();
+
+        addMetadataWithIcon(selectedSettings[i], size, color, font, tracking);
+        moveMetadataGroup(selectedSettings[i]);
+
+        // Moving the metadata group inside the camera settings group. There is a bug: https://stackoverflow.com/questions/38307871/photoshop-scripting-move-one-group-inside-of-other
+
+        var metadataGroup = doc.layerSets.getByName(selectedSettings[i] + ' group')
+        var dummieGroup = cameraSettingsGroup.layerSets.add();
+        dummieGroup.name = "dummy";
+        metadataGroup.move(dummieGroup, ElementPlacement.PLACEBEFORE);
+        dummieGroup.remove();
+    }
+}
+
+function addPhotoContext (contextItems) {
+    
+    var doc = activeDocument;
+
+    // Settings
+    var size = new UnitValue(32, 'px');
+    var color = "FFFFFF";
+    var font = "WorkSansRoman-Light";
+    var tracking = 50;
+
+    // Look for group, if not defined, define
+    var photoContextGroupName = "Photo Context";
+    try {
+        var photoContextGroup = doc.layerSets.getByName(photoContextGroupName);
+    }
+    catch (e) {
+        var photoContextGroup = doc.layerSets.add();
+        photoContextGroup.name = photoContextGroupName;
+    }
+
+    for (i=0; i<contextItems.length; i++) {
+        deselectLayers();
+
+        addMetadataWithIcon(contextItems[i], size, color, font, tracking);
+        moveMetadataGroup(contextItems[i]);
+
+        // Moving the metadata group inside the camera settings group. There is a bug: https://stackoverflow.com/questions/38307871/photoshop-scripting-move-one-group-inside-of-other
+
+        var metadataGroup = doc.layerSets.getByName(contextItems[i] + ' group')
+        var dummieGroup = photoContextGroup.layerSets.add();
+        dummieGroup.name = "dummy";
+        metadataGroup.move(dummieGroup, ElementPlacement.PLACEBEFORE);
+        dummieGroup.remove();
+    }
+
+}
+
+function deselectLayers() { 
+
+    var desc01 = new ActionDescriptor(); 
+
+        var ref01 = new ActionReference(); 
+
+        ref01.putEnumerated( charIDToTypeID('Lyr '), charIDToTypeID('Ordn'), charIDToTypeID('Trgt') ); 
+
+    desc01.putReference( charIDToTypeID('null'), ref01 ); 
+
+    executeAction( stringIDToTypeID('selectNoLayers'), desc01, DialogModes.NO ); 
+
+};
