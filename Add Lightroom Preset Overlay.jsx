@@ -61,8 +61,6 @@ function findPresetNamesInKeywords (docRef) {
 
 }
 
-
-
 function addFile (selectedFile) {
 
     var idPlc = charIDToTypeID( "Plc " ); 

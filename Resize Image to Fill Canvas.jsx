@@ -18,8 +18,8 @@ function resizeImageToFillCanvas() {
     var docWidth = doc.width.value;
     var docAspectRatio = docWidth / docHeight;
 
-    var targetCanvasWidth = parseInt(prompt("Enter target canvas width", 1080));
-    var targetCanvasHeight = parseInt(prompt("Enter target canvas height", 1350));
+    var targetCanvasWidth = 1080;//parseInt(prompt("Enter target canvas width", 1080));
+    var targetCanvasHeight = 1350;//parseInt(prompt("Enter target canvas height", 1350));
     var targetCanvasAspectRatio = targetCanvasWidth / targetCanvasHeight; 
 
     if(targetCanvasAspectRatio < docAspectRatio) {

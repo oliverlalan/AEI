@@ -1,16 +1,14 @@
 #target photoshop
 
-function duplicateDocument () {
+function duplicateDocument (selectedDocument, documentSuffix) {
 
-    var doc = activeDocument;
+    var doc = selectedDocument;
     var fullFileName = doc.name;
     var fileName = fullFileName.substr(0, fullFileName.lastIndexOf("."));
     var fileExtension = fullFileName.substr(fullFileName.lastIndexOf("."), fullFileName.length);
-
-    var documentSuffix = prompt("Enter document suffix", "");
     
     if(documentSuffix) {
-        fileName = fileName + "_" + documentSuffix + fileExtension;
+        fileName = fileName + documentSuffix + fileExtension;
     }
     
     doc.duplicate(fileName);

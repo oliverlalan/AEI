@@ -167,7 +167,7 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
         // Location
         case 'location':
         if(doc.info.city == "" && doc.info.country == "") {
-            textItemRef.contents = "Unknown";
+            textItemRef.contents = "";
         } else if (doc.info.city == "") {
             textItemRef.contents = doc.info.country;
         } else {

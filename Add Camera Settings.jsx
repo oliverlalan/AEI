@@ -118,6 +118,7 @@ function addMetadataAsText (exifTag, targetGroupName, colorHexValue, fontName, f
     // Text content
     switch (exifTag) {
 
+      // ISO
       case 34855:
       textItemRef.contents = "ISO " + doc.info.exif[exifTagIndex][1];
       break;

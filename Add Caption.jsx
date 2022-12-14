@@ -59,11 +59,6 @@ function MoveLayerTo(fLayer,fX,fY, anchorPosition) {
     fLayer.translate(-Position[0],-Position[1]);
 }
 
-function nameFile() {
-    // get document and rename it
-    var doc = activeDocument;
-    doc.activeLayer.name = "photoParameters";
-}
 
 // Based on https://stackoverflow.com/questions/28900505/extendscript-how-to-check-whether-text-content-overflows-the-containing-rectang
 function increaseLeadingToFitBox(textLayer) {     
