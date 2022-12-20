@@ -5,8 +5,8 @@ var presetNameList = ["SCF01", "SCF02", "SCF03", "SCF04", "SCF05", "SCF06", "SCF
 "SMF01", "SMF02", "SMF03", "SMF04", "SMF05"]; // TODO: Create a way of reading the list in the Presets Inventory
 var presetPackList = ["Shugan Color Film", "Shugan Mono  Film"];
 
-var targetWidth = 1080;
-var targetHeight = 1350;
+var targetWidth = new UnitValue (1080, 'px');
+var targetHeight = new UnitValue (1350, 'px');
 
 var fontSize = new UnitValue(30, 'px');
 var textColor = new SolidColor();
@@ -29,66 +29,130 @@ var docRef = activeDocument;
 var docRefPath = activeDocument.path;
 var docRefName = activeDocument.name.replace(/(?:\.[^.]*$|$)/, '');
 
-
 // Open documents
 openAsLayer();
-// convertColorProfileToSRGB(activeDocument);
 var docRef_before = openUneditedRAW(docRef, "_before");
-// convertColorProfileToSRGB(docRef_before);
-var docRef_beforeAfterSplit = duplicateDocument(docRef, "_beforeAfter-split");
-var docRef_metadata = duplicateDocument(docRef, "_metadata");
-var docRef_settings = duplicateDocument(docRef, "_settings");
+var docRef_after = duplicateDocument(docRef, "_after");
+
+// Convert color profile to sRGB
+convertColorProfileToSRGB(docRef);
+convertColorProfileToSRGB(docRef_before);
+convertColorProfileToSRGB(docRef_after);
+
+// Export copy full size
+exportCopyAsPNG(docRef, docRefPath, undefined,  undefined, undefined);
 
 
-// Create before after overlay
-copyActiveLayerFromSourceToTarget(docRef_before, docRef_beforeAfterSplit);
-activeDocument = docRef_beforeAfterSplit;
-addMasks();
-fillMask();
+// Export instagram version
+resizeImageToFitCanvas(docRef_after, targetWidth, targetHeight);
+exportCopyAsPNG(docRef_after, docRefPath, undefined,  "instagram_", undefined)
 
-// Export copies full size
-exportCopyAsPNG(docRef, docRefPath, undefined, undefined, "_after");
-exportCopyAsPNG(docRef_before, docRefPath, undefined,  undefined, undefined);
-exportCopyAsPNG(docRef_beforeAfterSplit, docRefPath, undefined,  undefined, undefined);
 
-// Resize copies to target size
-// for (selectedDocument = 0; selectedDocument<app.documents.length; selectedDocument++) {
-//     resizeImageToFitCanvas(app.documents[selectedDocument], targetWidth, targetHeight);
-// }
-resizeImageToFitCanvas(docRef, targetWidth, targetHeight);
+// Resize to desired working size
 resizeImageToFillCanvas(docRef_before, targetWidth, targetHeight);
-resizeImageToFillCanvas(docRef_beforeAfterSplit, targetWidth, targetHeight);
-resizeImageToFillCanvas(docRef_metadata, targetWidth, targetHeight);
-resizeImageToFillCanvas(docRef_settings, targetWidth, targetHeight);
+resizeImageToFillCanvas(docRef, targetWidth, targetHeight);
 
 
-// Edit before after
-activeDocument = docRef_beforeAfterSplit;
-addFile(File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Design Overlays/Overlay - beforeAfter-split.png"));
-activeDocument = docRef_beforeAfterSplit;
+// Create beforeAfter_split_horizontal overlays
+var docRef_beforeAfter_split_horizontal = duplicateDocument(docRef, "_beforeAfter_split_horizontal");
+copyActiveLayerFromSourceToTarget(docRef_before, docRef_beforeAfter_split_horizontal);
+activeDocument = docRef_beforeAfter_split_horizontal;
+addMasks();
+fillMask('horizontal');
+activeDocument = docRef_beforeAfter_split_horizontal;
+addFile(File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Design Overlays/Overlay - beforeAfter_split_horizontal.png"));
+translateLayerTo(activeDocument.activeLayer, 0, 0, "topleft");
+activeDocument = docRef_beforeAfter_split_horizontal;
 // addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
 addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
+exportCopyAsPNG(docRef_beforeAfter_split_horizontal, docRefPath, undefined,  "instagram_", undefined)
+
+
+// Create beforeAfter_split_vertical overlays
+var docRef_beforeAfter_split_vertical = duplicateDocument(docRef, "_beforeAfter_split_vertical");
+copyActiveLayerFromSourceToTarget(docRef_before, docRef_beforeAfter_split_vertical);
+activeDocument = docRef_beforeAfter_split_vertical;
+addMasks();
+fillMask('vertical');
+activeDocument = docRef_beforeAfter_split_vertical;
+addFile(File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Design Overlays/Overlay - beforeAfter_split_vertical.png"));
+translateLayerTo(activeDocument.activeLayer, 0, 0, "topleft");
+activeDocument = docRef_beforeAfter_split_vertical;
+// addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
+addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
+exportCopyAsPNG(docRef_beforeAfter_split_vertical, docRefPath, undefined,  "instagram_", undefined)
+
+
+// Create beforeAfter_sideBySide_horizontal overlays
+var docRef_beforeAfter_sideBySide_horizontal = duplicateDocument(docRef, "_beforeAfter_sideBySide_horizontal");
+activeDocument = docRef_beforeAfter_sideBySide_horizontal;
+resizeLayerToFillDimensions(activeDocument.activeLayer, targetWidth, targetHeight / 2);
+translateLayerTo(activeDocument.activeLayer, targetWidth / 2, targetHeight * 3 / 4, "middlecenter");
+copyActiveLayerFromSourceToTarget(docRef_before, docRef_beforeAfter_sideBySide_horizontal);
+activeDocument = docRef_beforeAfter_sideBySide_horizontal;
+resizeLayerToFillDimensions(activeDocument.activeLayer, targetWidth, targetHeight / 2);
+translateLayerTo(activeDocument.activeLayer, targetWidth / 2, targetHeight / 4, "middlecenter");
+addMasks();
+fillMask('horizontal');
+activeDocument = docRef_beforeAfter_sideBySide_horizontal;
+addFile(File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Design Overlays/Overlay - beforeAfter_sideBySide_horizontal.png"));
+translateLayerTo(activeDocument.activeLayer, 0, 0, "topleft");
+activeDocument = docRef_beforeAfter_sideBySide_horizontal;
+// addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
+addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
+exportCopyAsPNG(docRef_beforeAfter_sideBySide_horizontal, docRefPath, undefined,  "instagram_", undefined)
+
+
+// Create beforeAfter_sideBySide_vetical overlays
+var docRef_beforeAfter_sideBySide_vertical = duplicateDocument(docRef, "_beforeAfter_sideBySide_vertical");
+activeDocument = docRef_beforeAfter_sideBySide_vertical;
+resizeLayerToFillDimensions(activeDocument.activeLayer, targetWidth / 2, targetHeight);
+translateLayerTo(activeDocument.activeLayer, targetWidth * 3 / 4, targetHeight / 2, "middlecenter");
+copyActiveLayerFromSourceToTarget(docRef_before, docRef_beforeAfter_sideBySide_vertical);
+activeDocument = docRef_beforeAfter_sideBySide_vertical;
+resizeLayerToFillDimensions(activeDocument.activeLayer, targetWidth / 2, targetHeight);
+translateLayerTo(activeDocument.activeLayer, targetWidth / 4, targetHeight / 2, "middlecenter")
+addMasks();
+fillMask('vertical');
+activeDocument = docRef_beforeAfter_sideBySide_vertical;
+addFile(File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Design Overlays/Overlay - beforeAfter_sideBySide_vertical.png"));
+translateLayerTo(activeDocument.activeLayer, 0, 0, "topleft");
+activeDocument = docRef_beforeAfter_sideBySide_vertical;
+// addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
+addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
+exportCopyAsPNG(docRef_beforeAfter_sideBySide_vertical, docRefPath, undefined,  "instagram_", undefined)
+
 
 // Edit settings
+var docRef_settings = duplicateDocument(docRef, "_settings");
 activeDocument = docRef_settings;
 makeDarkerNoisierBlurier();
 // addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
 addPresetOverlay();
 //addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
+exportCopyAsPNG(docRef_settings, docRefPath, undefined,  "instagram_", undefined)
+
 
 // Edit metadata
+var docRef_metadata = duplicateDocument(docRef, "_metadata");
 activeDocument = docRef_metadata;
 makeDarkerNoisierBlurier();
 addMetadataList([272, 42036, 37377, 37378, 34855, 37386, 'location', 'date', 'caption'], fontSize, textColor, fontName, fontTracking);
 addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
+exportCopyAsPNG(docRef_metadata, docRefPath, undefined,  "instagram_", undefined)
+
+
+// Export instagram version
+resizeImageToFitCanvas(docRef_before, targetWidth, targetHeight);
+exportCopyAsPNG(docRef_before, docRefPath, undefined,  "instagram_", undefined)
 
 // Expot copies target size
-for (selectedDocument = 0; selectedDocument<app.documents.length; selectedDocument++) {
-    exportCopyAsPNG (app.documents[selectedDocument], docRefPath, undefined,  "instagram_", undefined);
-}
+// for (selectedDocument = 0; selectedDocument<app.documents.length; selectedDocument++) {
+//     exportCopyAsPNG (app.documents[selectedDocument], docRefPath, undefined,  "instagram_", undefined);
+// }
 // exportCopyAsPNG(docRef, docRefPath, undefined,  "instagram_", undefined);
 // exportCopyAsPNG(docRef_before, docRefPath, undefined,  "instagram_", undefined);
-// exportCopyAsPNG(docRef_beforeAfterSplit, docRefPath, undefined,  "instagram_", undefined);
+// exportCopyAsPNG(docRef_beforeAfter_split_vertical, docRefPath, undefined,  "instagram_", undefined);
 // exportCopyAsPNG(docRef_settings, docRefPath, undefined,  "instagram_", undefined);
 // exportCopyAsPNG(docRef_metadata, docRefPath, undefined,  "instagram_", undefined);
 
@@ -160,6 +224,9 @@ function exportCopyAsPNG(selectedDocument, filePath, fileName, filePreffix, file
     }
     if (fileSuffix !== undefined) {
         fileName = fileName + fileSuffix;
+    }
+    if (filePreffix !== undefined) {
+        fileName = filePreffix + fileName;
     }
 
     convertColorProfileToSRGB(selectedDocument);
@@ -279,7 +346,7 @@ function deleteLayerMask(apply) {
     executeAction( s2t( "delete" ), descriptor, DialogModes.NO );
 }
 
-function fillMask () {
+function fillMask (fillDesign) {
 
     // Store doc dimensions
     var docRef = app.activeDocument;
@@ -287,7 +354,18 @@ function fillMask () {
     var docWidth = docRef.width;
 
     //(topleft, bottomleft, bottomright, topright)
-    var shapeRef = [ [docWidth/2, 0], [docWidth/2, docHeight], [docWidth, docHeight], [docWidth, 0]];
+    switch (fillDesign) {
+        case 'horizontal':
+        var shapeRef = [ [0, docHeight/2], [0, docHeight], [docWidth, docHeight], [docWidth, docHeight / 2]];
+        break;
+        case 'vertical':
+        var shapeRef = [ [docWidth/2, 0], [docWidth/2, docHeight], [docWidth, docHeight], [docWidth, 0]];
+        break;
+        case 'diagonal':
+        var shapeRef = [ [docWidth/2, 0], [docWidth/2, docHeight], [docWidth, docHeight], [docWidth, 0]]; //TODO: path?
+        break;
+    }
+    
     docRef.selection.select(shapeRef);
 
     var fillColor = new SolidColor;
@@ -532,7 +610,7 @@ function addIcon (exifTag, targetWidth) {
     var iconLayer = doc.activeLayer;
     iconLayer.name = exifTag + ' icon';
 
-    /// Resize image
+    // Resize image
     var imageWidth = new UnitValue(iconLayer.bounds[2].value - iconLayer.bounds[0].value, 'px');
     var resizeRatio = targetWidth / imageWidth * 100;
     iconLayer.resize(resizeRatio, resizeRatio, AnchorPosition.MIDDLECENTER);
@@ -1030,4 +1108,24 @@ function selectByID(id) {
     ref.putIdentifier(charIDToTypeID("Dcmn"), id);
     desc.putReference(charIDToTypeID("null"), ref);
     executeAction(charIDToTypeID("slct"), desc, DialogModes.NO);
+}
+
+function resizeLayerToFillDimensions (selectedLayer, placeholderWidth, placeholderHeight) {
+
+    placeholderWidth = UnitValue (placeholderWidth, 'px');
+    placeholderHeight = UnitValue (placeholderHeight, 'px');
+
+    // Resize layers
+    var layerWidth = new UnitValue(selectedLayer.bounds[2].value - selectedLayer.bounds[0].value, 'px');
+    var layerHeight = new UnitValue(selectedLayer.bounds[3].value - selectedLayer.bounds[1].value, 'px');
+    var layerAspectRatio = layerWidth / layerHeight;
+    var placeholderAspectRatio = placeholderWidth / placeholderHeight;
+
+    if(placeholderAspectRatio < layerAspectRatio) {
+        var resizeRatio = placeholderHeight / layerHeight * 100;
+    } else {
+        var resizeRatio = placeholderWidth / layerWidth * 100;
+    }
+
+    selectedLayer.resize(resizeRatio, resizeRatio, AnchorPosition.MIDDLECENTER);
 }
