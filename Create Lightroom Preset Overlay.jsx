@@ -5,12 +5,6 @@ createLightroomPresetOverlay();
 function createLightroomPresetOverlay() {
 
     addLightroomPresetPanels();
-    
-    addPresetName();
-
-    addLogo();
-
-    addFooter();
 
 }
 
@@ -18,9 +12,11 @@ function addLightroomPresetPanels() {
 
     var presetName = getDocBasename();
 
-    var selectedFolder = Folder("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Lightroom Presets Panels/");
+    var panelsScreenshotsFolder = Folder("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Lightroom Presets/Panels Screenshots/Cropped/");
 
-    var presetPanelsList = selectedFolder.getFiles(presetName + "*.png");
+    var overlaysFolder = Folder("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Lightroom Presets/Overlays/");
+
+    var presetPanelsList = panelsScreenshotsFolder.getFiles(presetName + "*.png");
 
     var presetPanelsTypes = getPresetPanelsTypes(presetPanelsList);
 
@@ -40,25 +36,25 @@ function addLightroomPresetPanels() {
             alert('Path error.');
         }
 
-        resizePanel(activeDocument.activeLayer, panelType);
+        resizePanel(activeDocument.activeLayer, panelType, UnitValue (405, 'px'));
 
-        switch (panelDesign) {
+        /* switch (panelDesign) {
 
             case "6 Panels":
             switch (panelType) {
 
                 case "Basic":
-                panelXPosition = new UnitValue(35, 'px');
+                panelXPosition = new UnitValue(90, 'px');
                 panelYPosition = new UnitValue(250, 'px');
                 break;
 
                 case "Calibration":
-                panelXPosition = new UnitValue(35, 'px');
+                panelXPosition = new UnitValue(90, 'px');
                 panelYPosition = new UnitValue(834, 'px');
                 break;
 
                 case "Color Grading":
-                panelXPosition = new UnitValue(725, 'px');
+                panelXPosition = new UnitValue(586, 'px');
                 panelYPosition = new UnitValue(666, 'px');
                 break;
 
@@ -73,7 +69,7 @@ function addLightroomPresetPanels() {
                 break;
 
                 case "Tone Curve":
-                panelXPosition = new UnitValue(725, 'px');
+                panelXPosition = new UnitValue(586, 'px');
                 panelYPosition = new UnitValue(250, 'px');
                 break;
 
@@ -88,7 +84,7 @@ function addLightroomPresetPanels() {
             switch (panelType) {
 
                 case "Basic":
-                panelXPosition = new UnitValue(35, 'px');
+                panelXPosition = new UnitValue(90, 'px');
                 panelYPosition = new UnitValue(310, 'px');
                 break;
 
@@ -98,12 +94,12 @@ function addLightroomPresetPanels() {
                 break;
 
                 case "Effects":
-                panelXPosition = new UnitValue(35, 'px');
+                panelXPosition = new UnitValue(90, 'px');
                 panelYPosition = new UnitValue(936, 'px');
                 break;
 
                 case "HSL":
-                panelXPosition = new UnitValue(725, 'px');
+                panelXPosition = new UnitValue(586, 'px');
                 panelYPosition = new UnitValue(310, 'px');
                 break;
 
@@ -137,7 +133,7 @@ function addLightroomPresetPanels() {
                 panelYPosition = new UnitValue(968, 'px');
                 break;
 
-                case "BW":
+                case "BW Mix":
                 panelXPosition = new UnitValue(597, 'px');
                 panelYPosition = new UnitValue(670, 'px');
                 break;
@@ -156,7 +152,7 @@ function addLightroomPresetPanels() {
 
         }
 
-        moveLayerTo(activeDocument.activeLayer, panelXPosition, panelYPosition);
+        moveLayerTo(activeDocument.activeLayer, panelXPosition, panelYPosition); */
 
         // Move inside 
         activeDocument.activeLayer.move(activeDocument.layerSets.getByName("Lightroom Settings"), ElementPlacement.INSIDE);
@@ -230,56 +226,17 @@ function moveLayerTo(fLayer,fX,fY, anchorPosition) {
     fLayer.translate(dX,dY);
 }
 
-function resizePanel(layer, panelType) {
-    switch (panelType){
-
-        case "Basic":
-            panelTargetWidth = new UnitValue(320, 'px');
-            panelTargetHeight = new UnitValue(556, 'px');
-        break;
-
-        case "Calibration":
-            panelTargetWidth = new UnitValue(320, 'px');
-            panelTargetHeight = new UnitValue(376, 'px');
-        break;
-
-        case "Color Grading":
-            panelTargetWidth = new UnitValue(320, 'px');
-            panelTargetHeight = new UnitValue(540, 'px');
-        break;
-
-        case "Effects":
-            panelTargetWidth = new UnitValue(320, 'px');
-            panelTargetHeight = new UnitValue(136, 'px');
-        break;
-
-        case "HSL":
-            panelTargetWidth = new UnitValue(320, 'px');
-            panelTargetHeight = new UnitValue(716, 'px');
-        break;
-
-        case "BW":
-            panelTargetWidth = new UnitValue(320, 'px');
-            panelTargetHeight = new UnitValue(272, 'px');
-        break;
-
-        case "Tone Curve":
-            panelTargetWidth = new UnitValue(320, 'px');
-            panelTargetHeight = new UnitValue(392, 'px');
-        break;
-
-    }
+function resizePanel(layer, panelType, panelTargetWidth) {
 
     // Document Selection
     var layerBounds = layer.bounds;
 
     // Resize image
     var panelWidth = layerBounds[2] - layerBounds[0];
-    var panelHeight = layerBounds[3] - layerBounds[1];
     
-    var widthResizeRatio = panelTargetWidth / panelWidth * 100;
-    var heightResizeRatio = panelTargetHeight / panelHeight * 100;
-    layer.resize(widthResizeRatio, heightResizeRatio, AnchorPosition.MIDDLECENTER);
+    var resizeRatio = panelTargetWidth / panelWidth * 100;
+
+    layer.resize(resizeRatio, resizeRatio, AnchorPosition.MIDDLECENTER);
 
 }
 
@@ -317,7 +274,7 @@ function selectPanelDesign(presetPanelsList) {
     var panelDesign;
 
     for (i=0; i<presetPanelsList.length; i++) {
-        if (presetPanelsList[i] == "BW") {
+        if (presetPanelsList[i] == "BW Mix") {
             panelDesign = "5 Panels BW";
             i =presetPanelsList.length;
         } else if (presetPanelsList[i] == "Color Grading"){

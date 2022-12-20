@@ -1,14 +1,16 @@
 #target photoshop
 
-addMasks();
+fillMask();
 
 function addMasks(){
 
     try{
         loadLayerSelection();
         addLayerMask();
-        deleteLayerMask(true);
-        } catch (e) {}
+        } catch (e) {
+            deleteLayerMask(true);
+        }
+        
 };
 
 // =======================================================
@@ -69,4 +71,21 @@ function deleteLayerMask(apply) {
     descriptor.putReference( c2t( "null" ), reference );
     descriptor.putBoolean( s2t( "apply" ), apply );
     executeAction( s2t( "delete" ), descriptor, DialogModes.NO );
+}
+
+function fillMask () {
+
+    // Store doc dimensions
+    var docRef = app.activeDocument;
+    var docHeight = docRef.height;
+    var docWidth = docRef.width;
+
+    //(topleft, bottomleft, bottomright, topright)
+    var shapeRef = [ [docWidth/2, 0], [docWidth/2, docHeight], [docWidth, docHeight], [docWidth, 0]];
+    docRef.selection.select(shapeRef);
+
+    var fillColor = new SolidColor;
+    fillColor.rgb.hexValue = "000000";
+    activeDocument.selection.fill(fillColor);
+
 }

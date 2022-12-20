@@ -1,66 +1,101 @@
 #target photoshop
 
+// Global variables
+var presetNameList = ["SCF01", "SCF02", "SCF03", "SCF04", "SCF05", "SCF06", "SCF07", "SCF08", "SCF09", "SCF10", "SCF11", "SCF12", 
+"SMF01", "SMF02", "SMF03", "SMF04", "SMF05"]; // TODO: Create a way of reading the list in the Presets Inventory
+var presetPackList = ["Shugan Color Film", "Shugan Mono  Film"];
 
-/*
-// Save current preferences
+var targetWidth = 1080;
+var targetHeight = 1350;
+
+var fontSize = new UnitValue(30, 'px');
+var textColor = new SolidColor();
+textColor.rgb.hexValue = "FFFFFF";
+var fontName = "WorkSansRoman-Light";
+var fontTracking = 50;
+
+
+// // Save current preferences
 var startRulerUnits = app.preferences.rulerUnits;
 var startTypeUnits = app.preferences.typeUnits;
 var startTypeDialogs = app.displayDialogs;
 
-// Set own preferences
+// // Set own preferences
 app.preferences.rulerUnits = Units.PIXELS;
 app.preferences.typeUnits = TypeUnits.PIXELS;
 app.displayDialogs = DialogModes.ERROR;
 
- var docRef = activeDocument;
+var docRef = activeDocument;
 var docRefPath = activeDocument.path;
-var docRefName = activeDocument.name;
-
-var presetNamesList = ["SCF01", "SCF02", "SCF03", "SCF04", "SCF05", "SCF06", "SCF07", "SCF08", "SCF09", "SCF10", "SCF11", "SCF12", 
-"SMF01", "SMF02", "SMF03", "SMF04", "SMF05"]; // TODO: Create a way of reading the list in the Presets Inventory
+var docRefName = activeDocument.name.replace(/(?:\.[^.]*$|$)/, '');
 
 
+// Open documents
 openAsLayer();
-convertColorProfileToSRGB(activeDocument);
-exportCopyAsPNG(docRef);
-openUneditedRAW(docRef, "_unedited");
-duplicateDocument(docRef, "_before-after");
-copyActiveLayerFromSourceToTarget(app.documents.getByName(docRef + "_unedited"), app.documents.getByName(docRef + "_before-after"));
+// convertColorProfileToSRGB(activeDocument);
+var docRef_before = openUneditedRAW(docRef, "_before");
+// convertColorProfileToSRGB(docRef_before);
+var docRef_beforeAfterSplit = duplicateDocument(docRef, "_beforeAfter-split");
+var docRef_metadata = duplicateDocument(docRef, "_metadata");
+var docRef_settings = duplicateDocument(docRef, "_settings");
+
+
+// Create before after overlay
+copyActiveLayerFromSourceToTarget(docRef_before, docRef_beforeAfterSplit);
+activeDocument = docRef_beforeAfterSplit;
 addMasks();
 fillMask();
-addFile("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Design/Template - Logo - TopRight.png");
+
+// Export copies full size
+exportCopyAsPNG(docRef, docRefPath, undefined, undefined, "_after");
+exportCopyAsPNG(docRef_before, docRefPath, undefined,  undefined, undefined);
+exportCopyAsPNG(docRef_beforeAfterSplit, docRefPath, undefined,  undefined, undefined);
+
+// Resize copies to target size
+// for (selectedDocument = 0; selectedDocument<app.documents.length; selectedDocument++) {
+//     resizeImageToFitCanvas(app.documents[selectedDocument], targetWidth, targetHeight);
+// }
+resizeImageToFitCanvas(docRef, targetWidth, targetHeight);
+resizeImageToFillCanvas(docRef_before, targetWidth, targetHeight);
+resizeImageToFillCanvas(docRef_beforeAfterSplit, targetWidth, targetHeight);
+resizeImageToFillCanvas(docRef_metadata, targetWidth, targetHeight);
+resizeImageToFillCanvas(docRef_settings, targetWidth, targetHeight);
 
 
-addMetadataWithIcon('location', 0.027, 0.12, 0.13);
-addMetadataWithIcon('date', 0.027, 0.88, 0.13);
+// Edit before after
+activeDocument = docRef_beforeAfterSplit;
+addFile(File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Design Overlays/Overlay - beforeAfter-split.png"));
+activeDocument = docRef_beforeAfterSplit;
+// addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
+addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
 
+// Edit settings
+activeDocument = docRef_settings;
+makeDarkerNoisierBlurier();
+// addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
+addPresetOverlay();
+//addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
 
-// addMetadata (exifTag, colorHexValue, fontName, size, fontTracking)
-addMetadata('location', new UnitValue(24, 'px'), "FFFFFF", "WorkSansRoman-Light", 50);
-translateLayerTo();
-addMetadata('caption', new UnitValue(24, 'px'), "FFFFFF", "WorkSansRoman-Light", 50);
-resizeParagraphToFitBorders(0.12, 0.25, 0.12, 0.2);
-translateLayerTo()
+// Edit metadata
+activeDocument = docRef_metadata;
+makeDarkerNoisierBlurier();
+addMetadataList([272, 42036, 37377, 37378, 34855, 37386, 'location', 'date', 'caption'], fontSize, textColor, fontName, fontTracking);
+addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
 
-exportCopyAsPNG(activeDocument);
-duplicateDocument(docRef, "_before-after");
-
-resizeImageToFitCanvas(1080, 1350);
-
-
-resizeImageToFillCanvas(1080,1350);
-
-
-
-exportCopyAsPNG(activeDocument); */
-//addCameraSettings([272, 42036, 37377, 37378, 34855, 37386]);
-
-addMetadataWithIcon('location', new UnitValue(24, 'px'), "FFFFFF", "WorkSansRoman-Light", 50);
+// Expot copies target size
+for (selectedDocument = 0; selectedDocument<app.documents.length; selectedDocument++) {
+    exportCopyAsPNG (app.documents[selectedDocument], docRefPath, undefined,  "instagram_", undefined);
+}
+// exportCopyAsPNG(docRef, docRefPath, undefined,  "instagram_", undefined);
+// exportCopyAsPNG(docRef_before, docRefPath, undefined,  "instagram_", undefined);
+// exportCopyAsPNG(docRef_beforeAfterSplit, docRefPath, undefined,  "instagram_", undefined);
+// exportCopyAsPNG(docRef_settings, docRefPath, undefined,  "instagram_", undefined);
+// exportCopyAsPNG(docRef_metadata, docRefPath, undefined,  "instagram_", undefined);
 
 // Reset application preferences
-// app.preferences.rulerUnits = startRulerUnits;
-// app.preferences.typeUnits = startTypeUnits;
-// app.displayDialogs = startTypeDialogs;
+app.preferences.rulerUnits = startRulerUnits;
+app.preferences.typeUnits = startTypeUnits;
+app.displayDialogs = startTypeDialogs;
 
 
 function openAsLayer() {
@@ -102,21 +137,29 @@ function duplicateDocument (selectedDocument, documentSuffix) {
     var fileExtension = fullFileName.substr(fullFileName.lastIndexOf("."), fullFileName.length);
     
     if(documentSuffix) {
-        fileName = fileName + documentSuffix + fileExtension;
+        fileName = fileName + documentSuffix;
     }
     
     doc.duplicate(fileName);
 
     activeDocument.activeLayer.isBackgroundLayer = false;
 
+    return activeDocument;
+
 }
 
-function exportCopyAsPNG(selectedDocument, filePath, fileName) {
+function exportCopyAsPNG(selectedDocument, filePath, fileName, filePreffix, fileSuffix) {
+
+    activeDocument = selectedDocument;
+
     if (filePath === undefined) {
        filePath = selectedDocument.path;
     }
     if (fileName === undefined) {
         fileName = selectedDocument.name.replace(/(?:\.[^.]*$|$)/, '');
+    }
+    if (fileSuffix !== undefined) {
+        fileName = fileName + fileSuffix;
     }
 
     convertColorProfileToSRGB(selectedDocument);
@@ -145,14 +188,22 @@ function openUneditedRAW(selectedDocument, documentSuffix) {
     var uneditedDocument = open(selectedFile, openRAWOptions, true);
 
     var uneditedDocumentName = selectedDocument.name.replace(/(?:\.[^.]*$|$)/, '') + documentSuffix;
-
+    
     var uneditedLayer = uneditedDocument.activeLayer;
 
     uneditedLayer.name = uneditedDocumentName;
 
+    uneditedDocument.duplicate((uneditedDocumentName), true);
+    
+    uneditedDocument.close(SaveOptions.DONOTSAVECHANGES); // (SaveOptions.SAVECHANGES)
+
+    return activeDocument;
+
 }
 
 function copyActiveLayerFromSourceToTarget(sourceDocument, targetDocument) {
+
+    app.activeDocument = sourceDocument;
 
     sourceDocument.activeLayer.duplicate(targetDocument.activeLayer, ElementPlacement.PLACEBEFORE);
 
@@ -163,8 +214,9 @@ function addMasks(){
     try{
         loadLayerSelection();
         addLayerMask();
-        deleteLayerMask(true);
-        } catch (e) {}
+        } catch (e) {
+            deleteLayerMask(true);
+        }
 };
 
 // =======================================================
@@ -244,9 +296,11 @@ function fillMask () {
 
 }
 
-function resizeImageToFillCanvas(targetCanvasWidth, targetCanvasHeight) {
+function resizeImageToFillCanvas(selectedDocument, targetCanvasWidth, targetCanvasHeight) {
 
-    var doc = activeDocument;
+    activeDocument = selectedDocument;
+
+    var doc = selectedDocument;
 
     var docHeight = doc.height.value;
     var docWidth = doc.width.value;
@@ -268,9 +322,11 @@ function resizeImageToFillCanvas(targetCanvasWidth, targetCanvasHeight) {
 
 }
 
-function resizeImageToFitCanvas(targetCanvasWidth, targetCanvasHeight) {
+function resizeImageToFitCanvas(selectedDocument, targetCanvasWidth, targetCanvasHeight) {
 
-    var doc = activeDocument;
+    activeDocument = selectedDocument;
+
+    var doc = selectedDocument;
 
     var docHeight = doc.height.value;
     var docWidth = doc.width.value;
@@ -292,23 +348,25 @@ function resizeImageToFitCanvas(targetCanvasWidth, targetCanvasHeight) {
 
 }
 
-function addLightroomPresetOverlay () {
+function addPresetOverlay () {
     var doc = activeDocument;
-    var docPresetKeywords = findPresetNamesInKeywords (doc);
+    var docPresetInfo = findPresetInfoInKeywords(doc);
 
-    if(docPresetKeywords.length==1){
+    addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
+
+    if(docPresetInfo.presetPackName && docPresetInfo.presetName){
         
-        var selectedFilePath = getPresetOverlayPath(docPresetKeywords[0]);
+        var selectedFiles = getPresetOverlayFiles(docPresetInfo.presetPackName, docPresetInfo.presetName);
         //app.openDialog();
-        //var selectedFilePath = "D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Presets Overlays/" + docPresetKeywords[0] + ".png";
+        //var selectedFile = "D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Presets Overlays/" + docPresetPackNameKeywords[0] + ".png";
 
-        try{
-            addFile(selectedFilePath);
-        } 
-
-        catch (e)
-        {
-            alert('Cannot add overlay. File missing?');
+        for (i = 0; i < selectedFiles.length; i++) {
+            addFile(selectedFiles[i]);
+            
+            if(selectedFiles.length - i > 1) {
+                duplicateDocument(doc, doc.name + "-" + (i+1));
+                activeDocument.layers[0].remove();
+            }
         }
 
     } else {
@@ -316,35 +374,48 @@ function addLightroomPresetOverlay () {
     }
 }
 
-function getPresetOverlayPath (presetName) {
+function getPresetOverlayFiles (presetPack, presetName) {
 
-    var availablePresetOverlaysPaths = Folder("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Presets Overlays/").getFiles("*.png");
+    var availablePresetOverlaysPaths = Folder("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Lightroom Presets/Overlays/").getFiles("*.png");
+
+    var presetOverlayPaths = [];
 
     for (i=0; i < availablePresetOverlaysPaths.length; i++) {
-        var presetOverlayFileName = availablePresetOverlaysPaths[i].displayName.match(/(.*)\.[^\.]+$/)[1];
-        var presetOverlayFileName = presetOverlayFileName.substr(presetOverlayFileName.lastIndexOf('-')+2, presetOverlayFileName.length);
-        if(presetOverlayFileName == presetName) {
-            return availablePresetOverlaysPaths[i];
+        var exp = new RegExp(presetPack + " - " + presetName, "g");
+        
+        if(availablePresetOverlaysPaths[i].displayName.match(exp) !== null){
+            presetOverlayPaths.push(availablePresetOverlaysPaths[i]);
         }
     }
 
+    return presetOverlayPaths;
+
 }
 
-function findPresetNamesInKeywords (docRef) {
+function findPresetInfoInKeywords (docRef) {
 
-    var doc = activeDocument;
+    var doc = docRef;
     var docKeywords = doc.info.keywords;
-    var docPresetKeywords = [];
 
     for (var i=0; i<docKeywords.length; i++) {
-        for (var j=0; j<presetNamesList.length; j++){
-            if(docKeywords[i] == presetNamesList[j]) {
-                docPresetKeywords.push(docKeywords[i]);
+        for (var j=0; j<presetPackList.length; j++){
+            if(docKeywords[i] == presetPackList[j]) {
+                var docPresetPackName = docKeywords[i];
             }
         }
     }
 
-    return docPresetKeywords;
+    for (var i=0; i<docKeywords.length; i++) {
+        for (var j=0; j<presetNameList.length; j++){
+            if(docKeywords[i] == presetNameList[j]) {
+                var docPresetName = docKeywords[i];
+            }
+        }
+    }
+
+    return { 
+        'presetPackName': docPresetPackName, 
+        'presetName': docPresetName};
 
 }
 
@@ -411,6 +482,11 @@ function translateLayerTo(selectedLayer,finalX,finalY, anchorPosition) {
         dY = finalY - bounds[1];
         break;
 
+        case "topright":
+        dX = finalX - bounds[0] - width;
+        dY = finalY - bounds[1];
+        break;
+
         case "bottomleft":
         dX = finalX - bounds[0];
         dY = finalY - bounds[1] - height;
@@ -463,7 +539,7 @@ function addIcon (exifTag, targetWidth) {
 
 }
 
-function addMetadata (exifTag, size, colorHexValue, fontName, fontTracking) {
+function addMetadataValue (exifTag, fontSize, textColor, fontName, fontTracking) {
 
     // Document selection
     var doc = activeDocument;
@@ -475,12 +551,10 @@ function addMetadata (exifTag, size, colorHexValue, fontName, fontTracking) {
 
     // Text Item definition
     var textItemRef = metadataLayer.textItem;
+    textItemRef.size = fontSize; // There is a bug. textItem.size always converts "px" to "pt".  https://community.adobe.com/t5/photoshop-ecosystem-discussions/photoshop-script-change-textitem-size-javascript/td-p/11478075
+    textItemRef.color = textColor;
     textItemRef.font = fontName;
     textItemRef.tracking = fontTracking;
-    var textColor = new SolidColor();
-    textColor.rgb.hexValue = colorHexValue;
-    textItemRef.color = textColor;
-    textItemRef.size = new UnitValue(size * 72 / doc.resolution, 'pt'); // There is a bug. textItem.size always converts "px" to "pt".  https://community.adobe.com/t5/photoshop-ecosystem-discussions/photoshop-script-change-textitem-size-javascript/td-p/11478075
 
     // Text content
     // Exif entry index (Variable and Value) for the desired exifTag as defined in https://web.archive.org/web/20190624045241if_/http://www.cipa.jp:80/std/documents/e/DC-008-Translation-2019-E.pdf
@@ -507,7 +581,7 @@ function addMetadata (exifTag, size, colorHexValue, fontName, fontTracking) {
         
         case 'date':
         if(doc.info.creationDate=="") {
-            textItemRef.contents = "Unknown";
+            textItemRef.contents = "";
         } else {
             var dateString = doc.info.creationDate;
             var year = dateString.substring(0,4);
@@ -525,6 +599,10 @@ function addMetadata (exifTag, size, colorHexValue, fontName, fontTracking) {
         case 'caption':
         textItemRef.contents = doc.info.caption;
         textItemRef.kind = TextType.PARAGRAPHTEXT;
+        textItemRef.justification = Justification.CENTER;
+        if(textItemRef.contents != " ") {
+            resizeParagraphToFitBorders(textItemRef, 135, 270, 945, 855);
+        }
         break;
 
         case 34855: // ISO
@@ -540,7 +618,7 @@ function addMetadata (exifTag, size, colorHexValue, fontName, fontTracking) {
             break;
 
             case "Sony A7IV":
-            textItemRef.contents = "Sony A7IV";
+            textItemRef.contents = "Sony A7 Mark IV";
             break;
 
             case "NIKON D610":
@@ -606,23 +684,27 @@ function addMetadata (exifTag, size, colorHexValue, fontName, fontTracking) {
     }
 }
 
-function resizeParagraphToFitBorders(leftMargin, topMargin, rightMargin, bottomMargin) {
-    // Doc parameters calculation
-    var docHeight = doc.height.value;
-    var docWidth = doc.width.value;
-    var targetWidth = (1 - rightMargin - leftMargin)* docWidth;
-    var targetHeight = (1 - bottomMargin - topMargin) * docHeight;
+function resizeParagraphToFitBorders(textItem, leftMargin, topMargin, rightMargin, bottomMargin) {
+    // Doc parameters calculation (%)
+    // var docHeight = doc.height.value;
+    // var docWidth = doc.width.value;
+    // var targetWidth = (1 - rightMargin - leftMargin)* docWidth;
+    // var targetHeight = (1 - bottomMargin - topMargin) * docHeight;
+    var targetWidth = rightMargin - leftMargin;
+    var targetHeight = bottomMargin - topMargin;
 
     // Resize text layer
-    textItemRef.height = new UnitValue(targetHeight, 'pt');
-	textItemRef.width = new UnitValue(targetWidth, 'pt');
-    if(textItemRef.contents != " ") {
-        increaseLeadingToFitBox(doc.activeLayer);
+    textItem.height = new UnitValue(targetHeight, 'pt');
+	textItem.width = new UnitValue(targetWidth, 'pt');
+
+    // Fit text in margins
+    if(textItem.contents != " ") {
+        increaseLeadingToFitBox(activeDocument.activeLayer);
     }
     
 }
 
-// Based on https://stackoverflow.com/questions/28900505/extendscript-how-to-check-whether-text-content-overflows-the-containing-rectang
+// Based on https://stackoverflow.com/questions/28990505/extendscript-how-to-check-whether-text-content-overflows-the-containing-rectang
 function increaseLeadingToFitBox(textLayer) {     
     textLayer.textItem.useAutoLeading = false;
     textLayer.textItem.leading = 300;
@@ -637,7 +719,7 @@ function increaseLeadingToFitBox(textLayer) {
     }
     while(fitInsideBoxDimensions.height > getRealTextLayerDimensions(textLayer).height);
 
-    textLayer.textItem.leading = new UnitValue(leading * 0.95, "px"); //To ensure it fits.
+    textLayer.textItem.leading = new UnitValue(leading, "px"); //To ensure it fits.
 
 }
 
@@ -667,7 +749,7 @@ function getLayerDimensions(layer) {
     };
 }
 
-function addMetadataWithIcon (exifTag, size, colorHexValue, fontName, fontTracking) {
+function addMetadata (exifTag, fontSize, textColor, fontName, fontTracking, includeIcon) {
 
     var doc = activeDocument;
 
@@ -675,13 +757,13 @@ function addMetadataWithIcon (exifTag, size, colorHexValue, fontName, fontTracki
     var metadataGroup = doc.layerSets.add();
     metadataGroup.name = exifTag + ' group';
 
-    try {
+    if(includeIcon == true) {
         // Add iconLayer
-        addIcon(exifTag, size);
+        addIcon(exifTag, fontSize * 1.5);
         var iconLayer = doc.layers.getByName(exifTag + ' icon');
 
         // Compute metadataLayer position
-        var iconTextSeparation = size * 0.75;
+        var iconTextSeparation = fontSize * 1.5 * 1.5;
 
         var iconLayer = doc.layers.getByName(exifTag + ' icon');
         var iconWidth = iconLayer.bounds[2] - iconLayer.bounds[0];
@@ -690,24 +772,23 @@ function addMetadataWithIcon (exifTag, size, colorHexValue, fontName, fontTracki
         var iconYPosition = iconLayer.bounds[1] + iconHeight / 2;
         var metadataXPosition = iconXPosition + iconTextSeparation;
         var metadataYPosition = iconYPosition;
+        iconLayer.move(metadataGroup, ElementPlacement.INSIDE);
 
         // Add metadataLayer
-        addMetadata(exifTag, size * 0.75, colorHexValue, fontName, fontTracking);
+        addMetadataValue(exifTag, fontSize, textColor, fontName, fontTracking);
         var metadataLayer = doc.layers.getByName(exifTag + ' metadata');
 
         // Move layer
         translateLayerTo(iconLayer, iconXPosition, iconYPosition, "middleright");
         translateLayerTo(metadataLayer, metadataXPosition, metadataYPosition, "middleleft");
 
-    } catch(e) {
+    } else {
         // Add metadataLayer
-        addMetadata(exifTag, size * 0.75, colorHexValue, fontName, fontTracking);
+        addMetadataValue(exifTag, fontSize, textColor, fontName, fontTracking);
         var metadataLayer = doc.layers.getByName(exifTag + ' metadata');
     }
-
-    // // Move inside Group
-    // iconLayer.move(metadataGroup, ElementPlacement.INSIDE);
-    // metadataLayer.move(metadataGroup, ElementPlacement.INSIDE);
+    
+    metadataLayer.move(metadataGroup, ElementPlacement.INSIDE);
 
 }
 
@@ -717,75 +798,80 @@ function moveMetadataGroup (exifTag) {
 
     switch (exifTag) {
         case 'location':
-        metadataGroupXPosition = new UnitValue(120, 'px');
-        metadataGroupYPosition = new UnitValue(100, 'px');
-        anchorPosition = "middleleft";
+        metadataGroupXPosition = new UnitValue(135, 'px');
+        metadataGroupYPosition = new UnitValue(135, 'px');
+        anchorPosition = "topleft";
         break;
         case 'GPS':
-        metadataGroupXPosition = new UnitValue(120, 'px');
-        metadataGroupYPosition = new UnitValue(100, 'px');
+        metadataGroupXPosition = new UnitValue(100, 'px');
+        metadataGroupYPosition = new UnitValue(200, 'px');
         anchorPosition = "middleleft";
         break;
         case 'date':
-        metadataGroupXPosition = new UnitValue(120, 'px');
-        metadataGroupYPosition = new UnitValue(100, 'px');
-        anchorPosition = "middleleft";
+        metadataGroupXPosition = new UnitValue(945, 'px');
+        metadataGroupYPosition = new UnitValue(135, 'px');
+        anchorPosition = "topright";
         break;
         case 'headline':
-        metadataGroupXPosition = new UnitValue(120, 'px');
+        metadataGroupXPosition = new UnitValue(100, 'px');
         metadataGroupYPosition = new UnitValue(100, 'px');
-        anchorPosition = "middleleft";
+        anchorPosition = "middlecenter";
         break;
         case 'caption':
         metadataGroupXPosition = new UnitValue(540, 'px');
-        metadataGroupYPosition = new UnitValue(750, 'px');
-        anchorPosition = "middleleft";
+        metadataGroupYPosition = new UnitValue(270, 'px');
+        anchorPosition = "topcenter";
         break;
         case 272: // Camera model
-        metadataGroupXPosition = new UnitValue(100, 'px');
-        metadataGroupYPosition = new UnitValue(100, 'px');
+        metadataGroupXPosition = new UnitValue(135, 'px');
+        metadataGroupYPosition = new UnitValue(968, 'px');
         anchorPosition = "middleleft";
         break;
         case 42036: // Lens Model
-        metadataGroupXPosition = new UnitValue(360, 'px');
-        metadataGroupYPosition = new UnitValue(100, 'px');
+        metadataGroupXPosition = new UnitValue(135, 'px');
+        metadataGroupYPosition = new UnitValue(1058, 'px');
         anchorPosition = "middleleft";
         break;
         case 37377: // Shutter Speed
-        metadataGroupXPosition = new UnitValue(100, 'px');
-        metadataGroupYPosition = new UnitValue(180, 'px');
+        metadataGroupXPosition = new UnitValue(675, 'px');
+        metadataGroupYPosition = new UnitValue(968, 'px');
         anchorPosition = "middleleft";
         break;
         case 37378: // Aperture
-        metadataGroupXPosition = new UnitValue(335, 'px');
-        metadataGroupYPosition = new UnitValue(180, 'px');
+        metadataGroupXPosition = new UnitValue(675, 'px');
+        metadataGroupYPosition = new UnitValue(1058, 'px');
         anchorPosition = "middleleft";
         break;
         case 34855: // ISO
-        metadataGroupXPosition = new UnitValue(500, 'px');
-        metadataGroupYPosition = new UnitValue(180, 'px');
+        metadataGroupXPosition = new UnitValue(675, 'px');
+        metadataGroupYPosition = new UnitValue(1148, 'px');
         anchorPosition = "middleleft";
         break;
         case 37386: // Lens Focal Length
-        metadataGroupXPosition = new UnitValue(695, 'px');
-        metadataGroupYPosition = new UnitValue(180, 'px');
+        metadataGroupXPosition = new UnitValue(135, 'px');
+        metadataGroupYPosition = new UnitValue(1148, 'px');
         anchorPosition = "middleleft";
         break;
+        case 'presetName': // Lens Focal Length
+        metadataGroupXPosition = new UnitValue(135, 'px');
+        metadataGroupYPosition = new UnitValue(1102.5, 'px');
+        anchorPosition = "topcenter";
+        break;
+        case 'presetPack': // Lens Focal Length
+        metadataGroupXPosition = new UnitValue(135, 'px');
+        metadataGroupYPosition = new UnitValue(1102.5, 'px');
+        anchorPosition = "topcenter";
+        break;
+
     }
 
     translateLayerTo(metadataGroup, metadataGroupXPosition, metadataGroupYPosition, anchorPosition);
 
 }
 
-function addCameraSettings(selectedSettings) {
+function addMetadataList(metadataList, fontSize, textColor, fontName, fontTracking) {
 
     var doc = activeDocument;
-
-    // Settings
-    var size = new UnitValue(32, 'px');
-    var color = "FFFFFF";
-    var font = "WorkSansRoman-Light";
-    var tracking = 50;
 
     // Look for group, if not defined, define
     var cameraSettingsGroupName = "Camera Settings";
@@ -797,57 +883,24 @@ function addCameraSettings(selectedSettings) {
         cameraSettingsGroup.name = cameraSettingsGroupName;
     }
 
-    for (i=0; i<selectedSettings.length; i++) {
+    for (i=0; i<metadataList.length; i++) {
         deselectLayers();
 
-        addMetadataWithIcon(selectedSettings[i], size, color, font, tracking);
-        moveMetadataGroup(selectedSettings[i]);
+        if (contains(['location', 'date', 'caption' , 'headline'], metadataList[i])) {
+            var includeIcon = false
+        } else { var includeIcon = true};
+
+        addMetadata(metadataList[i], fontSize, textColor, fontName, fontTracking, includeIcon);
+        moveMetadataGroup(metadataList[i]);
 
         // Moving the metadata group inside the camera settings group. There is a bug: https://stackoverflow.com/questions/38307871/photoshop-scripting-move-one-group-inside-of-other
 
-        var metadataGroup = doc.layerSets.getByName(selectedSettings[i] + ' group')
+        var metadataGroup = doc.layerSets.getByName(metadataList[i] + ' group')
         var dummieGroup = cameraSettingsGroup.layerSets.add();
         dummieGroup.name = "dummy";
         metadataGroup.move(dummieGroup, ElementPlacement.PLACEBEFORE);
         dummieGroup.remove();
     }
-}
-
-function addPhotoContext (contextItems) {
-    
-    var doc = activeDocument;
-
-    // Settings
-    var size = new UnitValue(32, 'px');
-    var color = "FFFFFF";
-    var font = "WorkSansRoman-Light";
-    var tracking = 50;
-
-    // Look for group, if not defined, define
-    var photoContextGroupName = "Photo Context";
-    try {
-        var photoContextGroup = doc.layerSets.getByName(photoContextGroupName);
-    }
-    catch (e) {
-        var photoContextGroup = doc.layerSets.add();
-        photoContextGroup.name = photoContextGroupName;
-    }
-
-    for (i=0; i<contextItems.length; i++) {
-        deselectLayers();
-
-        addMetadataWithIcon(contextItems[i], size, color, font, tracking);
-        moveMetadataGroup(contextItems[i]);
-
-        // Moving the metadata group inside the camera settings group. There is a bug: https://stackoverflow.com/questions/38307871/photoshop-scripting-move-one-group-inside-of-other
-
-        var metadataGroup = doc.layerSets.getByName(contextItems[i] + ' group')
-        var dummieGroup = photoContextGroup.layerSets.add();
-        dummieGroup.name = "dummy";
-        metadataGroup.move(dummieGroup, ElementPlacement.PLACEBEFORE);
-        dummieGroup.remove();
-    }
-
 }
 
 function deselectLayers() { 
@@ -863,3 +916,118 @@ function deselectLayers() {
     executeAction( stringIDToTypeID('selectNoLayers'), desc01, DialogModes.NO ); 
 
 };
+
+function contains(a, obj) {
+    for (var i = 0; i < a.length; i++) {
+        if (a[i] === obj) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function addLogo(logoName, targetHeight, xPosition, yPosition, anchorPosition) {
+
+    deselectLayers();
+
+    var selectedLogoFile = new File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Logos/" +  logoName + ".ai");
+    addFile(selectedLogoFile);
+    var logoLayer = activeDocument.layers.getByName(logoName);
+
+    /// Resize image
+    var imageHeight = new UnitValue(logoLayer.bounds[3].value - logoLayer.bounds[1].value, 'px');
+    var resizeRatio = targetHeight / imageHeight * 100;
+    xPosition = new UnitValue (xPosition, 'px');
+    yPosition = new UnitValue (yPosition, 'px');
+    logoLayer.resize(resizeRatio, resizeRatio, AnchorPosition.MIDDLECENTER);
+
+    translateLayerTo(logoLayer, xPosition, yPosition, anchorPosition);
+
+    // Create group layer
+    //var metadataGroup = activeDocument.layerSets.add();
+    //metadataGroup.name = 'Logo group';
+    
+    //logoLayer.move(metadataGroup, ElementPlacement.INSIDE);
+}
+
+function loadPresetsInventory () {
+
+}
+
+function makeDarkerNoisierBlurier() {// Document selection
+    var doc = activeDocument;
+
+    // Layer selection
+    var targetLayer= doc.activeLayer;
+
+    targetLayer.duplicate(targetLayer, ElementPlacement.PLACEAFTER);
+
+    targetLayer.applyGaussianBlur(20);
+
+    targetLayer.adjustCurves([[0,0],[253,100]]);
+
+    targetLayer.applyAddNoise(2, NoiseDistribution.GAUSSIAN, true);
+
+}
+
+function addPresetInfo(selectedDocument, fontSize, textColor, fontName, fontTracking) {
+
+    var doc = selectedDocument;
+
+    var docPresetInfo = findPresetInfoInKeywords(doc);
+
+    if(docPresetInfo.presetPackName && docPresetInfo.presetName){
+
+        // Layer definition
+        var presetPackNameLayer = doc.artLayers.add();
+        presetPackNameLayer.name = 'preset pack';
+        presetPackNameLayer.kind = LayerKind.TEXT;
+
+        // Text Item definition
+        presetPackNameLayer.textItem.size = fontSize;
+        presetPackNameLayer.textItem.color = textColor;
+        presetPackNameLayer.textItem.font = fontName;
+        presetPackNameLayer.textItem.tracking = fontTracking;
+        presetPackNameLayer.textItem.justification = Justification.CENTER;
+        presetPackNameLayer.textItem.contents = docPresetInfo.presetPackName;
+        
+        // Layer definition
+        var presetNameLayer = doc.artLayers.add();
+        presetNameLayer.name = 'preset name';
+        presetNameLayer.kind = LayerKind.TEXT;
+
+        // Text Item definition
+        presetNameLayer.textItem.size = fontSize;
+        presetNameLayer.textItem.color = textColor;
+        presetNameLayer.textItem.font = fontName;
+        presetNameLayer.textItem.tracking = fontTracking;
+        presetNameLayer.textItem.justification = Justification.CENTER;
+        presetNameLayer.textItem.capitalization = TextCase.ALLCAPS;
+        presetNameLayer.textItem.contents = docPresetInfo.presetName;
+        
+
+    } else {
+        alert('None or more than one presetNames in doc.')
+    }
+    translateLayerTo(activeDocument.layers.getByName('preset pack'), UnitValue (540, 'px'),  UnitValue (90, 'px'), "topcenter");
+    translateLayerTo(activeDocument.layers.getByName('preset name'),  UnitValue (540, 'px'),  UnitValue (135, 'px'), "topcenter");
+    
+}
+
+// gets an ID for the active doc
+function getDocID() {
+    var ref = new ActionReference();
+    ref.putProperty(stringIDToTypeID("property"), stringIDToTypeID("documentID"));
+    ref.putEnumerated(charIDToTypeID("Dcmn"), stringIDToTypeID("ordinal"), stringIDToTypeID("targetEnum"));
+    var desc = executeActionGet(ref);
+    return desc.getInteger(stringIDToTypeID("documentID"));
+}
+
+// selects a doc with provided ID
+function selectByID(id) {
+    var desc = new ActionDescriptor();
+    var ref = new ActionReference();
+    ref.putIdentifier(charIDToTypeID("Dcmn"), id);
+    desc.putReference(charIDToTypeID("null"), ref);
+    executeAction(charIDToTypeID("slct"), desc, DialogModes.NO);
+}
