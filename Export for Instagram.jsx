@@ -31,56 +31,56 @@ var docRefName = activeDocument.name.replace(/(?:\.[^.]*$|$)/, '');
 
 // Open documents
 openAsLayer();
-var docRef_before = openUneditedRAW(docRef, "_before");
-var docRef_after = duplicateDocument(docRef, "_after");
+var docRef_unedited = openUneditedRAW(docRef, "_unedited");
+
 
 // Convert color profile to sRGB
 convertColorProfileToSRGB(docRef);
-convertColorProfileToSRGB(docRef_before);
-convertColorProfileToSRGB(docRef_after);
+convertColorProfileToSRGB(docRef_unedited);
 
 // Export copy full size
 exportCopyAsPNG(docRef, docRefPath, undefined,  undefined, undefined);
 
 
 // Export instagram version
+var docRef_before = duplicateDocument(docRef_unedited, docRef.name + "_before");
+var docRef_after = duplicateDocument(docRef, "_after");
+resizeImageToFitCanvas(docRef_before, targetWidth, targetHeight);
 resizeImageToFitCanvas(docRef_after, targetWidth, targetHeight);
-exportCopyAsPNG(docRef_after, docRefPath, undefined,  "instagram_", undefined)
+// exportCopyAsPNG(docRef_after, docRefPath, undefined,  "instagram_", undefined)
 
 
 // Resize to desired working size
-resizeImageToFillCanvas(docRef_before, targetWidth, targetHeight);
+resizeImageToFillCanvas(docRef_unedited, targetWidth, targetHeight);
 resizeImageToFillCanvas(docRef, targetWidth, targetHeight);
 
 
 // Create beforeAfter_split_horizontal overlays
 var docRef_beforeAfter_split_horizontal = duplicateDocument(docRef, "_beforeAfter_split_horizontal");
-copyActiveLayerFromSourceToTarget(docRef_before, docRef_beforeAfter_split_horizontal);
+copyActiveLayerFromSourceToTarget(docRef_unedited, docRef_beforeAfter_split_horizontal);
 activeDocument = docRef_beforeAfter_split_horizontal;
 addMasks();
 fillMask('horizontal');
 activeDocument = docRef_beforeAfter_split_horizontal;
 addFile(File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Design Overlays/Overlay - beforeAfter_split_horizontal.png"));
-translateLayerTo(activeDocument.activeLayer, 0, 0, "topleft");
+translateLayerTo(activeDocument.activeLayer, UnitValue(0, 'px'), UnitValue(0, 'px'), "topleft");
 activeDocument = docRef_beforeAfter_split_horizontal;
-// addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
-addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
-exportCopyAsPNG(docRef_beforeAfter_split_horizontal, docRefPath, undefined,  "instagram_", undefined)
+// addLogo("ChainCircle x Raleway_White - Horizontal", 45, 1035, 1305, "bottomright");
+// exportCopyAsPNG(docRef_beforeAfter_split_horizontal, docRefPath, undefined,  "instagram_", undefined)
 
 
 // Create beforeAfter_split_vertical overlays
 var docRef_beforeAfter_split_vertical = duplicateDocument(docRef, "_beforeAfter_split_vertical");
-copyActiveLayerFromSourceToTarget(docRef_before, docRef_beforeAfter_split_vertical);
+copyActiveLayerFromSourceToTarget(docRef_unedited, docRef_beforeAfter_split_vertical);
 activeDocument = docRef_beforeAfter_split_vertical;
 addMasks();
 fillMask('vertical');
 activeDocument = docRef_beforeAfter_split_vertical;
 addFile(File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Design Overlays/Overlay - beforeAfter_split_vertical.png"));
-translateLayerTo(activeDocument.activeLayer, 0, 0, "topleft");
+translateLayerTo(activeDocument.activeLayer, UnitValue(0, 'px'), UnitValue(0, 'px'), "topleft");
 activeDocument = docRef_beforeAfter_split_vertical;
-// addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
-addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
-exportCopyAsPNG(docRef_beforeAfter_split_vertical, docRefPath, undefined,  "instagram_", undefined)
+// addLogo("ChainCircle x Raleway_White - Horizontal", 45, 1035, 1305, "bottomright");
+// exportCopyAsPNG(docRef_beforeAfter_split_vertical, docRefPath, undefined,  "instagram_", undefined)
 
 
 // Create beforeAfter_sideBySide_horizontal overlays
@@ -88,7 +88,7 @@ var docRef_beforeAfter_sideBySide_horizontal = duplicateDocument(docRef, "_befor
 activeDocument = docRef_beforeAfter_sideBySide_horizontal;
 resizeLayerToFillDimensions(activeDocument.activeLayer, targetWidth, targetHeight / 2);
 translateLayerTo(activeDocument.activeLayer, targetWidth / 2, targetHeight * 3 / 4, "middlecenter");
-copyActiveLayerFromSourceToTarget(docRef_before, docRef_beforeAfter_sideBySide_horizontal);
+copyActiveLayerFromSourceToTarget(docRef_unedited, docRef_beforeAfter_sideBySide_horizontal);
 activeDocument = docRef_beforeAfter_sideBySide_horizontal;
 resizeLayerToFillDimensions(activeDocument.activeLayer, targetWidth, targetHeight / 2);
 translateLayerTo(activeDocument.activeLayer, targetWidth / 2, targetHeight / 4, "middlecenter");
@@ -96,11 +96,10 @@ addMasks();
 fillMask('horizontal');
 activeDocument = docRef_beforeAfter_sideBySide_horizontal;
 addFile(File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Design Overlays/Overlay - beforeAfter_sideBySide_horizontal.png"));
-translateLayerTo(activeDocument.activeLayer, 0, 0, "topleft");
+translateLayerTo(activeDocument.activeLayer, UnitValue(0, 'px'), UnitValue(0, 'px'), "topleft");
 activeDocument = docRef_beforeAfter_sideBySide_horizontal;
-// addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
-addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
-exportCopyAsPNG(docRef_beforeAfter_sideBySide_horizontal, docRefPath, undefined,  "instagram_", undefined)
+// addLogo("ChainCircle x Raleway_White - Horizontal", 45, 1035, 1305, "bottomright");
+// exportCopyAsPNG(docRef_beforeAfter_sideBySide_horizontal, docRefPath, undefined,  "instagram_", undefined)
 
 
 // Create beforeAfter_sideBySide_vetical overlays
@@ -108,7 +107,7 @@ var docRef_beforeAfter_sideBySide_vertical = duplicateDocument(docRef, "_beforeA
 activeDocument = docRef_beforeAfter_sideBySide_vertical;
 resizeLayerToFillDimensions(activeDocument.activeLayer, targetWidth / 2, targetHeight);
 translateLayerTo(activeDocument.activeLayer, targetWidth * 3 / 4, targetHeight / 2, "middlecenter");
-copyActiveLayerFromSourceToTarget(docRef_before, docRef_beforeAfter_sideBySide_vertical);
+copyActiveLayerFromSourceToTarget(docRef_unedited, docRef_beforeAfter_sideBySide_vertical);
 activeDocument = docRef_beforeAfter_sideBySide_vertical;
 resizeLayerToFillDimensions(activeDocument.activeLayer, targetWidth / 2, targetHeight);
 translateLayerTo(activeDocument.activeLayer, targetWidth / 4, targetHeight / 2, "middlecenter")
@@ -116,42 +115,45 @@ addMasks();
 fillMask('vertical');
 activeDocument = docRef_beforeAfter_sideBySide_vertical;
 addFile(File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Design Overlays/Overlay - beforeAfter_sideBySide_vertical.png"));
-translateLayerTo(activeDocument.activeLayer, 0, 0, "topleft");
+translateLayerTo(activeDocument.activeLayer, UnitValue(0, 'px'), UnitValue(0, 'px'), "topleft");
 activeDocument = docRef_beforeAfter_sideBySide_vertical;
-// addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
-addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
-exportCopyAsPNG(docRef_beforeAfter_sideBySide_vertical, docRefPath, undefined,  "instagram_", undefined)
+// addLogo("ChainCircle x Raleway_White - Horizontal", 45, 1035, 1305, "bottomright");
+// exportCopyAsPNG(docRef_beforeAfter_sideBySide_vertical, docRefPath, undefined,  "instagram_", undefined)
 
 
 // Edit settings
 var docRef_settings = duplicateDocument(docRef, "_settings");
 activeDocument = docRef_settings;
-makeDarkerNoisierBlurier();
-// addPresetInfo(activeDocument, fontSize, textColor, fontName, fontTracking);
+makeDarkerNoisierBlurier(10, 2, 128); //blur, noise, dark
 addPresetOverlay();
-//addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
-exportCopyAsPNG(docRef_settings, docRefPath, undefined,  "instagram_", undefined)
+addLogo("ChainCircle x Raleway_White - Horizontal", 45, 1035, 1305, "bottomright");
+// exportCopyAsPNG(docRef_settings, docRefPath, undefined,  "instagram_", undefined)
 
 
 // Edit metadata
 var docRef_metadata = duplicateDocument(docRef, "_metadata");
 activeDocument = docRef_metadata;
-makeDarkerNoisierBlurier();
+makeDarkerNoisierBlurier(10, 2, 128);
 addMetadataList([272, 42036, 37377, 37378, 34855, 37386, 'location', 'date', 'caption'], fontSize, textColor, fontName, fontTracking);
-addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
-exportCopyAsPNG(docRef_metadata, docRefPath, undefined,  "instagram_", undefined)
+addLogo("ChainCircle x Raleway_White - Horizontal", 45, 1035, 1305, "bottomright");
+// exportCopyAsPNG(docRef_metadata, docRefPath, undefined,  "instagram_", undefined)
 
 
-// Export instagram version
-resizeImageToFitCanvas(docRef_before, targetWidth, targetHeight);
-exportCopyAsPNG(docRef_before, docRefPath, undefined,  "instagram_", undefined)
+//Preset info
+var docRef_presetInfo = duplicateDocument(docRef, "_preset");
+makeDarkerNoisierBlurier(0, 0, 128);
+addFile(File("D:/OneDrive/Arturo - Personal/\xD3liver Lalan/Instagram Photos/Assets/Design Overlays/Overlay - preset.png"));
+addPresetInfo(activeDocument, "presetPack", 48, textColor, "WorkSansRoman-Bold", 300, 540, 585, "bottomcenter");
+addPresetInfo(activeDocument, "preset", 200, textColor, "WorkSansRoman-Thin", 200, 540, 315, "topcenter");
+// addLogo("ChainCircle x Raleway_White - Vertical", 45, 810, 1260, "topleft");
+
 
 // Expot copies target size
-// for (selectedDocument = 0; selectedDocument<app.documents.length; selectedDocument++) {
-//     exportCopyAsPNG (app.documents[selectedDocument], docRefPath, undefined,  "instagram_", undefined);
-// }
+for (selectedDocument = 2; selectedDocument<app.documents.length; selectedDocument++) {
+    exportCopyAsPNG (app.documents[selectedDocument], docRefPath, undefined,  "instagram_", undefined);
+}
 // exportCopyAsPNG(docRef, docRefPath, undefined,  "instagram_", undefined);
-// exportCopyAsPNG(docRef_before, docRefPath, undefined,  "instagram_", undefined);
+// exportCopyAsPNG(docRef_unedited, docRefPath, undefined,  "instagram_", undefined);
 // exportCopyAsPNG(docRef_beforeAfter_split_vertical, docRefPath, undefined,  "instagram_", undefined);
 // exportCopyAsPNG(docRef_settings, docRefPath, undefined,  "instagram_", undefined);
 // exportCopyAsPNG(docRef_metadata, docRefPath, undefined,  "instagram_", undefined);
@@ -430,7 +432,7 @@ function addPresetOverlay () {
     var doc = activeDocument;
     var docPresetInfo = findPresetInfoInKeywords(doc);
 
-    addLogo("ChainCircle x Raleway_White - Horizontal", 45, 810, 1260, "topleft");
+    addLogo("ChainCircle x Raleway_White - Horizontal", 45, 1035, 1305, "bottomright");
 
     if(docPresetInfo.presetPackName && docPresetInfo.presetName){
         
@@ -540,21 +542,11 @@ function translateLayerTo(selectedLayer,finalX,finalY, anchorPosition) {
     var height = bounds[3] - bounds[1];
 
     switch (anchorPosition) {
-        case "middlecenter":
-        dX = finalX - bounds[0] - width / 2;
-        dY = finalY - bounds[1] - height / 2;
-        break;
-
-        case "middleleft":
+        case "topleft":
         dX = finalX - bounds[0];
-        dY = finalY - bounds[1] - height / 2;
+        dY = finalY - bounds[1];
         break;
-
-        case "middleright":
-        dX = finalX - bounds[0] - width;
-        dY = finalY - bounds[1] - height / 2;
-        break;
-
+        
         case "topcenter":
         dX = finalX - bounds[0] - width /2;
         dY = finalY - bounds[1];
@@ -565,14 +557,39 @@ function translateLayerTo(selectedLayer,finalX,finalY, anchorPosition) {
         dY = finalY - bounds[1];
         break;
 
+        case "middleleft":
+        dX = finalX - bounds[0];
+        dY = finalY - bounds[1] - height / 2;
+        break;
+
+        case "middlecenter":
+        dX = finalX - bounds[0] - width / 2;
+        dY = finalY - bounds[1] - height / 2;
+        break;
+
+        case "middleright":
+        dX = finalX - bounds[0] - width;
+        dY = finalY - bounds[1] - height / 2;
+        break;
+
         case "bottomleft":
         dX = finalX - bounds[0];
         dY = finalY - bounds[1] - height;
         break;
+        
+        case "bottomcenter":
+        dX = finalX - bounds[0] - width / 2;
+        dY = finalY - bounds[1] - height;
+        break;
+
+        case "bottomright":
+        dX = finalX - bounds[0] - width;
+        dY = finalY - bounds[1] - height;
+        break;
 
         default:
-        dX = finalX - bounds[0]
-        dY = finalY - bounds[1]
+        dX = finalX - bounds[0] - width / 2;
+        dY = finalY - bounds[1] - height / 2;
 
     }
     
@@ -1032,7 +1049,7 @@ function loadPresetsInventory () {
 
 }
 
-function makeDarkerNoisierBlurier() {// Document selection
+function makeDarkerNoisierBlurier(blur, noise, dark) {// Document selection
     var doc = activeDocument;
 
     // Layer selection
@@ -1040,55 +1057,48 @@ function makeDarkerNoisierBlurier() {// Document selection
 
     targetLayer.duplicate(targetLayer, ElementPlacement.PLACEAFTER);
 
-    targetLayer.applyGaussianBlur(20);
+    targetLayer.applyGaussianBlur(blur);
 
-    targetLayer.adjustCurves([[0,0],[253,100]]);
+    targetLayer.adjustCurves([[0,0],[255,dark]]);
 
-    targetLayer.applyAddNoise(2, NoiseDistribution.GAUSSIAN, true);
+    targetLayer.applyAddNoise(noise, NoiseDistribution.GAUSSIAN, true);
 
 }
 
-function addPresetInfo(selectedDocument, fontSize, textColor, fontName, fontTracking) {
+function addPresetInfo(selectedDocument, presetInfo, fontSize, textColor, fontName, fontTracking, xPosition, yPosition, anchorPosition) {
 
     var doc = selectedDocument;
 
     var docPresetInfo = findPresetInfoInKeywords(doc);
 
-    if(docPresetInfo.presetPackName && docPresetInfo.presetName){
-
-        // Layer definition
-        var presetPackNameLayer = doc.artLayers.add();
-        presetPackNameLayer.name = 'preset pack';
-        presetPackNameLayer.kind = LayerKind.TEXT;
-
-        // Text Item definition
-        presetPackNameLayer.textItem.size = fontSize;
-        presetPackNameLayer.textItem.color = textColor;
-        presetPackNameLayer.textItem.font = fontName;
-        presetPackNameLayer.textItem.tracking = fontTracking;
-        presetPackNameLayer.textItem.justification = Justification.CENTER;
-        presetPackNameLayer.textItem.contents = docPresetInfo.presetPackName;
-        
-        // Layer definition
-        var presetNameLayer = doc.artLayers.add();
-        presetNameLayer.name = 'preset name';
-        presetNameLayer.kind = LayerKind.TEXT;
-
-        // Text Item definition
-        presetNameLayer.textItem.size = fontSize;
-        presetNameLayer.textItem.color = textColor;
-        presetNameLayer.textItem.font = fontName;
-        presetNameLayer.textItem.tracking = fontTracking;
-        presetNameLayer.textItem.justification = Justification.CENTER;
-        presetNameLayer.textItem.capitalization = TextCase.ALLCAPS;
-        presetNameLayer.textItem.contents = docPresetInfo.presetName;
-        
-
-    } else {
-        alert('None or more than one presetNames in doc.')
+    // Layer definition
+    var presetInfoLayer = doc.artLayers.add();
+    presetInfoLayer.kind = LayerKind.TEXT;
+    switch(presetInfo) {
+        case 'presetPack':
+        presetInfoLayer.name = 'presetPackName';
+        presetInfoLayer.textItem.contents = docPresetInfo.presetPackName;
+        break;
+        case 'preset':
+        presetInfoLayer.name = 'presetName';
+        presetInfoLayer.textItem.contents = docPresetInfo.presetName;
+        break;
+        default:
+        presetInfoLayer.name = 'undefined';
+        presetInfoLayer.textItem.contents = "presetInfo missing";
+        break;
     }
-    translateLayerTo(activeDocument.layers.getByName('preset pack'), UnitValue (540, 'px'),  UnitValue (90, 'px'), "topcenter");
-    translateLayerTo(activeDocument.layers.getByName('preset name'),  UnitValue (540, 'px'),  UnitValue (135, 'px'), "topcenter");
+
+    // Text Item definition
+    presetInfoLayer.textItem.size = new UnitValue(fontSize, 'px');
+    presetInfoLayer.textItem.color = textColor;
+    presetInfoLayer.textItem.font = fontName;
+    presetInfoLayer.textItem.tracking = fontTracking;
+    presetInfoLayer.textItem.justification = Justification.CENTER;
+    presetInfoLayer.textItem.capitalization = TextCase.ALLCAPS;
+
+    // Move layer to defined position
+    translateLayerTo(activeDocument.layers.getByName(presetInfo + "Name"), UnitValue (xPosition, 'px'),  UnitValue (yPosition, 'px'), anchorPosition);
     
 }
 
