@@ -178,11 +178,11 @@ function addHistogram(RGB, Lab, MaxRGB) {
 
             activeDocument.activeLayer.blendMode = BlendMode.NORMAL; // blending mode "normal"
 
-            activeDocument.activeLayer.opacity = 60; // opacity 60%
+            activeDocument.activeLayer.opacity = 100; // opacity 100%
 
             //
 
-            var hhGraph = 60;
+            var hhGraph = 135;
 
             var hY = 400; // base y of graph
 
@@ -202,13 +202,15 @@ function addHistogram(RGB, Lab, MaxRGB) {
 
             // fill (filltype [, mode] [, opacity] [, preserveTransparency])  // filltype: SolidColor  |  mode: ColorBlendMode  |  opacity: [1..100] 
 
-            app.activeDocument.selection.fill(app.foregroundColor, ColorBlendMode.SCREEN, 0, false);
+            app.activeDocument.selection.fill(app.foregroundColor, ColorBlendMode.SCREEN, 0, false); // background 
 
             activeDocument.selection.deselect();
 
             //
 
             var myHist = [];
+
+            var maxY = 0;
 
             //
 
@@ -268,17 +270,33 @@ function addHistogram(RGB, Lab, MaxRGB) {
 
                 myHist = hL;
 
+                // find maxY for normalizing graph
+
+                for ( i = 0; i <= 255; i++ ) {
+
+                     if (MaxRGB) {
+
+                        if (Math.floor(Math.max(hR[i], hG[i], hB[i])) > maxY) maxY = Math.floor(Math.max(hR[i], hG[i], hB[i]));
+
+                    } else {
+
+                        if (Math.floor(myHist[i] > maxY)) maxY = Math.floor(myHist[i]);
+
+                    }
+
+                }
+
                 for ( i = 0; i <= 255; i++ ) {
 
                     var col = i+hX;
 
                     if (MaxRGB) {
 
-                        var YYY = Math.min(Math.floor(Math.max(hR[i], hG[i], hB[i])*hhGraph/totalPixels1Col), 320);
+                        var YYY = Math.floor(Math.max(hR[i], hG[i], hB[i])*hhGraph/maxY);
 
                     } else {
 
-                        var YYY = Math.min(Math.floor(myHist[i]*hhGraph/totalPixels1Col), 320);
+                        var YYY = Math.floor(myHist[i]*hhGraph/maxY);
 
                     }
 
@@ -294,7 +312,15 @@ function addHistogram(RGB, Lab, MaxRGB) {
 
                 // fill (filltype [, mode] [, opacity] [, preserveTransparency])  // filltype: SolidColor  |  mode: ColorBlendMode  |  opacity: [1..100] 
 
-                app.activeDocument.selection.fill(app.foregroundColor, ColorBlendMode.SCREEN, 100, false);
+                // app.activeDocument.selection.fill(app.foregroundColor, ColorBlendMode.SCREEN, 100, false);
+
+                // feather (by) |   by: UnitValue
+
+                // app.activeDocument.selection.feather(UnitValue(0.3, 'px'));
+
+                // stroke ( strokeColor [, width] [, location] [, mode] [, opacity] [, preserveTransparency])   //    width: number |   location: StrokeLocation    |   mode: ColorBlendMode   |   opacity: [1..100]    | preserveTransparency: boolean
+                
+                app.activeDocument.selection.stroke(app.foregroundColor, 2, StrokeLocation.INSIDE, ColorBlendMode.NORMAL, 100, false);
 
                 activeDocument.selection.deselect();
 
