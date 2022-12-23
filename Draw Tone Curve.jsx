@@ -1,8 +1,8 @@
 #target photoshop
 
-drawToneCurve([[0,36], [44,68], [118,129], [255,250]]);
+drawToneCurve([[0,36], [44,75], [118,90], [255,250]], 2, 255, 255, 255);
 
-function drawToneCurve(curvePoints) {
+function drawToneCurve(curvePoints, width, c_r, c_g, c_b) {
 
 // Save the current preferences
 
@@ -16,17 +16,28 @@ function drawToneCurve(curvePoints) {
 
     var lineArray = new Array()
 
-    for (i = 0; i<curvePoints.length-1; i++) {
+    for (i = 0; i < curvePoints.length * 2 -1; i++) {
 
-        
+        if( i < curvePoints.length ) {
+            var curvePointIndex = i;
+        } else {
+            var curvePointIndex = 2 * (curvePoints.length-1) - i + 1 ;
+        }
+
         lineArray[i] = new PathPointInfo
-        lineArray[i].kind = PointKind.CORNERPOINT
-        lineArray[i].anchor = Array(curvePoints[i][0], 255 - curvePoints[i][1])
+        lineArray[i].kind = PointKind.SMOOTHPOINT
+        lineArray[i].anchor = Array(curvePoints[curvePointIndex][0], 255 - curvePoints[curvePointIndex][1])
         lineArray[i].leftDirection = lineArray[i].anchor
         lineArray[i].rightDirection = lineArray[i].anchor
         lineArray[i+1] = new PathPointInfo
-        lineArray[i+1].kind = PointKind.CORNERPOINT
-        lineArray[i+1].anchor = Array(curvePoints[i+1][0], 255 - curvePoints[i+1][1])
+        lineArray[i+1].kind = PointKind.SMOOTHPOINT
+
+        if( i < curvePoints.length -1 ) {
+            lineArray[i+1].anchor = Array(curvePoints[curvePointIndex+1][0], 255 - curvePoints[curvePointIndex+1][1])
+        } else {
+            lineArray[i+1].anchor = Array(curvePoints[curvePointIndex-1][0], 255 - curvePoints[curvePointIndex-1][1])
+        }
+
         lineArray[i+1].leftDirection = lineArray[i+1].anchor
         lineArray[i+1].rightDirection = lineArray[i+1].anchor
         toneCurvePathArray[i] = new SubPathInfo()
@@ -35,17 +46,15 @@ function drawToneCurve(curvePoints) {
         toneCurvePathArray[i].entireSubPath = lineArray
 
     }
-    
+ 
     //create the path item
     var myPathItem = activeDocument.pathItems.add("Line", toneCurvePathArray)
 
     var currentPathItem = app.activeDocument.pathItems.getByName("Line");
 
     convertPathtoShape();
-    
 
     setStroke (255, 255, 255, 2);
-    // app.activeDocument.selection.fill(app.foregroundColor, ColorBlendMode.SCREEN, 0, false);
     
     myPathItem.remove();
 
