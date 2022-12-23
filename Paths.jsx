@@ -1,6 +1,5 @@
 #target photoshop
 
-makeBeforeAfterMask();
 
 function makeBeforeAfterMask () {
 

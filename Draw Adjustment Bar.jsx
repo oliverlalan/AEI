@@ -3,51 +3,132 @@
 function Setting(displayName, crsName, min, max) {
     this.displayName = displayName;
     this.crsName = crsName;
-    this.value = 
     this.min = min;
     this.max = max;
+    this.settingValue = [];
+
+    if(this.crsName.match("ToneCurvePV2012")) {
+
+        for (i=0; i<xmpMeta.countArrayItems(ns,this.crsName); i++) {
+
+            var inputValue  = xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[0];
+            var outputValue = xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[1];
+
+            this.settingValue.push([inputValue, outputValue]);
+
+        }
+
+    } else {
+        
+        this.settingValue = xmpMeta.getProperty(ns, this.crsName);
+
+    }
+
 }
-
-
-// Basic parameters
-var temperature  =  new Setting ( "Temperature", "Temperature",                     +1000,  +10000  );
-var tint         =  new Setting ( "Tint",        "Tint",                            -150,   +150    );
-
-var exposure     =  new Setting ( "Exposure",    "Exposure2012",                    -5,     +5      );
-var contrast     =  new Setting ( "Contrast",    "Contrast2012",                    -100,   +100    );
-var highlights   =  new Setting ( "Highlights",  "Highlights2012",                  -100,   +100    );
-var shadows      =  new Setting ( "Shadows",     "Shadows2012",                     -100,   +100    );
-var whites       =  new Setting ( "Whites",      "Whites2012",                      -100,   +100    );
-var blacks       =  new Setting ( "Blacks",      "Blacks2012",                      -100,   +100    );
-
-var texture      =  new Setting ( "Texture",     "Texture",                         -100,   +100    );
-var clarity      =  new Setting ( "Clarity",     "Clarity2012",                     -100,   +100    );
-var dehaze       =  new Setting ( "Dehaze",      "Dehaze",                          -100,   +100    );
-var vibrance     =  new Setting ( "Vibrance",    "Vibrance",                        -100,   +100    );
-var saturation   =  new Setting ( "Saturation",  "Saturation",                      -100,   +100    );
-
-// Color grading
-var midtoneHue   =  new Setting ( "H",           "ColorGradeMidtoneHue",            0,      +359    );
-var midtoneSat   =  new Setting ( "S",           "ColorGradeMidtoneSat",            0,      +100    );
-var midtoneLum   =  new Setting ( "L",           "ColorGradeMidtoneLum",            -100,   +100    );
-var shadowHue    =  new Setting ( "H",           "SplitToningShadowHue",            0,      +359    );         
-var shadowSat    =  new Setting ( "S",           "SplitToningShadowSaturation",     0,      +100    );
-var shadowLum    =  new Setting ( "L",           "ColorGradeShadowLum",             -100,   +100    );
-var highlightHue =  new Setting ( "H",           "SplitToningHighlightHue",         0,      +359    );
-var highlightSat =  new Setting ( "S",           "SplitToningHighlightSaturation",  0,      +100    );
-var highlightLum =  new Setting ( "L",           "ColorGradehighlightLum",          -100,   +100    );
-
-
-
 
 var ns = "http://ns.adobe.com/camera-raw-settings/1.0/"; // Found in xmp header
 ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
 xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData); 
 
 
+// Basic parameters
+var temperature                   =  new Setting ( "Temperature",          "Temperature",                         +1000,  +10000  );
+var tint                          =  new Setting ( "Tint",                 "Tint",                                -150,   +150    );
+                
+var exposure                      =  new Setting ( "Exposure",             "Exposure2012",                        -5,     +5      );
+var contrast                      =  new Setting ( "Contrast",             "Contrast2012",                        -100,   +100    );
+var highlights                    =  new Setting ( "Highlights",           "Highlights2012",                      -100,   +100    );
+var shadows                       =  new Setting ( "Shadows",              "Shadows2012",                         -100,   +100    );
+var whites                        =  new Setting ( "Whites",               "Whites2012",                          -100,   +100    );
+var blacks                        =  new Setting ( "Blacks",               "Blacks2012",                          -100,   +100    );
+                
+var texture                       =  new Setting ( "Texture",              "Texture",                             -100,   +100    );
+var clarity                       =  new Setting ( "Clarity",              "Clarity2012",                         -100,   +100    );
+var dehaze                        =  new Setting ( "Dehaze",               "Dehaze",                              -100,   +100    );
+var vibrance                      =  new Setting ( "Vibrance",             "Vibrance",                            -100,   +100    );
+var saturation                    =  new Setting ( "Saturation",           "Saturation",                          -100,   +100    );
+
+// Tone Curve
+var toneCurve                     =  new Setting ( "Tone Curve",           "ToneCurvePV2012",                     -0,     +255    );
+var toneCurveRed                  =  new Setting ( "Red Tone Curve",       "ToneCurvePV2012Red",                  -0,     +255    );
+var toneCurveGreen                =  new Setting ( "Green Tone Curve",     "ToneCurvePV2012Green",                -0,     +255    );
+var toneCurveBlue                 =  new Setting ( "Blue Tone Curve",      "ToneCurvePV2012Blue",                 -0,     +255    );
+
+// HSL
+var redHue                        =  new Setting ( "Red Hue",              "HueAdjustmentRed",                    -100,   +100    );
+var orangeHue                     =  new Setting ( "Orange Hue",           "HueAdjustmentOrange",                 -100,   +100    );
+var yellowHue                     =  new Setting ( "Yellow Hue",           "HueAdjustmentYellow",                 -100,   +100    );
+var greenHue                      =  new Setting ( "Green Hue",            "HueAdjustmentGreen",                  -100,   +100    );
+var aquaHue                       =  new Setting ( "Aqua Hue",             "HueAdjustmentAqua",                   -100,   +100    );
+var blueHue                       =  new Setting ( "Blue Hue",             "HueAdjustmentBlue",                   -100,   +100    );
+var purpleHue                     =  new Setting ( "Purple Hue",           "HueAdjustmentPurple",                 -100,   +100    );
+var magentaHue                    =  new Setting ( "Magenta Hue",          "HueAdjustmentMagenta",                -100,   +100    );
+var redSaturation                 =  new Setting ( "Red Saturation",       "SaturationAdjustmentRed",             -100,   +100    );
+var orangeSaturation              =  new Setting ( "Orange Saturation",    "SaturationAdjustmentOrange",          -100,   +100    );
+var yellowSaturation              =  new Setting ( "Yellow Saturation",    "SaturationAdjustmentYellow",          -100,   +100    );
+var greenSaturation               =  new Setting ( "Green Saturation",     "SaturationAdjustmentGreen",           -100,   +100    );
+var aquaSaturation                =  new Setting ( "Aqua Saturation",      "SaturationAdjustmentAqua",            -100,   +100    );
+var blueSaturation                =  new Setting ( "Blue Saturation",      "SaturationAdjustmentBlue",            -100,   +100    );
+var purpleSaturation              =  new Setting ( "Purple Saturation",    "SaturationAdjustmentPurple",          -100,   +100    );
+var magentaSaturation             =  new Setting ( "Magenta Saturation",   "SaturationAdjustmentMagenta",         -100,   +100    );
+var redLuminance                  =  new Setting ( "Red Luminance",        "LuminanceAdjustmentRed",              -100,   +100    );
+var orangeLuminance               =  new Setting ( "Orange Luminance",     "LuminanceAdjustmentOrange",           -100,   +100    );
+var yellowLuminance               =  new Setting ( "Yellow Luminance",     "LuminanceAdjustmentYellow",           -100,   +100    );
+var greenLuminance                =  new Setting ( "Green Luminance",      "LuminanceAdjustmentGreen",            -100,   +100    );
+var aquaLuminance                 =  new Setting ( "Aqua Luminance",       "LuminanceAdjustmentAqua",             -100,   +100    );
+var blueLuminance                 =  new Setting ( "Blue Luminance",       "LuminanceAdjustmentBlue",             -100,   +100    );
+var purpleLuminance               =  new Setting ( "Purple Luminance",     "LuminanceAdjustmentPurple",           -100,   +100    );
+var magentaLuminance              =  new Setting ( "Magenta Luminance",    "LuminanceAdjustmentMagenta",          -100,   +100    );
+                
+// Color grading                    
+var midtoneHue                    =  new Setting ( "H",                    "ColorGradeMidtoneHue",                0,      +359    );
+var midtoneSat                    =  new Setting ( "S",                    "ColorGradeMidtoneSat",                0,      +100    );
+var midtoneLum                    =  new Setting ( "L",                    "ColorGradeMidtoneLum",                -100,   +100    );
+var shadowHue                     =  new Setting ( "H",                    "SplitToningShadowHue",                0,      +359    );         
+var shadowSat                     =  new Setting ( "S",                    "SplitToningShadowSaturation",         0,      +100    );
+var shadowLum                     =  new Setting ( "L",                    "ColorGradeShadowLum",                 -100,   +100    );
+var highlightHue                  =  new Setting ( "H",                    "SplitToningHighlightHue",             0,      +359    );
+var highlightSat                  =  new Setting ( "S",                    "SplitToningHighlightSaturation",      0,      +100    );
+var highlightLum                  =  new Setting ( "L",                    "ColorGradehighlightLum",              -100,   +100    );
+var globalHue                     =  new Setting ( "H",                    "ColorGradeGlobalHue",                 0,      +359    );
+var globalSat                     =  new Setting ( "S",                    "ColorGradeGlobalSat",                 0,      +100    );
+var globalLum                     =  new Setting ( "L",                    "ColorGradeGlobalLum",                 -100,   +100    );
+var blending                      =  new Setting ( "Blending",             "ColorGradeBlending",                  0,      +100    );
+var balance                       =  new Setting ( "Balance",              "SplitToningBalance",                  -100,   +100    );
+        
+// Detail
+// Sharpenning
+var sharpeningAmount              =  new Setting ( "Amount",               "Sharpeness",                          0,      +150    );
+var sharpeningRadius              =  new Setting ( "Radius",               "SharpenRadius",                       +0.5,   +3      );
+var sharpeningDetail              =  new Setting ( "Detail",               "SharpenDetail",                       0,      +100    );
+var sharpeningMasking             =  new Setting ( "Masking",              "SharpenEdgeMasking",                  0,      +100    );
+// Noise Reduction
+var luminanceNoiseReduction       =  new Setting ( "Luminance",            "LuminanceSmoothing",                  -100,   +100    );
+// TODO Add missing detail and contrast
+var colorNoiseReduction           =  new Setting ( "Color",                "ColorNoiseReduction",                 -100,   +100    );
+var colorNoiseReductionDetail     =  new Setting ( "Detail",               "ColorNoiseReductionDetail",           -100,   +100    );
+var colorNoiseReductionSmoothness =  new Setting ( "Smoothness",           "ColorNoiseReductionSmoothness",       -100,   +100    );
+
+// Effects
+// Vignetting
+// Grain
+var grainAmount                   =  new Setting ( "Amount",               "GrainAmount",                         -100,   +100    );
+var grainSize                     =  new Setting ( "Size",                 "GrainSize",                           -100,   +100    );
+var grainFrequency                =  new Setting ( "Roughness",            "GrainFrequency",                      -100,   +100    );
+
+//Calibration
+var shadowTintCalibration         =  new Setting ( "Shadow Tint",          "ShadowTint",                          -100,   +100    );
+var redHueCalibration             =  new Setting ( "Red Hue",              "RedHue",                              -100,   +100    );
+var redSaturationCalibration      =  new Setting ( "Red Saturation",       "RedSaturation",                       -100,   +100    );
+var greenHueCalibration           =  new Setting ( "Green Hue",            "GreenHue",                            -100,   +100    );
+var greenSaturationCalibration    =  new Setting ( "Green Saturation",     "GreenSaturation",                     -100,   +100    );
+var blueHueCalibration            =  new Setting ( "Blue Hue",             "BlueHue",                             -100,   +100    );
+var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "BlueSaturation",                      -100,   +100    );
+
 
 // addAdjustmentLine(saturation, 100, 100, 225, 3, 4, 16);
-
+addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
+addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
 
 
 function addAdjustmentBars(parametersArray, yStartingPosition) {
@@ -64,21 +145,15 @@ function addAdjustmentBars(parametersArray, yStartingPosition) {
 
 }
 
-addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
-addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
-
-
-
 function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circleRadius, labelSize) {
-
-    var settingValue = xmpMeta.getProperty(ns,selectedSetting.crsName);
+    
     var minSetting = selectedSetting.min;
     var maxSetting = selectedSetting.max;
     var labelSize = labelSize;
     
     var minSettingX = x;
     var maxSettingX = x + lineLength;
-    var settingX = minSettingX + lineLength / 2 + settingValue / (maxSetting - minSetting) * lineLength;
+    var settingX = minSettingX + lineLength / 2 + selectedSetting.settingValue / (maxSetting - minSetting) * lineLength;
     var minSettingY = maxSettingY = settingY = y;
 
     var adjustmentGroup = activeDocument.layerSets.add();
