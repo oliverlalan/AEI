@@ -172,7 +172,6 @@ function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circl
 
 }
 
-
 function drawLine(selectedSetting, x1, y1, x2, y2, strokeWidth) {
     
     var lineSubPathArray = new Array();
@@ -700,4 +699,36 @@ function evalSpline (x, xs, ys, ks)
     
     var q = (1-t)*ys[i-1] + t*ys[i] + t*(1-t)*(a*(1-t)+b*t);
     return q;
+}
+
+
+function addHSLTable (x , y) {
+
+    var HSLSettings = [redHue, orangeHue, yellowHue, greenHue, aquaHue, blueHue, purpleHue, magentaHue, redSaturation, orangeSaturation, yellowSaturation, greenSaturation, aquaSaturation, blueSaturation, purpleSaturation, magentaSaturation, redLuminance, orangeLuminance, yellowLuminance, greenLuminance, aquaLuminance, blueLuminance, purpleLuminance, magentaLuminance];
+    var colorValues = ["Red", "Orange", "Yellow", "Green", "Aqua", "Blue", "Purple", "Magenta"];
+    var HSLValues = ["Hue", "Saturation", "Luminance"];
+
+    for (i = 0; i < HSLSettings.length, i ++) {
+
+    }
+
+
+
+
+    for
+    
+}
+
+function returnMatches (array, targetString) {
+
+    var matchesArray = [];
+
+    for (i = 0; i < array.length, i ++) {
+
+        if(array[i].matches(targetString)) { matchesArray.push(array[i]); }
+
+    }
+
+    return matchesArray;
+
 }
