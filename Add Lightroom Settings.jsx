@@ -128,10 +128,11 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 // addAdjustmentLine(saturation, 100, 100, 225, 3, 4, 16);
 // addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
 // addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
-addCurves(toneCurve.settingValue, 2, 255, 255, 255); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
-addCurves(toneCurveRed.settingValue, 2, 201, 67, 10);
-addCurves(toneCurveGreen.settingValue, 2, 25, 128, 76);
-addCurves(toneCurveBlue.settingValue, 2, 0, 151, 194);
+// addCurves(toneCurve.settingValue, 2, 255, 255, 255); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
+// addCurves(toneCurveRed.settingValue, 2, 201, 67, 10);
+// addCurves(toneCurveGreen.settingValue, 2, 25, 128, 76);
+// addCurves(toneCurveBlue.settingValue, 2, 0, 151, 194);
+addHSLTable( 135, 825, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS)
 
 function addAdjustmentBars(parametersArray, yStartingPosition) {
 
@@ -679,33 +680,41 @@ function evalSpline (x, xs, ys, ks)
 }
 
 
-function addHSLTable (x , y) {
+function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization) {
 
-    var HSLSettings = [redHue, orangeHue, yellowHue, greenHue, aquaHue, blueHue, purpleHue, magentaHue, redSaturation, orangeSaturation, yellowSaturation, greenSaturation, aquaSaturation, blueSaturation, purpleSaturation, magentaSaturation, redLuminance, orangeLuminance, yellowLuminance, greenLuminance, aquaLuminance, blueLuminance, purpleLuminance, magentaLuminance];
-    var colorValues = ["Red", "Orange", "Yellow", "Green", "Aqua", "Blue", "Purple", "Magenta"];
-    var HSLValues = ["Hue", "Saturation", "Luminance"];
-
-    for (i = 0; i < HSLSettings.length, i ++) {
-
-    }
-
-
-
-
-    for
+    var HSLGroup = activeDocument.layerSets.add();
+    HSLGroup.name = "HSL";
     
-}
+    var xInitialPosition = xPosition;
+    var yInitialPosition = yPosition;
+    var HSLTable = [["",            "Hue",                      "Sat",                           "Lum"                             ],
+                    ["Red",         redHue.settingValue,         redSaturation.settingValue,      redLuminance.settingValue        ],
+                    ["Orange",      orangeHue.settingValue,      orangeSaturation.settingValue,   orangeLuminance.settingValue     ],
+                    ["Yellow",      yellowHue.settingValue,      yellowSaturation.settingValue,   yellowLuminance.settingValue     ],
+                    ["Green",       greenHue.settingValue,       greenSaturation.settingValue,    greenLuminance.settingValue      ],
+                    ["Aqua",        aquaHue.settingValue,        aquaSaturation.settingValue,     aquaLuminance.settingValue       ],
+                    ["Blue",        blueHue.settingValue,        blueSaturation.settingValue,     blueLuminance.settingValue       ],
+                    ["Purple",      purpleHue.settingValue,      purpleSaturation.settingValue,   purpleLuminance.settingValue     ],
+                    ["Magenta",     magentaHue.settingValue,     magentaSaturation.settingValue,  magentaLuminance.settingValue    ]]
 
-function returnMatches (array, targetString) {
+    for (i = 0; i < HSLTable.length; i ++) {
 
-    var matchesArray = [];
+        for (j = 0; j < HSLTable[0].length; j ++) {
 
-    for (i = 0; i < array.length, i ++) {
+            var textLayer = addText(HSLTable[i][j], xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);  // text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
 
-        if(array[i].matches(targetString)) { matchesArray.push(array[i]); }
+            try {
+                textLayer.move(HSLGroup, ElementPlacement.INSIDE);
+            } catch (e) {};
+
+            xPosition += 60;
+
+        } 
+
+        xPosition = xInitialPosition;
+
+        yPosition += 30;
 
     }
-
-    return matchesArray;
-
+    
 }
