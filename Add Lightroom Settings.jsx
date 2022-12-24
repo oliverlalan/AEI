@@ -999,7 +999,7 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
                 }
 
-                for ( i = 1; i <= 254; i++ ) {
+                for ( i = 2; i <= 253; i++ ) {
 
                     var col = i+hX;
 
@@ -1011,7 +1011,7 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
                         // var YYY = Math.floor(myHist[i]*hhGraph/maxY);
                         // Smooth verstion 
-                        var YYY = (Math.floor(myHist[i]*hhGraph/maxY) + Math.floor(myHist[i]*hhGraph/maxY) + Math.floor(myHist[i]*hhGraph/maxY)) / 3;
+                        var YYY = (Math.floor(myHist[i-2]*hhGraph/maxY) + Math.floor(myHist[i-1]*hhGraph/maxY) + Math.floor(myHist[i]*hhGraph/maxY) + Math.floor(myHist[i+1]*hhGraph/maxY)+ Math.floor(myHist[i+2]*hhGraph/maxY)) / 5;
 
                     }
 
