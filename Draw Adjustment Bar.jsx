@@ -211,6 +211,8 @@ function drawLine(selectedSetting, x1, y1, x2, y2, strokeWidth) {
 
     app.activeDocument.activeLayer.name = selectedSetting.displayName + " Line";
 
+    app.activeDocument.activeLayer.rasterize(RasterizeType.SHAPE);
+
     return app.activeDocument.activeLayer;
 }
 
