@@ -343,25 +343,28 @@ function drawCircle(selectedSetting, x, y, radius){
 
 function addText (text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization) {
 
-    var textLayer = app.activeDocument.artLayers.add();
+    if(text!= "") {
 
-    textLayer.kind = LayerKind.TEXT;
-    textLayer.textItem.contents = text;
-    textLayer.textItem.size = new UnitValue(fontSize, 'px');
-    fontColor = new SolidColor();
-    fontColor.rgb.hexValue = fontHexColor;
-    textLayer.textItem.color = fontColor;
-    textLayer.textItem.font = fontName;
-    textLayer.textItem.tracking = fontTracking;
-    textLayer.textItem.justification = fontJustification;
-    textLayer.textItem.capitalization = fontCapitalization;
+        var textLayer = app.activeDocument.artLayers.add();
 
-    translateLayerTo(textLayer, xPosition, yPosition, anchorPosition);
+        textLayer.kind = LayerKind.TEXT;
+        textLayer.textItem.contents = text;
+        textLayer.textItem.size = new UnitValue(fontSize, 'px');
+        fontColor = new SolidColor();
+        fontColor.rgb.hexValue = fontHexColor;
+        textLayer.textItem.color = fontColor;
+        textLayer.textItem.font = fontName;
+        textLayer.textItem.tracking = fontTracking;
+        textLayer.textItem.justification = fontJustification;
+        textLayer.textItem.capitalization = fontCapitalization;
 
-    return app.activeDocument.activeLayer;
+        translateLayerTo(textLayer, xPosition, yPosition, anchorPosition);
+
+        return app.activeDocument.activeLayer;
+
+    }
 
 }
-
 
 function translateLayerTo(selectedLayer,xPosition,yPosition, anchorPosition) {
 
