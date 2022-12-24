@@ -164,9 +164,9 @@ function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circl
     lineLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
     var circleLayer = drawCircle(selectedSetting, settingX, settingY, circleRadius);
     circleLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
-    var labelLayer = addSettingLabel(selectedSetting, minSettingX, minSettingY - 1.5 * labelSize, "topleft", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+    var labelLayer = addText(selectedSetting.displayName, minSettingX, minSettingY - 1.5 * labelSize, "topleft", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
     labelLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
-    var valueLayer = addSettingValue(selectedSetting, maxSettingX, minSettingY - 1.5 * labelSize, "topright", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS);
+    var valueLayer = addText(xmpMeta.getProperty(ns,selectedSetting.crsName), maxSettingX, minSettingY - 1.5 * labelSize, "topright", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS);
     valueLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
 
 
@@ -341,50 +341,24 @@ function drawCircle(selectedSetting, x, y, radius){
 
 }
 
-function addSettingLabel (selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization) {
+function addText (text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization) {
 
-    var labelLayer = app.activeDocument.artLayers.add();
+    var textLayer = app.activeDocument.artLayers.add();
 
-    labelLayer.kind = LayerKind.TEXT;
-    labelLayer.textItem.contents = selectedSetting.displayName;
-    labelLayer.textItem.size = new UnitValue(fontSize, 'px');
+    textLayer.kind = LayerKind.TEXT;
+    textLayer.textItem.contents = text;
+    textLayer.textItem.size = new UnitValue(fontSize, 'px');
     fontColor = new SolidColor();
     fontColor.rgb.hexValue = fontHexColor;
-    labelLayer.textItem.color = fontColor;
-    labelLayer.textItem.font = fontName;
-    labelLayer.textItem.tracking = fontTracking;
-    labelLayer.textItem.justification = fontJustification;
-    labelLayer.textItem.capitalization = fontCapitalization;
+    textLayer.textItem.color = fontColor;
+    textLayer.textItem.font = fontName;
+    textLayer.textItem.tracking = fontTracking;
+    textLayer.textItem.justification = fontJustification;
+    textLayer.textItem.capitalization = fontCapitalization;
 
-    translateLayerTo(labelLayer, xPosition, yPosition, anchorPosition);
-
-    labelLayer = selectedSetting.displayName + " Label";
+    translateLayerTo(textLayer, xPosition, yPosition, anchorPosition);
 
     return app.activeDocument.activeLayer;
-
-}
-
-function addSettingValue (selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization) {
-
-    var labelLayer = app.activeDocument.artLayers.add();
-
-    labelLayer.kind = LayerKind.TEXT;
-    labelLayer.textItem.contents = xmpMeta.getProperty(ns,selectedSetting.crsName);
-    labelLayer.textItem.size = new UnitValue(fontSize, 'px');
-    fontColor = new SolidColor();
-    fontColor.rgb.hexValue = fontHexColor;
-    labelLayer.textItem.color = fontColor;
-    labelLayer.textItem.font = fontName;
-    labelLayer.textItem.tracking = fontTracking;
-    labelLayer.textItem.justification = fontJustification;
-    labelLayer.textItem.capitalization = fontCapitalization;
-
-    translateLayerTo(labelLayer, xPosition, yPosition, anchorPosition);
-
-    labelLayer = selectedSetting.displayName + " Label";
-
-    return app.activeDocument.activeLayer;
-
 
 }
 
