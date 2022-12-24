@@ -128,6 +128,7 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 // addAdjustmentLine(saturation, 100, 100, 225, 3, 4, 16);
 // addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
 // addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
+// addAdjustmentBars([grainAmount, grainSize, grainFrequency, vibrance,saturation], 850);
 // addCurves(toneCurve.settingValue, 2, 255, 255, 255); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
 // addCurves(toneCurveRed.settingValue, 2, 201, 67, 10);
 // addCurves(toneCurveGreen.settingValue, 2, 25, 128, 76);
