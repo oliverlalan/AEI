@@ -2,17 +2,17 @@
 
 #target photoshop
 
-// addHistogram(true); // this draws a layer with a coloured 8bit RGB histogram 
+// addHistogram(true, false, false, 135); // this draws a layer with a coloured 8bit RGB histogram 
 
-// addHistogram(false, false, true); //  this draws the Max(, , ) Luminosity RGB histogram (gets the max value of each channel)
+// addHistogram(false, false, true, 135); //  this draws the Max(, , ) Luminosity RGB histogram (gets the max value of each channel)
 
-// addHistogram(false, true); // this draws a layer with 8bit Lightness channel Lab histogram 
+// addHistogram(false, true, false, 135); // this draws a layer with 8bit Lightness channel Lab histogram 
 
-addHistogram(false, false); // this draws a layer with 8bit Luminosity RGB histogram 
+addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
 
 ///////////////////////////////  HISTOGRAM IN LAYER   ///////////////////////////////////
 
-function addHistogram(RGB, Lab, MaxRGB) {
+function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
     ///////////////////////////////////////////////// createProgressWindow
 
@@ -182,7 +182,7 @@ function addHistogram(RGB, Lab, MaxRGB) {
 
             //
 
-            var hhGraph = 135;
+            var hhGraph = graphHeight;
 
             var hY = 400; // base y of graph
 
