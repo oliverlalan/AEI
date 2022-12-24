@@ -3,9 +3,11 @@
 var points = [[0,36], [68,44], [79,68], [199,113], [255,250]];
 
 
-drawToneCurve(points, 2, 255, 0, 0); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
+addCurves(points, 2, 255, 0, 0); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
 
-function drawToneCurve(p, w, c_r, c_g, c_b) {
+app.activeDocument.activeLayer.rasterize(RasterizeType.SHAPE);
+
+function addCurves(p, w, c_r, c_g, c_b) {
 
     var pX = []         // x values
     var pY = []         // y values
@@ -245,9 +247,9 @@ function getCurvePoints(pts, tension, isClosed, numOfSegments) {
 }
 
 
-
-//https://github.com/kuckir/CSPL.js/blob/master/CSPL.js
-//https://blog.ivank.net/interpolation-with-cubic-splines.html
+// https://math.stackexchange.com/questions/2675064/what-type-of-curve-does-photoshops-curves-use
+// https://github.com/kuckir/CSPL.js/blob/master/CSPL.js
+// https://blog.ivank.net/interpolation-with-cubic-splines.html
 
 // gaussJ = {};
 function solve (A, x)	// in Matrix, out solutions
