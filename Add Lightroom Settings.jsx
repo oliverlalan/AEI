@@ -134,7 +134,8 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 // addCurves(toneCurveGreen.settingValue, 2, 25, 128, 76);
 // addCurves(toneCurveBlue.settingValue, 2, 0, 151, 194);
 // addHSLTable( 135, 825, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS)
-// addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
+addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
+addHistogram(true, false, false, 135);
 
 function addAdjustmentBars(parametersArray, yStartingPosition) {
 
@@ -929,6 +930,14 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
             if (RGB) {
 
+                // find maxY for normalizing graph
+
+                for ( i = 1; i <= 254; i++ ) {
+
+                        if (Math.floor(Math.max(hR[i], hG[i], hB[i])) > maxY) maxY = Math.floor(Math.max(hR[i], hG[i], hB[i]));
+
+                }
+
                 for (var a in activeDocument.componentChannels) {
 
                     //  criar as 3 cores R, G e B e o graph da cada uma
@@ -949,11 +958,14 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
                     //
 
-                    for ( i = 0; i <= 255; i++ ) {
+                    for ( i = 2; i <= 253; i++ ) {
 
                         var col = i+hX;
 
-                        var YYY = Math.min(Math.floor(myHist[i]*hhGraph/totalPixels1Col), 320);
+                        // var YYY = Math.floor(myHist[i]*hhGraph/maxY);
+                        // Smooth verstion 
+                        var YYY = (Math.floor(myHist[i-2]*hhGraph/maxY) + Math.floor(myHist[i-1]*hhGraph/maxY) + Math.floor(myHist[i]*hhGraph/maxY) + Math.floor(myHist[i+1]*hhGraph/maxY)+ Math.floor(myHist[i+2]*hhGraph/maxY)) / 5;
+
 
                         drawSelectionScreen (col, hY, col+1, hY-YYY);
 
@@ -967,7 +979,9 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
                     // fill (filltype [, mode] [, opacity] [, preserveTransparency])  // filltype: SolidColor  |  mode: ColorBlendMode  |  opacity: [1..100] 
 
-                    app.activeDocument.selection.fill(app.foregroundColor, ColorBlendMode.SCREEN, 100, false);
+                    // app.activeDocument.selection.fill(app.foregroundColor, ColorBlendMode.SCREEN, 100, false);
+
+                    app.activeDocument.selection.stroke(app.foregroundColor, 2, StrokeLocation.INSIDE, ColorBlendMode.NORMAL, 100, false);
 
                     activeDocument.selection.deselect();
 
