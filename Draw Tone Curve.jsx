@@ -348,6 +348,8 @@ function drawGrid (x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_
         pX1 += xIncrement;
         pX2 += xIncrement;
 
+        if( i != 0 ) {  app.activeDocument.activeLayer.merge();}
+
     }
 
     pX1 = x;
@@ -361,6 +363,8 @@ function drawGrid (x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_
 
         pY1 += yIncrement;
         pY2 += yIncrement;
+
+        app.activeDocument.activeLayer.merge();
 
     }
 
