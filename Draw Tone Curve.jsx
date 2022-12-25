@@ -86,6 +86,8 @@ function addCurves(p, w, c_r, c_g, c_b) {
     
     myPathItem.remove();
 
+    app.activeDocument.activeLayer.merge();
+
     app.activeDocument.activeLayer.name = "Tone Curve";
 
 }
