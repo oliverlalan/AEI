@@ -300,7 +300,7 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
                     }
 
-                    drawSelectionScreen (col, hY, col+1, hY-YYY);
+                    drawLineScreen (col, hY, col+1, hY-YYY, 2, 30);
 
                     //
 
@@ -320,7 +320,7 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
                 // stroke ( strokeColor [, width] [, location] [, mode] [, opacity] [, preserveTransparency])   //    width: number |   location: StrokeLocation    |   mode: ColorBlendMode   |   opacity: [1..100]    | preserveTransparency: boolean
                 
-                app.activeDocument.selection.stroke(app.foregroundColor, 2, StrokeLocation.INSIDE, ColorBlendMode.NORMAL, 100, false);
+                // app.activeDocument.selection.stroke(app.foregroundColor, 2, StrokeLocation.INSIDE, ColorBlendMode.NORMAL, 100, false);
 
                 activeDocument.selection.deselect();
 

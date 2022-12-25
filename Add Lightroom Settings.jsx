@@ -164,7 +164,7 @@ function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circl
 
     var adjustmentGroup = activeDocument.layerSets.add();
     adjustmentGroup.name = selectedSetting.displayName + ' Group';
-    var lineLayer = drawLine(selectedSetting, minSettingX, minSettingY, maxSettingX, maxSettingY, strokeWidth);
+    var lineLayer = drawLine(selectedSetting, minSettingX, minSettingY, maxSettingX, maxSettingY, strokeWidth, 255, 255, 255, 100);
     lineLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
     var circleLayer = drawCircle(selectedSetting, settingX, settingY, circleRadius);
     circleLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
@@ -176,7 +176,7 @@ function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circl
 
 }
 
-function drawLine(selectedSetting, x1, y1, x2, y2, strokeWidth) {
+function drawLine( x1, y1, x2, y2, strokeWidth, c_r, c_g, c_b, opacity) {  // x1, y1, x2, y2, strokeWidth, c_r, c_g, c_b, opacity
     
     var lineSubPathArray = new Array();
 
@@ -208,11 +208,11 @@ function drawLine(selectedSetting, x1, y1, x2, y2, strokeWidth) {
 
     convertPathtoShape();
 
-    setStroke (255, 255, 255, 2);
+    setStroke (strokeWidth, c_r, c_g, c_b);
     
     myPathItem.remove();
 
-    app.activeDocument.activeLayer.name = selectedSetting.displayName + " Line";
+    app.activeDocument.activeLayer.opacity = opacity;
 
     app.activeDocument.activeLayer.rasterize(RasterizeType.SHAPE);
 
@@ -237,7 +237,7 @@ function convertPathtoShape() {
 	executeAction( charIDToTypeID( "Mk  " ), d, DialogModes.NO );
 }
 
-function setStroke(r, g, b, strokeWidth){
+function setStroke(strokeWidth, c_r, c_g, c_b){
     var idsetd = charIDToTypeID( "setd" );
         var desc3 = new ActionDescriptor();
         var idnull = charIDToTypeID( "null" );
@@ -256,11 +256,11 @@ function setStroke(r, g, b, strokeWidth){
                     var idClr = charIDToTypeID( "Clr " );
                         var desc7 = new ActionDescriptor();
                         var idCyn = charIDToTypeID( "Rd  " );
-                        desc7.putDouble( idCyn, r );
+                        desc7.putDouble( idCyn, c_r );
                         var idMgnt = charIDToTypeID( "Grn " );
-                        desc7.putDouble( idMgnt, g );
+                        desc7.putDouble( idMgnt, c_g );
                         var idYlw = charIDToTypeID( "Bl  " );
-                        desc7.putDouble( idYlw, b );
+                        desc7.putDouble( idYlw, c_b );
                     var idRGBC = charIDToTypeID( "RGBC" );
                     desc6.putObject( idClr, idRGBC, desc7 );
                 var idsolidColorLayer = stringIDToTypeID( "solidColorLayer" );
@@ -507,7 +507,7 @@ function addCurves(p, w, c_r, c_g, c_b) {  // array of points | stroke width | r
 
     convertPathtoShape();
 
-    setStroke (c_r, c_g, c_b, w);
+    setStroke (w, c_r, c_g, c_b);
     
     myPathItem.remove();
 
@@ -534,7 +534,7 @@ function convertPathtoShape() {
 	executeAction( charIDToTypeID( "Mk  " ), d, DialogModes.NO );
 }
 
-function setStroke(r, g, b, strokeWidth){
+function setStroke(strokeWidth, c_r, c_g, c_b){
     var idsetd = charIDToTypeID( "setd" );
         var desc3 = new ActionDescriptor();
         var idnull = charIDToTypeID( "null" );
@@ -553,11 +553,11 @@ function setStroke(r, g, b, strokeWidth){
                     var idClr = charIDToTypeID( "Clr " );
                         var desc7 = new ActionDescriptor();
                         var idCyn = charIDToTypeID( "Rd  " );
-                        desc7.putDouble( idCyn, r );
+                        desc7.putDouble( idCyn, c_r );
                         var idMgnt = charIDToTypeID( "Grn " );
-                        desc7.putDouble( idMgnt, g );
+                        desc7.putDouble( idMgnt, c_g );
                         var idYlw = charIDToTypeID( "Bl  " );
-                        desc7.putDouble( idYlw, b );
+                        desc7.putDouble( idYlw, c_b );
                     var idRGBC = charIDToTypeID( "RGBC" );
                     desc6.putObject( idClr, idRGBC, desc7 );
                 var idsolidColorLayer = stringIDToTypeID( "solidColorLayer" );
@@ -924,19 +924,19 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
             var myHist = [];
 
-            var maxY = 0;
-
             //
 
+            // find maxY for normalizing graph
+
+            var maxY = 0;
+
+            for ( i = 1; i <= 254; i++ ) {
+
+                if (Math.floor(Math.max(hL[i], hR[i], hG[i], hB[i])) > maxY) maxY = Math.floor(Math.max(hL[i], hR[i], hG[i], hB[i]));
+
+            }
+
             if (RGB) {
-
-                // find maxY for normalizing graph
-
-                for ( i = 1; i <= 254; i++ ) {
-
-                        if (Math.floor(Math.max(hR[i], hG[i], hB[i])) > maxY) maxY = Math.floor(Math.max(hR[i], hG[i], hB[i]));
-
-                }
 
                 for (var a in activeDocument.componentChannels) {
 
@@ -997,21 +997,6 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
                 myHist = hL;
 
-                // find maxY for normalizing graph
-
-                for ( i = 1; i <= 254; i++ ) {
-
-                     if (MaxRGB) {
-
-                        if (Math.floor(Math.max(hR[i], hG[i], hB[i])) > maxY) maxY = Math.floor(Math.max(hR[i], hG[i], hB[i]));
-
-                    } else {
-
-                        if (Math.floor(myHist[i] > maxY)) maxY = Math.floor(myHist[i]);
-
-                    }
-
-                }
 
                 for ( i = 2; i <= 253; i++ ) {
 
@@ -1089,7 +1074,7 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
     }
 
-    function drawLineScreen(x1, y1, x2, y2, width, transparency) {
+    function drawLineScreen(x1, y1, x2, y2, width, transparency) { 
 
         try {
 
@@ -1148,6 +1133,41 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
         }
 
         return result;
+
+    }
+
+}
+
+function drawGrid (x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_b, opacity) {
+
+    var pX1 = x + strokeWidth / 2;
+    var pY1 = y;
+    var pX2 = x + strokeWidth / 2;
+    var pY2 = y + height;
+
+    var xIncrement = (width - strokeWidth) / (columns - 1);
+    var yIncrement = (height - strokeWidth) / (rows - 1);
+
+    for ( i = 0; i < columns; i ++) {
+
+        drawLine(pX1, pY1, pX2, pY2, strokeWidth, c_r, c_g, c_b, opacity);
+
+        pX1 += xIncrement;
+        pX2 += xIncrement;
+
+    }
+
+    pX1 = x;
+    pY1 = y + strokeWidth / 2;
+    pX2 = x + width;
+    pY2 = y + strokeWidth / 2;
+
+    for ( i = 0; i < rows; i ++) {
+
+        drawLine(pX1, pY1, pX2, pY2, strokeWidth, c_r, c_g, c_b, opacity);
+
+        pY1 += yIncrement;
+        pY2 += yIncrement;
 
     }
 

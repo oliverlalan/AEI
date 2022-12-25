@@ -3,7 +3,9 @@
 var points = [[0,36], [68,44], [79,68], [199,113], [255,250]];
 
 
-addCurves(points, 2, 255, 0, 0); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
+// addCurves(points, 2, 255, 0, 0); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
+
+drawGrid ( 540, 540, 225, 225, 4, 4, 2, 166, 166, 166, 65);  // x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_b, opacity
 
 app.activeDocument.activeLayer.rasterize(RasterizeType.SHAPE);
 
@@ -80,7 +82,7 @@ function addCurves(p, w, c_r, c_g, c_b) {
 
     convertPathtoShape();
 
-    setStroke (c_r, c_g, c_b, w);
+    setStroke (w, c_r, c_g, c_b);
     
     myPathItem.remove();
 
@@ -105,7 +107,7 @@ function convertPathtoShape() {
 	executeAction( charIDToTypeID( "Mk  " ), d, DialogModes.NO );
 }
 
-function setStroke(r, g, b, strokeWidth){
+function setStroke(strokeWidth, c_r, c_g, c_b){
     var idsetd = charIDToTypeID( "setd" );
         var desc3 = new ActionDescriptor();
         var idnull = charIDToTypeID( "null" );
@@ -124,11 +126,11 @@ function setStroke(r, g, b, strokeWidth){
                     var idClr = charIDToTypeID( "Clr " );
                         var desc7 = new ActionDescriptor();
                         var idCyn = charIDToTypeID( "Rd  " );
-                        desc7.putDouble( idCyn, r );
+                        desc7.putDouble( idCyn, c_r );
                         var idMgnt = charIDToTypeID( "Grn " );
-                        desc7.putDouble( idMgnt, g );
+                        desc7.putDouble( idMgnt, c_g );
                         var idYlw = charIDToTypeID( "Bl  " );
-                        desc7.putDouble( idYlw, b );
+                        desc7.putDouble( idYlw, c_b );
                     var idRGBC = charIDToTypeID( "RGBC" );
                     desc6.putObject( idClr, idRGBC, desc7 );
                 var idsolidColorLayer = stringIDToTypeID( "solidColorLayer" );
@@ -331,13 +333,13 @@ function evalSpline (x, xs, ys, ks)
 
 function drawGrid (x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_b, opacity) {
 
-    var pX1 = x;
+    var pX1 = x + strokeWidth / 2;
     var pY1 = y;
-    var pX2 = x;
+    var pX2 = x + strokeWidth / 2;
     var pY2 = y + height;
 
-    var xIncrement = width / (columns - 1);
-    var yIncrement = height / (rows - 1);
+    var xIncrement = (width - strokeWidth) / (columns - 1);
+    var yIncrement = (height - strokeWidth) / (rows - 1);
 
     for ( i = 0; i < columns; i ++) {
 
@@ -349,8 +351,9 @@ function drawGrid (x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_
     }
 
     pX1 = x;
+    pY1 = y + strokeWidth / 2;
     pX2 = x + width;
-    pY2 = y;
+    pY2 = y + strokeWidth / 2;
 
     for ( i = 0; i < rows; i ++) {
 
@@ -395,7 +398,7 @@ function drawLine(x1, y1, x2, y2, strokeWidth, c_r, c_g, c_b, opacity) {
 
     convertPathtoShape();
 
-    setStroke (c_r, c_g, c_b, strokeWidth);
+    setStroke (strokeWidth, c_r, c_g, c_b);
     
     myPathItem.remove();
 
