@@ -328,3 +328,81 @@ function evalSpline (x, xs, ys, ks)
     var q = (1-t)*ys[i-1] + t*ys[i] + t*(1-t)*(a*(1-t)+b*t);
     return q;
 }
+
+function drawGrid (x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_b, opacity) {
+
+    var pX1 = x;
+    var pY1 = y;
+    var pX2 = x;
+    var pY2 = y + height;
+
+    var xIncrement = width / (columns - 1);
+    var yIncrement = height / (rows - 1);
+
+    for ( i = 0; i < columns; i ++) {
+
+        drawLine(pX1, pY1, pX2, pY2, strokeWidth, c_r, c_g, c_b, opacity);
+
+        pX1 += xIncrement;
+        pX2 += xIncrement;
+
+    }
+
+    pX1 = x;
+    pX2 = x + width;
+    pY2 = y;
+
+    for ( i = 0; i < rows; i ++) {
+
+        drawLine(pX1, pY1, pX2, pY2, strokeWidth, c_r, c_g, c_b, opacity);
+
+        pY1 += yIncrement;
+        pY2 += yIncrement;
+
+    }
+
+}
+
+function drawLine(x1, y1, x2, y2, strokeWidth, c_r, c_g, c_b, opacity) {
+    
+    var lineSubPathArray = new Array();
+
+    //line 1--it’s a straight line so the coordinates for anchor, left, and right
+    //for each point have the same coordinates
+    var lineArray = new Array()
+    lineArray[0] = new PathPointInfo
+    lineArray[0].kind = PointKind.CORNERPOINT
+    lineArray[0].anchor = Array(x1, y1)
+    lineArray[0].leftDirection = lineArray[0].anchor
+    lineArray[0].rightDirection = lineArray[0].anchor
+
+    lineArray[1] = new PathPointInfo
+    lineArray[1].kind = PointKind.CORNERPOINT
+    lineArray[1].anchor = Array(x2, y2)
+    lineArray[1].leftDirection = lineArray[1].anchor
+    lineArray[1].rightDirection = lineArray[1].anchor
+
+    lineSubPathArray[0] = new SubPathInfo()
+    lineSubPathArray[0].operation = ShapeOperation.SHAPEXOR
+    lineSubPathArray[0].closed = false
+    lineSubPathArray[0].entireSubPath = lineArray
+
+
+    //create the path item
+    var myPathItem = activeDocument.pathItems.add("Line", lineSubPathArray)
+
+    var currentPathItem = app.activeDocument.pathItems.getByName("Line");
+
+    convertPathtoShape();
+
+    setStroke (c_r, c_g, c_b, strokeWidth);
+    
+    myPathItem.remove();
+
+    app.activeDocument.activeLayer.opacity = opacity;
+
+    app.activeDocument.activeLayer.rasterize(RasterizeType.SHAPE);
+
+    return app.activeDocument.activeLayer;
+
+}
