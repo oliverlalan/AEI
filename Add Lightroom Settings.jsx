@@ -434,7 +434,9 @@ function translateLayerTo(selectedLayer,xPosition,yPosition, anchorPosition) {
     selectedLayer.translate(dX,dY);
 }
 
-function addCurves(p, w, c_r, c_g, c_b) {  // array of points | stroke width | rgb_red | rgb_green | rgb_blue
+function addCurves(p, w, c_r, c_g, c_b) {
+
+    drawGrid ( 0, 0, 256, 256, 4, 4, 2, 166, 166, 166, 65);
 
     var pX = []         // x values
     var pY = []         // y values
@@ -450,12 +452,22 @@ function addCurves(p, w, c_r, c_g, c_b) {  // array of points | stroke width | r
     getNaturalKs(pX, pY, pK);
 
     for (i = 0; i < 256; i ++) {
-        pYs.push(evalSpline (i, pX, pY, pK));
+
+        var smoothPoint = evalSpline (i, pX, pY, pK);
+
+        if (smoothPoint < 0 )  {
+            smoothPoint = 0;
+        } else if (smoothPoint > 254) {
+            smoothPoint = 254;
+        } 
+
+        pYs.push(smoothPoint);
+
     }
 
     var smoothCurve = [];
 
-    for (i = 0; i < 256; i ++) {
+    for (i = 0; i < pYs.length; i ++) {
         smoothCurve.push([i, pYs[i]]);
     }
 
@@ -469,7 +481,7 @@ function addCurves(p, w, c_r, c_g, c_b) {  // array of points | stroke width | r
 
     var lineArray = new Array()
 
-    for (i = 0; i < smoothCurve.length * 2 -1; i++) {
+    for (i = 0; i < smoothCurve.length * 2 - 1; i++) {
 
         if( i < smoothCurve.length ) {
             var curvePointIndex = i;
@@ -511,7 +523,7 @@ function addCurves(p, w, c_r, c_g, c_b) {  // array of points | stroke width | r
     
     myPathItem.remove();
 
-    app.activeDocument.activeLayer.rasterize(RasterizeType.SHAPE);
+    app.activeDocument.activeLayer.merge();
 
     app.activeDocument.activeLayer.name = "Tone Curve";
 
