@@ -46,11 +46,6 @@ function addCurves(p, w, c_r, c_g, c_b) {
         smoothCurve.push([i, pYs[i]]);
     }
 
-    // Store doc dimensions
-    var docRef = app.activeDocument;
-    var docHeight = docRef.height;
-    var docWidth = docRef.width;
-
     // Path definition
     var toneCurvePathArray = new Array();
 
