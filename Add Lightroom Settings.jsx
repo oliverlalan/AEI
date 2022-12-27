@@ -129,13 +129,13 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 // addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
 // addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
 // addAdjustmentBars([grainAmount, grainSize, grainFrequency, vibrance,saturation], 850);
-// addCurves(toneCurve.settingValue, 2, 255, 255, 255); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
+addCurves(toneCurve.settingValue, 2, 255, 255, 255); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
 // addCurves(toneCurveRed.settingValue, 2, 201, 67, 10);
 // addCurves(toneCurveGreen.settingValue, 2, 25, 128, 76);
 // addCurves(toneCurveBlue.settingValue, 2, 0, 151, 194);
 // addHSLTable( 135, 825, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS)
-addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
-addHistogram(true, false, false, 135);
+// addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
+// addHistogram(true, false, false, 135);
 
 function addAdjustmentBars(parametersArray, yStartingPosition) {
 
@@ -520,6 +520,8 @@ function addCurves(p, w, c_r, c_g, c_b) {
     convertPathtoShape();
 
     setStroke (w, c_r, c_g, c_b);
+
+    app.activeDocument.activeLayer.vectorMaskFeather = w * 0.2;
     
     myPathItem.remove();
 

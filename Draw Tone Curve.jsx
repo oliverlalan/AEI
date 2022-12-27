@@ -56,7 +56,7 @@ function addCurves(p, w, c_r, c_g, c_b) {
 
     var lineArray = new Array()
 
-    for (i = 0; i < smoothCurve.length * 2 - 1; i++) {
+    for (i = 0; i < smoothCurve.length * 2 - 1; i++) { //TODO The curve is wider than 256px. Must fix. Compute strokeWidth such that it matches the style when resized
 
         if( i < smoothCurve.length ) {
             var curvePointIndex = i;
@@ -95,6 +95,8 @@ function addCurves(p, w, c_r, c_g, c_b) {
     convertPathtoShape();
 
     setStroke (w, c_r, c_g, c_b);
+
+    app.activeDocument.activeLayer.vectorMaskFeather = w * 0.2;
     
     myPathItem.remove();
 
