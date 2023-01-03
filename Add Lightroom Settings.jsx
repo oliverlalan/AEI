@@ -521,6 +521,39 @@ function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_
 
     app.activeDocument.activeLayer.name = "Tone Curve";
 
+    var yIncrementsAmount = 0;
+
+    for (i = 0; i < p.length; i ++) {
+
+        if(!((p[i][0] == 0 && p[i][1] == 0) || (p[i][0] == 255 && p[i][1] == 255))) {
+
+            yIncrementsAmount += 1;
+        
+        }
+
+    }
+
+    var inputXPosition = xPosition + edgeLength * 4 / 3;
+    var outputXPosition = xPosition + edgeLength * 5 / 3;
+    var inputYPosition = yPosition + edgeLength * (0.6 - 0.1 * yIncrementsAmount);
+    var yIncrement = edgeLength * 0.2 ;
+    var outputYPosition = inputYPosition;
+
+    for (i = 0; i < p.length; i ++) {
+
+        if(!((p[i][0] == 0 && p[i][1] == 0) || (p[i][0] == 255 && p[i][1] == 255))) {
+
+            // text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+            addText(p[i][0], inputXPosition, inputYPosition , "middleright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS);
+            addText(p[i][1], outputXPosition, outputYPosition , "middleright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS);
+
+            inputYPosition += yIncrement;
+            outputYPosition += yIncrement;
+        
+        }
+
+    }
+
 }
 
 function convertPathtoShape() {

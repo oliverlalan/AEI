@@ -36,7 +36,7 @@ var toneCurveRed                  =  new Setting ( "Red Tone Curve",       "Tone
 var toneCurveGreen                =  new Setting ( "Green Tone Curve",     "ToneCurvePV2012Green",                0,      +255    );
 var toneCurveBlue                 =  new Setting ( "Blue Tone Curve",      "ToneCurvePV2012Blue",                 0,      +255    );
 
-addCurve(toneCurve.settingValue, 300, 300, 135, 2, 255, 255, 255); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
+addCurve(toneCurveGreen.settingValue, 300, 300, 135, 2, 255, 255, 255); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
 
 // drawGrid ( 540, 540, 225, 225, 4, 4, 2, 166, 166, 166, 65);  // x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_b, opacity
 
@@ -127,6 +127,39 @@ function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_
     app.activeDocument.selection.deselect();
 
     app.activeDocument.activeLayer.name = "Tone Curve";
+
+    var yIncrementsAmount = 0;
+
+    for (i = 0; i < p.length; i ++) {
+
+        if(!((p[i][0] == 0 && p[i][1] == 0) || (p[i][0] == 255 && p[i][1] == 255))) {
+
+            yIncrementsAmount += 1;
+        
+        }
+
+    }
+
+    var inputXPosition = xPosition + edgeLength * 4 / 3;
+    var outputXPosition = xPosition + edgeLength * 5 / 3;
+    var inputYPosition = yPosition + edgeLength * (0.6 - 0.1 * yIncrementsAmount);
+    var yIncrement = edgeLength * 0.2 ;
+    var outputYPosition = inputYPosition;
+
+    for (i = 0; i < p.length; i ++) {
+
+        if(!((p[i][0] == 0 && p[i][1] == 0) || (p[i][0] == 255 && p[i][1] == 255))) {
+
+            // text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+            addText(p[i][0], inputXPosition, inputYPosition , "middleright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS);
+            addText(p[i][1], outputXPosition, outputYPosition , "middleright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS);
+
+            inputYPosition += yIncrement;
+            outputYPosition += yIncrement;
+        
+        }
+
+    }
 
 }
 
@@ -455,4 +488,93 @@ function drawLine(x1, y1, x2, y2, strokeWidth, c_r, c_g, c_b, opacity) {
 
     return app.activeDocument.activeLayer;
 
+}
+
+function addText (text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization) {
+
+    if(text!= "") {
+
+        var textLayer = app.activeDocument.artLayers.add();
+
+        textLayer.kind = LayerKind.TEXT;
+        textLayer.textItem.contents = text;
+        textLayer.textItem.size = new UnitValue(fontSize, 'px');
+        fontColor = new SolidColor();
+        fontColor.rgb.hexValue = fontHexColor;
+        textLayer.textItem.color = fontColor;
+        textLayer.textItem.font = fontName;
+        textLayer.textItem.tracking = fontTracking;
+        textLayer.textItem.justification = fontJustification;
+        textLayer.textItem.capitalization = fontCapitalization;
+
+        translateLayerTo(textLayer, xPosition, yPosition, anchorPosition);
+
+        return app.activeDocument.activeLayer;
+
+    }
+
+}
+
+function translateLayerTo(selectedLayer,xPosition,yPosition, anchorPosition) {
+
+    var xPosition = new UnitValue (xPosition, 'px');
+    var yPosition = new UnitValue (yPosition, 'px');
+
+    var bounds = selectedLayer.bounds;
+    var width = bounds[2] - bounds[0];
+    var height = bounds[3] - bounds[1];
+
+    switch (anchorPosition) {
+        case "topleft":
+        dX = xPosition - bounds[0];
+        dY = yPosition - bounds[1];
+        break;
+        
+        case "topcenter":
+        dX = xPosition - bounds[0] - width /2;
+        dY = yPosition - bounds[1];
+        break;
+
+        case "topright":
+        dX = xPosition - bounds[0] - width;
+        dY = yPosition - bounds[1];
+        break;
+
+        case "middleleft":
+        dX = xPosition - bounds[0];
+        dY = yPosition - bounds[1] - height / 2;
+        break;
+
+        case "middlecenter":
+        dX = xPosition - bounds[0] - width / 2;
+        dY = yPosition - bounds[1] - height / 2;
+        break;
+
+        case "middleright":
+        dX = xPosition - bounds[0] - width;
+        dY = yPosition - bounds[1] - height / 2;
+        break;
+
+        case "bottomleft":
+        dX = xPosition - bounds[0];
+        dY = yPosition - bounds[1] - height;
+        break;
+        
+        case "bottomcenter":
+        dX = xPosition - bounds[0] - width / 2;
+        dY = yPosition - bounds[1] - height;
+        break;
+
+        case "bottomright":
+        dX = xPosition - bounds[0] - width;
+        dY = yPosition - bounds[1] - height;
+        break;
+
+        default:
+        dX = xPosition - bounds[0] - width / 2;
+        dY = yPosition - bounds[1] - height / 2;
+
+    }
+    
+    selectedLayer.translate(dX,dY);
 }
