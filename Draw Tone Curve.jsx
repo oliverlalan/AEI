@@ -36,9 +36,7 @@ var toneCurveRed                  =  new Setting ( "Red Tone Curve",       "Tone
 var toneCurveGreen                =  new Setting ( "Green Tone Curve",     "ToneCurvePV2012Green",                0,      +255    );
 var toneCurveBlue                 =  new Setting ( "Blue Tone Curve",      "ToneCurvePV2012Blue",                 0,      +255    );
 
-var points = [[0,0], [44,44], [79,68], [199,113], [255,255]];
-
-addCurve(toneCurveRed.settingValue, 765, 180, 135, 2, 255, 0, 0); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
+addCurve(toneCurve.settingValue, 300, 300, 135, 2, 255, 255, 255); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
 
 // drawGrid ( 540, 540, 225, 225, 4, 4, 2, 166, 166, 166, 65);  // x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_b, opacity
 
@@ -46,15 +44,16 @@ app.activeDocument.activeLayer.rasterize(RasterizeType.SHAPE);
 
 function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_b) {
 
-    drawGrid ( xPosition, yPosition, edgeLength, edgeLength, 4, 4, 2, 166, 166, 166, 65);
+    drawGrid (xPosition, yPosition, edgeLength, edgeLength, 4, 4, 2, 166, 166, 166, 65);
 
     var pX = []         // x values
     var pY = []         // y values
     var pYs = []        // values for smooth y
     var pK =  []        // derivative values
+    var smoothCurve = [];
 
     for (i = 0; i < p.length; i ++) {
-        pX.push(p[i][0]);
+        pX[i] = p[i][0];
         pY[i] = p[i][1];
         pK[i] = 1;
     }
@@ -69,50 +68,37 @@ function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_
             smoothPoint = 0;
         } else if (smoothPoint > 254) {
             smoothPoint = 254;
-        } 
+        }
 
-        pYs.push(smoothPoint);
-
-    }
-
-    //Format the values for the plotting 
-    var smoothCurve = [];
-
-    for (i = 0; i < pYs.length; i ++) { // Computed from x=1 to X=254 so the layer does not exceed the 256x256 pixels when feathered and rasterized.
-
-        smoothCurve.push([i / 256 * edgeLength, pYs[i] / 256 * edgeLength + (256 - edgeLength)]);
+        smoothCurve.push([i / 256 * edgeLength, smoothPoint / 256 * edgeLength]);
 
     }
 
     // Path definition
     var toneCurvePathArray = new Array();
 
-    var lineArray = new Array()
+    for (i = 0; i < smoothCurve.length * 2 - 2; i++) {
 
-    for (i = 0; i < smoothCurve.length * 2 - 2; i++) { //TODO The curve is wider than 256px. Must fix. Compute strokeWidth such that it matches the style when resized
-
-        if( i < smoothCurve.length) {
-            var curvePointIndex = i;
+        if (i < smoothCurve.length - 1) {
+            var smoothCuveStartIndex = i;
+            var smoothCurveEndIndex = smoothCuveStartIndex + 1; 
         } else {
-            var curvePointIndex = 2 * (smoothCurve.length-1) - i ;
+            var smoothCuveStartIndex = 2 * (smoothCurve.length-1) - i;
+            var smoothCurveEndIndex = smoothCuveStartIndex -1;
         }
 
-        lineArray[i] = new PathPointInfo
-        lineArray[i].kind = PointKind.SMOOTHPOINT
-        lineArray[i].anchor = Array((smoothCurve[curvePointIndex][0] + xPosition), (smoothCurve.length - smoothCurve[curvePointIndex][1] + yPosition))
-        lineArray[i].leftDirection = lineArray[i].anchor
-        lineArray[i].rightDirection = lineArray[i].anchor
-        lineArray[i+1] = new PathPointInfo
-        lineArray[i+1].kind = PointKind.SMOOTHPOINT
+        var lineArray = new Array()
+        lineArray[0] = new PathPointInfo
+        lineArray[0].anchor = Array(xPosition + smoothCurve[smoothCuveStartIndex][0], yPosition + edgeLength - smoothCurve[smoothCuveStartIndex][1])
+        lineArray[0].kind = PointKind.SMOOTHPOINT
+        lineArray[0].leftDirection = lineArray[0].anchor
+        lineArray[0].rightDirection = lineArray[0].anchor
+        lineArray[1] = new PathPointInfo
+        lineArray[1].anchor = Array(xPosition + smoothCurve[smoothCurveEndIndex][0] , yPosition + edgeLength - smoothCurve[smoothCurveEndIndex][1])
+        lineArray[1].kind = PointKind.SMOOTHPOINT
+        lineArray[1].leftDirection = lineArray[1].anchor
+        lineArray[1].rightDirection = lineArray[1].anchor
 
-        if( i < smoothCurve.length - 1 ) {
-            lineArray[i+1].anchor = Array((smoothCurve[curvePointIndex+1][0] + xPosition), (smoothCurve.length - smoothCurve[curvePointIndex+1][1] + yPosition))
-        } else {
-            lineArray[i+1].anchor = Array((smoothCurve[curvePointIndex-1][0] + xPosition), (smoothCurve.length - smoothCurve[curvePointIndex-1][1] + yPosition))
-        }
-
-        lineArray[i+1].leftDirection = lineArray[i+1].anchor
-        lineArray[i+1].rightDirection = lineArray[i+1].anchor
         toneCurvePathArray[i] = new SubPathInfo()
         toneCurvePathArray[i].operation = ShapeOperation.SHAPEXOR
         toneCurvePathArray[i].closed = false
@@ -129,17 +115,16 @@ function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_
 
     setStroke (strokeWidth, c_r, c_g, c_b);
 
-    app.activeDocument.activeLayer.vectorMaskFeather = strokeWidth * 0.25;
+    app.activeDocument.activeLayer.vectorMaskFeather = strokeWidth * 0.15;
     
     myPathItem.remove();
 
     app.activeDocument.activeLayer.merge();
 
-    // app.activeDocument.selection.select([[xPosition, yPosition],[xPosition, yPosition + edgeLength], [xPosition + edgeLength, yPosition + edgeLength], [xPosition + edgeLength, yPosition]]);
-    // app.activeDocument.selection.invert();
-    // app.activeDocument.selection.clear();
-    // app.activeDocument.selection.deselect();
-
+    app.activeDocument.selection.select([[xPosition, yPosition],[xPosition, yPosition + edgeLength], [xPosition + edgeLength, yPosition + edgeLength], [xPosition + edgeLength, yPosition]]);
+    app.activeDocument.selection.invert();
+    app.activeDocument.selection.clear();
+    app.activeDocument.selection.deselect();
 
     app.activeDocument.activeLayer.name = "Tone Curve";
 
@@ -191,9 +176,12 @@ function setStroke(strokeWidth, c_r, c_g, c_b){
                 var idsolidColorLayer = stringIDToTypeID( "solidColorLayer" );
                 desc5.putObject( idstrokeStyleContent, idsolidColorLayer, desc6 );
                 var idstrokeStyleVersion = stringIDToTypeID( "strokeStyleVersion" );
-                desc5.putInteger( idstrokeStyleVersion, strokeWidth );
+                desc5.putInteger( idstrokeStyleVersion, 2 );
                 var idstrokeEnabled = stringIDToTypeID( "strokeEnabled" );
                 desc5.putBoolean( idstrokeEnabled, true );
+                var idstrokeStyleLineWidth = stringIDToTypeID( "strokeStyleLineWidth" );
+                var idPxl = charIDToTypeID( "#Pxl" );
+                desc5.putUnitDouble( idstrokeStyleLineWidth, idPxl, strokeWidth );
                 var idfillEnabled = stringIDToTypeID( "fillEnabled" );
                 desc5.putBoolean( idfillEnabled, false );
             var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
@@ -451,9 +439,9 @@ function drawLine(x1, y1, x2, y2, strokeWidth, c_r, c_g, c_b, opacity) {
 
 
     //create the path item
-    var myPathItem = activeDocument.pathItems.add("Grid Line", lineSubPathArray)
+    var myPathItem = activeDocument.pathItems.add("Line", lineSubPathArray)
 
-    var currentPathItem = app.activeDocument.pathItems.getByName("Grid Line");
+    var currentPathItem = app.activeDocument.pathItems.getByName("Line");
 
     convertPathtoShape();
 

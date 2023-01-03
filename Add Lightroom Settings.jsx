@@ -48,10 +48,10 @@ var vibrance                      =  new Setting ( "Vibrance",             "Vibr
 var saturation                    =  new Setting ( "Saturation",           "Saturation",                          -100,   +100    );
 
 // Tone Curve
-var toneCurve                     =  new Setting ( "Tone Curve",           "ToneCurvePV2012",                     -0,     +255    );
-var toneCurveRed                  =  new Setting ( "Red Tone Curve",       "ToneCurvePV2012Red",                  -0,     +255    );
-var toneCurveGreen                =  new Setting ( "Green Tone Curve",     "ToneCurvePV2012Green",                -0,     +255    );
-var toneCurveBlue                 =  new Setting ( "Blue Tone Curve",      "ToneCurvePV2012Blue",                 -0,     +255    );
+var toneCurve                     =  new Setting ( "Tone Curve",           "ToneCurvePV2012",                     0,      +255    );
+var toneCurveRed                  =  new Setting ( "Red Tone Curve",       "ToneCurvePV2012Red",                  0,      +255    );
+var toneCurveGreen                =  new Setting ( "Green Tone Curve",     "ToneCurvePV2012Green",                0,      +255    );
+var toneCurveBlue                 =  new Setting ( "Blue Tone Curve",      "ToneCurvePV2012Blue",                 0,      +255    );
 
 // HSL
 var redHue                        =  new Setting ( "Red Hue",              "HueAdjustmentRed",                    -100,   +100    );
@@ -129,10 +129,8 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 // addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
 // addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
 // addAdjustmentBars([grainAmount, grainSize, grainFrequency, vibrance,saturation], 850);
-addCurves(toneCurve.settingValue, 2, 255, 255, 255); // array of points | stroke width | rgb_red | rgb_green | rgb_blue
-// addCurves(toneCurveRed.settingValue, 2, 201, 67, 10);
-// addCurves(toneCurveGreen.settingValue, 2, 25, 128, 76);
-// addCurves(toneCurveBlue.settingValue, 2, 0, 151, 194);
+addAllCurves(540, 360, 135, 20) // xPosition, yPosition, edgeLength, strokeWidth
+// addCurve(toneCurve.settingValue, 30, 30, 135, 2, 201, 67, 10); //p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_b
 // addHSLTable( 135, 825, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS)
 // addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
 // addHistogram(true, false, false, 135);
@@ -251,6 +249,9 @@ function setStroke(strokeWidth, c_r, c_g, c_b){
             var desc4 = new ActionDescriptor();
             var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
                 var desc5 = new ActionDescriptor();
+                var idstrokeStyleLineWidth = stringIDToTypeID( "strokeStyleLineWidth" );
+                var idPxl = charIDToTypeID( "#Pxl" );
+                desc5.putUnitDouble( idstrokeStyleLineWidth, idPxl, 8.000000 );
                 var idstrokeStyleContent = stringIDToTypeID( "strokeStyleContent" );
                     var desc6 = new ActionDescriptor();
                     var idClr = charIDToTypeID( "Clr " );
@@ -266,7 +267,7 @@ function setStroke(strokeWidth, c_r, c_g, c_b){
                 var idsolidColorLayer = stringIDToTypeID( "solidColorLayer" );
                 desc5.putObject( idstrokeStyleContent, idsolidColorLayer, desc6 );
                 var idstrokeStyleVersion = stringIDToTypeID( "strokeStyleVersion" );
-                desc5.putInteger( idstrokeStyleVersion, strokeWidth );
+                desc5.putInteger( idstrokeStyleVersion, 2 );
                 var idstrokeEnabled = stringIDToTypeID( "strokeEnabled" );
                 desc5.putBoolean( idstrokeEnabled, true );
                 var idfillEnabled = stringIDToTypeID( "fillEnabled" );
@@ -277,31 +278,31 @@ function setStroke(strokeWidth, c_r, c_g, c_b){
         desc3.putObject( idT, idshapeStyle, desc4 );
     executeAction( idsetd, desc3, DialogModes.NO );
 
-    var idsetd = charIDToTypeID( "setd" );
-        var desc9 = new ActionDescriptor();
-        var idnull = charIDToTypeID( "null" );
-            var ref2 = new ActionReference();
-            var idcontentLayer = stringIDToTypeID( "contentLayer" );
-            var idOrdn = charIDToTypeID( "Ordn" );
-            var idTrgt = charIDToTypeID( "Trgt" );
-            ref2.putEnumerated( idcontentLayer, idOrdn, idTrgt );
-        desc9.putReference( idnull, ref2 );
-        var idT = charIDToTypeID( "T   " );
-            var desc10 = new ActionDescriptor();
-            var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
-                var desc11 = new ActionDescriptor();
-                var idstrokeStyleLineWidth = stringIDToTypeID( "strokeStyleLineWidth" );
-                var idPxl = charIDToTypeID( "#Pxl" );
-                desc11.putUnitDouble( idstrokeStyleLineWidth, idPxl, 2.000000 );
-                var idstrokeStyleVersion = stringIDToTypeID( "strokeStyleVersion" );
-                desc11.putInteger( idstrokeStyleVersion, 2 );
-                var idstrokeEnabled = stringIDToTypeID( "strokeEnabled" );
-                desc11.putBoolean( idstrokeEnabled, true );
-            var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
-            desc10.putObject( idstrokeStyle, idstrokeStyle, desc11 );
-        var idshapeStyle = stringIDToTypeID( "shapeStyle" );
-        desc9.putObject( idT, idshapeStyle, desc10 );
-    executeAction( idsetd, desc9, DialogModes.NO );
+    // var idsetd = charIDToTypeID( "setd" );
+    //     var desc9 = new ActionDescriptor();
+    //     var idnull = charIDToTypeID( "null" );
+    //         var ref2 = new ActionReference();
+    //         var idcontentLayer = stringIDToTypeID( "contentLayer" );
+    //         var idOrdn = charIDToTypeID( "Ordn" );
+    //         var idTrgt = charIDToTypeID( "Trgt" );
+    //         ref2.putEnumerated( idcontentLayer, idOrdn, idTrgt );
+    //     desc9.putReference( idnull, ref2 );
+    //     var idT = charIDToTypeID( "T   " );
+    //         var desc10 = new ActionDescriptor();
+    //         var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
+    //             var desc11 = new ActionDescriptor();
+    //             var idstrokeStyleLineWidth = stringIDToTypeID( "strokeStyleLineWidth" );
+    //             var idPxl = charIDToTypeID( "#Pxl" );
+    //             desc11.putUnitDouble( idstrokeStyleLineWidth, idPxl, 20.000000 );
+    //             var idstrokeStyleVersion = stringIDToTypeID( "strokeStyleVersion" );
+    //             desc11.putInteger( idstrokeStyleVersion, 2 );
+    //             var idstrokeEnabled = stringIDToTypeID( "strokeEnabled" );
+    //             desc11.putBoolean( idstrokeEnabled, true );
+    //         var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
+    //         desc10.putObject( idstrokeStyle, idstrokeStyle, desc11 );
+    //     var idshapeStyle = stringIDToTypeID( "shapeStyle" );
+    //     desc9.putObject( idT, idshapeStyle, desc10 );
+    // executeAction( idsetd, desc9, DialogModes.NO );
 }
 
 // https://community.adobe.com/t5/photoshop-ecosystem-discussions/simpler-way-to-draw-a-circle-with-scripting/m-p/12052524#M544006
@@ -434,17 +435,18 @@ function translateLayerTo(selectedLayer,xPosition,yPosition, anchorPosition) {
     selectedLayer.translate(dX,dY);
 }
 
-function addCurves(p, w, c_r, c_g, c_b) {
+function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_b) {
 
-    drawGrid ( 0, 0, 256, 256, 4, 4, 2, 166, 166, 166, 65);
+    drawGrid (xPosition, yPosition, edgeLength, edgeLength, 4, 4, 2, 166, 166, 166, 65);
 
     var pX = []         // x values
     var pY = []         // y values
     var pYs = []        // values for smooth y
     var pK =  []        // derivative values
+    var smoothCurve = [];
 
     for (i = 0; i < p.length; i ++) {
-        pX.push(p[i][0]);
+        pX[i] = p[i][0];
         pY[i] = p[i][1];
         pK[i] = 1;
     }
@@ -459,47 +461,37 @@ function addCurves(p, w, c_r, c_g, c_b) {
             smoothPoint = 0;
         } else if (smoothPoint > 254) {
             smoothPoint = 254;
-        } 
+        }
 
-        pYs.push(smoothPoint);
+        smoothCurve.push([i / 256 * edgeLength, smoothPoint / 256 * edgeLength]);
 
-    }
-
-    var smoothCurve = [];
-
-    for (i = 0; i < pYs.length; i ++) {
-        smoothCurve.push([i, pYs[i]]);
     }
 
     // Path definition
     var toneCurvePathArray = new Array();
 
-    var lineArray = new Array()
+    for (i = 0; i < smoothCurve.length * 2 - 2; i++) {
 
-    for (i = 0; i < smoothCurve.length * 2 - 1; i++) {
-
-        if( i < smoothCurve.length ) {
-            var curvePointIndex = i;
+        if (i < smoothCurve.length - 1) {
+            var smoothCuveStartIndex = i;
+            var smoothCurveEndIndex = smoothCuveStartIndex + 1; 
         } else {
-            var curvePointIndex = 2 * (smoothCurve.length-1) - i + 1 ;
+            var smoothCuveStartIndex = 2 * (smoothCurve.length-1) - i;
+            var smoothCurveEndIndex = smoothCuveStartIndex -1;
         }
 
-        lineArray[i] = new PathPointInfo
-        lineArray[i].kind = PointKind.SMOOTHPOINT
-        lineArray[i].anchor = Array(smoothCurve[curvePointIndex][0], 255 - smoothCurve[curvePointIndex][1])
-        lineArray[i].leftDirection = lineArray[i].anchor
-        lineArray[i].rightDirection = lineArray[i].anchor
-        lineArray[i+1] = new PathPointInfo
-        lineArray[i+1].kind = PointKind.SMOOTHPOINT
+        var lineArray = new Array()
+        lineArray[0] = new PathPointInfo
+        lineArray[0].anchor = Array(xPosition + smoothCurve[smoothCuveStartIndex][0], yPosition + edgeLength - smoothCurve[smoothCuveStartIndex][1])
+        lineArray[0].kind = PointKind.SMOOTHPOINT
+        lineArray[0].leftDirection = lineArray[0].anchor
+        lineArray[0].rightDirection = lineArray[0].anchor
+        lineArray[1] = new PathPointInfo
+        lineArray[1].anchor = Array(xPosition + smoothCurve[smoothCurveEndIndex][0] , yPosition + edgeLength - smoothCurve[smoothCurveEndIndex][1])
+        lineArray[1].kind = PointKind.SMOOTHPOINT
+        lineArray[1].leftDirection = lineArray[1].anchor
+        lineArray[1].rightDirection = lineArray[1].anchor
 
-        if( i < smoothCurve.length -1 ) {
-            lineArray[i+1].anchor = Array(smoothCurve[curvePointIndex+1][0], 255 - smoothCurve[curvePointIndex+1][1])
-        } else {
-            lineArray[i+1].anchor = Array(smoothCurve[curvePointIndex-1][0], 255 - smoothCurve[curvePointIndex-1][1])
-        }
-
-        lineArray[i+1].leftDirection = lineArray[i+1].anchor
-        lineArray[i+1].rightDirection = lineArray[i+1].anchor
         toneCurvePathArray[i] = new SubPathInfo()
         toneCurvePathArray[i].operation = ShapeOperation.SHAPEXOR
         toneCurvePathArray[i].closed = false
@@ -514,13 +506,18 @@ function addCurves(p, w, c_r, c_g, c_b) {
 
     convertPathtoShape();
 
-    setStroke (w, c_r, c_g, c_b);
+    setStroke (strokeWidth, c_r, c_g, c_b);
 
-    app.activeDocument.activeLayer.vectorMaskFeather = w * 0.2;
+    // app.activeDocument.activeLayer.vectorMaskFeather = strokeWidth * 0.1;
     
     myPathItem.remove();
 
     app.activeDocument.activeLayer.merge();
+
+    app.activeDocument.selection.select([[xPosition, yPosition],[xPosition, yPosition + edgeLength], [xPosition + edgeLength, yPosition + edgeLength], [xPosition + edgeLength, yPosition]]);
+    app.activeDocument.selection.invert();
+    app.activeDocument.selection.clear();
+    app.activeDocument.selection.deselect();
 
     app.activeDocument.activeLayer.name = "Tone Curve";
 
@@ -1183,5 +1180,16 @@ function drawGrid (x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_
         app.activeDocument.activeLayer.merge();
 
     }
+
+}
+
+function addAllCurves (xPosition, yPosition, edgeLength, strokeWidth) {
+
+    var yIncrement = 180;
+    // p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_b
+    addCurve(toneCurve.settingValue, xPosition, yPosition, edgeLength, strokeWidth, 255, 255, 255);
+    addCurve(toneCurveRed.settingValue, xPosition, yPosition + yIncrement, edgeLength, strokeWidth, 201, 67, 10);
+    addCurve(toneCurveGreen.settingValue, xPosition, yPosition + 2 * yIncrement, edgeLength, strokeWidth, 25, 128, 76);
+    addCurve(toneCurveBlue.settingValue, xPosition, yPosition + 3 * yIncrement, edgeLength, strokeWidth, 0, 151, 194);
 
 }
