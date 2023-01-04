@@ -603,10 +603,29 @@ function solve (A, x)	// in Matrix, out solutions
         }
     }
 }
-function zerosMat (r,c) {var A = []; for(var i=0; i<r; i++) {A.push([]); for(var j=0; j<c; j++) A[i].push(0);} return A;}
-function printMat (A){ for(var i=0; i<A.length; i++) console.log(A[i]); }
-function swapRows (m, k, l) {var p = m[k]; m[k] = m[l]; m[l] = p;}
-    
+
+function zerosMat (r,c) {
+    var A = []; 
+    for(var i=0; i<r; i++) {
+        A.push([]); 
+        for(var j=0; j<c; j++) {
+            A[i].push(0);
+        }
+    } 
+    return A;
+}
+
+function printMat (A){ 
+    for(var i=0; i<A.length; i++) {
+        console.log(A[i]);
+    }
+}
+
+function swapRows (m, k, l) {
+    var p = m[k];
+    m[k] = m[l];
+    m[l] = p;
+}    
     
 function getNaturalKs (xs, ys, ks)	// in x values, in y values, out k values
 {
