@@ -521,6 +521,18 @@ function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_
 
     app.activeDocument.activeLayer.name = "Tone Curve";
 
+    // Point Circles
+    for (i = 0; i < p.length; i ++) {
+
+        if(!((p[i][0] == 0 && p[i][1] == 0) || (p[i][0] == 255 && p[i][1] == 255))) {
+
+            // selectedSetting, x, y, radius
+            drawCircle(toneCurve, xPosition + p[i][0] / 256 * edgeLength, yPosition + edgeLength - p[i][1] / 256 * edgeLength, 3);
+        
+        }
+
+    }
+
     var yIncrementsAmount = 0;
 
     for (i = 0; i < p.length; i ++) {
@@ -1218,7 +1230,7 @@ function drawGrid (x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_
 
 function addAllCurves (xPosition, yPosition, edgeLength, strokeWidth) {
 
-    var yIncrement = 180;
+    var yIncrement = edgeLength * 4 / 3;
     // p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_b
     addCurve(toneCurve.settingValue, xPosition, yPosition, edgeLength, strokeWidth, 255, 255, 255);
     addCurve(toneCurveRed.settingValue, xPosition, yPosition + yIncrement, edgeLength, strokeWidth, 201, 67, 10);

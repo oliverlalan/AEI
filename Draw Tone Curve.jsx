@@ -128,6 +128,19 @@ function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_
 
     app.activeDocument.activeLayer.name = "Tone Curve";
 
+    // Point Circles
+    for (i = 0; i < p.length; i ++) {
+
+        if(!((p[i][0] == 0 && p[i][1] == 0) || (p[i][0] == 255 && p[i][1] == 255))) {
+
+            // selectedSetting, x, y, radius
+            drawCircle(toneCurve, xPosition + p[i][0] / 256 * edgeLength, yPosition + edgeLength - p[i][1] / 256 * edgeLength, 3);
+        
+        }
+
+    }
+
+    // Point labels
     var yIncrementsAmount = 0;
 
     for (i = 0; i < p.length; i ++) {
@@ -577,4 +590,42 @@ function translateLayerTo(selectedLayer,xPosition,yPosition, anchorPosition) {
     }
     
     selectedLayer.translate(dX,dY);
+}
+
+function drawCircle(selectedSetting, x, y, radius){
+
+    // create path
+    var d = new ActionDescriptor();
+    var r = new ActionReference();
+    r.putProperty(stringIDToTypeID("path"), stringIDToTypeID("workPath"));
+    d.putReference(stringIDToTypeID("null"), r);
+    var d1 = new ActionDescriptor();
+    d1.putUnitDouble(stringIDToTypeID("top"), stringIDToTypeID("pixelsUnit"),    y - radius);
+    d1.putUnitDouble(stringIDToTypeID("left"), stringIDToTypeID("pixelsUnit"),   x - radius);
+    d1.putUnitDouble(stringIDToTypeID("bottom"), stringIDToTypeID("pixelsUnit"), y + radius);
+    d1.putUnitDouble(stringIDToTypeID("right"), stringIDToTypeID("pixelsUnit"),  x + radius);
+    d.putObject(stringIDToTypeID("to"), stringIDToTypeID("ellipse"), d1);
+    executeAction(stringIDToTypeID("set"), d, DialogModes.NO);
+
+
+    // create fill layer
+    var d = new ActionDescriptor();
+    var r = new ActionReference();
+    r.putClass(stringIDToTypeID("contentLayer"));
+    d.putReference(stringIDToTypeID("null"), r);
+    var d1 = new ActionDescriptor();
+    var d2 = new ActionDescriptor();
+    var d3 = new ActionDescriptor();
+    d3.putDouble(stringIDToTypeID("red"),   255);
+    d3.putDouble(stringIDToTypeID("green"), 255);
+    d3.putDouble(stringIDToTypeID("blue"),  255);
+    d2.putObject(stringIDToTypeID("color"), stringIDToTypeID("RGBColor"), d3);
+    d1.putObject(stringIDToTypeID("type"), stringIDToTypeID("solidColorLayer"), d2);
+    d.putObject(stringIDToTypeID("using"), stringIDToTypeID("contentLayer"), d1);
+    executeAction(stringIDToTypeID("make"), d, DialogModes.NO);
+
+    app.activeDocument.activeLayer.name = selectedSetting.displayName + " Circle";
+
+    return app.activeDocument.activeLayer;
+
 }
