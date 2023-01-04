@@ -129,8 +129,8 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 // addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
 // addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
 // addAdjustmentBars([grainAmount, grainSize, grainFrequency, vibrance,saturation], 850);
-addAllCurves(540, 360, 135, 20) // xPosition, yPosition, edgeLength, strokeWidth
-// addCurve(toneCurve.settingValue, 30, 30, 135, 2, 201, 67, 10); //p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_b
+// addAllCurves(540, 360, 135, 20) // xPosition, yPosition, edgeLength, strokeWidth
+addCurve(toneCurve.settingValue, 30, 30, 135, 3, 201, 67, 10); //p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_b
 // addHSLTable( 135, 825, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS)
 // addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
 // addHistogram(true, false, false, 135);
@@ -251,7 +251,7 @@ function setStroke(strokeWidth, c_r, c_g, c_b){
                 var desc5 = new ActionDescriptor();
                 var idstrokeStyleLineWidth = stringIDToTypeID( "strokeStyleLineWidth" );
                 var idPxl = charIDToTypeID( "#Pxl" );
-                desc5.putUnitDouble( idstrokeStyleLineWidth, idPxl, 8.000000 );
+                desc5.putUnitDouble( idstrokeStyleLineWidth, idPxl, strokeWidth );
                 var idstrokeStyleContent = stringIDToTypeID( "strokeStyleContent" );
                     var desc6 = new ActionDescriptor();
                     var idClr = charIDToTypeID( "Clr " );
@@ -566,90 +566,6 @@ function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_
 
     }
 
-}
-
-function convertPathtoShape() {
-	var d = new ActionDescriptor();
-	var d2 = new ActionDescriptor();
-	var d3 = new ActionDescriptor();
-	var d4 = new ActionDescriptor();
-	var r = new ActionReference();
-	r.putClass( stringIDToTypeID( "contentLayer" ));
-	d.putReference( charIDToTypeID( "null" ), r );
-	d4.putDouble( charIDToTypeID( "Rd  " ), 255);
-	d4.putDouble( charIDToTypeID( "Grn " ), 255);
-	d4.putDouble( charIDToTypeID( "Bl  " ), 255);
-	d3.putObject( charIDToTypeID( "Clr " ), charIDToTypeID( "RGBC" ), d4 );
-	d2.putObject( charIDToTypeID( "Type" ), stringIDToTypeID( "solidColorLayer" ), d3 );
-	d.putObject( charIDToTypeID( "Usng" ), stringIDToTypeID( "contentLayer" ), d2 );
-	executeAction( charIDToTypeID( "Mk  " ), d, DialogModes.NO );
-}
-
-function setStroke(strokeWidth, c_r, c_g, c_b){
-    var idsetd = charIDToTypeID( "setd" );
-        var desc3 = new ActionDescriptor();
-        var idnull = charIDToTypeID( "null" );
-            var ref1 = new ActionReference();
-            var idcontentLayer = stringIDToTypeID( "contentLayer" );
-            var idOrdn = charIDToTypeID( "Ordn" );
-            var idTrgt = charIDToTypeID( "Trgt" );
-            ref1.putEnumerated( idcontentLayer, idOrdn, idTrgt );
-        desc3.putReference( idnull, ref1 );
-        var idT = charIDToTypeID( "T   " );
-            var desc4 = new ActionDescriptor();
-            var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
-                var desc5 = new ActionDescriptor();
-                var idstrokeStyleContent = stringIDToTypeID( "strokeStyleContent" );
-                    var desc6 = new ActionDescriptor();
-                    var idClr = charIDToTypeID( "Clr " );
-                        var desc7 = new ActionDescriptor();
-                        var idCyn = charIDToTypeID( "Rd  " );
-                        desc7.putDouble( idCyn, c_r );
-                        var idMgnt = charIDToTypeID( "Grn " );
-                        desc7.putDouble( idMgnt, c_g );
-                        var idYlw = charIDToTypeID( "Bl  " );
-                        desc7.putDouble( idYlw, c_b );
-                    var idRGBC = charIDToTypeID( "RGBC" );
-                    desc6.putObject( idClr, idRGBC, desc7 );
-                var idsolidColorLayer = stringIDToTypeID( "solidColorLayer" );
-                desc5.putObject( idstrokeStyleContent, idsolidColorLayer, desc6 );
-                var idstrokeStyleVersion = stringIDToTypeID( "strokeStyleVersion" );
-                desc5.putInteger( idstrokeStyleVersion, strokeWidth );
-                var idstrokeEnabled = stringIDToTypeID( "strokeEnabled" );
-                desc5.putBoolean( idstrokeEnabled, true );
-                var idfillEnabled = stringIDToTypeID( "fillEnabled" );
-                desc5.putBoolean( idfillEnabled, false );
-            var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
-            desc4.putObject( idstrokeStyle, idstrokeStyle, desc5 );
-        var idshapeStyle = stringIDToTypeID( "shapeStyle" );
-        desc3.putObject( idT, idshapeStyle, desc4 );
-    executeAction( idsetd, desc3, DialogModes.NO );
-
-    var idsetd = charIDToTypeID( "setd" );
-        var desc9 = new ActionDescriptor();
-        var idnull = charIDToTypeID( "null" );
-            var ref2 = new ActionReference();
-            var idcontentLayer = stringIDToTypeID( "contentLayer" );
-            var idOrdn = charIDToTypeID( "Ordn" );
-            var idTrgt = charIDToTypeID( "Trgt" );
-            ref2.putEnumerated( idcontentLayer, idOrdn, idTrgt );
-        desc9.putReference( idnull, ref2 );
-        var idT = charIDToTypeID( "T   " );
-            var desc10 = new ActionDescriptor();
-            var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
-                var desc11 = new ActionDescriptor();
-                var idstrokeStyleLineWidth = stringIDToTypeID( "strokeStyleLineWidth" );
-                var idPxl = charIDToTypeID( "#Pxl" );
-                desc11.putUnitDouble( idstrokeStyleLineWidth, idPxl, 2.000000 );
-                var idstrokeStyleVersion = stringIDToTypeID( "strokeStyleVersion" );
-                desc11.putInteger( idstrokeStyleVersion, 2 );
-                var idstrokeEnabled = stringIDToTypeID( "strokeEnabled" );
-                desc11.putBoolean( idstrokeEnabled, true );
-            var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
-            desc10.putObject( idstrokeStyle, idstrokeStyle, desc11 );
-        var idshapeStyle = stringIDToTypeID( "shapeStyle" );
-        desc9.putObject( idT, idshapeStyle, desc10 );
-    executeAction( idsetd, desc9, DialogModes.NO );
 }
 
 //https://github.com/kuckir/CSPL.js/blob/master/CSPL.js
