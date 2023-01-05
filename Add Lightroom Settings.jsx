@@ -125,12 +125,12 @@ var blueHueCalibration            =  new Setting ( "Blue Hue",             "Blue
 var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "BlueSaturation",                      -100,   +100    );
 
 
-// addAdjustmentLine(saturation, 100, 100, 225, 3, 4, 16);
+// addAdjustmentBar(saturation, 100, 100, 225, 2, 4, 16);
 // addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
 // addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
 // addAdjustmentBars([grainAmount, grainSize, grainFrequency, vibrance,saturation], 850);
-// addAllCurves(540, 360, 135, 20) // xPosition, yPosition, edgeLength, strokeWidth
-addCurve(toneCurve.settingValue, 30, 30, 135, 3, 201, 67, 10); //p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_b
+addAllCurves(540, 360, 180, 4) // xPosition, yPosition, edgeLength, strokeWidth
+// addCurve(toneCurve.settingValue, 30, 30, 135, 3, 3, 201, 67, 10); // p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius, c_r, c_g, c_b
 // addHSLTable( 135, 825, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS)
 // addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
 // addHistogram(true, false, false, 135);
@@ -141,7 +141,7 @@ function addAdjustmentBars(parametersArray, yStartingPosition) {
 
         if(i==0) {var yPosition = yStartingPosition}
 
-        addAdjustmentBar(parametersArray[i], 90, yPosition, 225, 3, 4, 16);
+        addAdjustmentBar(parametersArray[i], 90, yPosition, 225, 2, 4, 16);
 
         yPosition +=45; 
 
@@ -162,9 +162,9 @@ function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circl
 
     var adjustmentGroup = activeDocument.layerSets.add();
     adjustmentGroup.name = selectedSetting.displayName + ' Group';
-    var lineLayer = drawLine(selectedSetting, minSettingX, minSettingY, maxSettingX, maxSettingY, strokeWidth, 255, 255, 255, 100);
+    var lineLayer = drawLine(minSettingX, minSettingY, maxSettingX, maxSettingY, strokeWidth, 255, 255, 255, 100);
     lineLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
-    var circleLayer = drawCircle(selectedSetting, settingX, settingY, circleRadius);
+    var circleLayer = drawCircle(settingX, settingY, circleRadius, undefined, 255, 255, 255); // xPosition, yPosition, circleRadius, strokeWidth, c_r, c_g, c_b
     circleLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
     var labelLayer = addText(selectedSetting.displayName, minSettingX, minSettingY - 1.5 * labelSize, "topleft", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
     labelLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
@@ -277,73 +277,6 @@ function setStroke(strokeWidth, c_r, c_g, c_b){
         var idshapeStyle = stringIDToTypeID( "shapeStyle" );
         desc3.putObject( idT, idshapeStyle, desc4 );
     executeAction( idsetd, desc3, DialogModes.NO );
-
-    // var idsetd = charIDToTypeID( "setd" );
-    //     var desc9 = new ActionDescriptor();
-    //     var idnull = charIDToTypeID( "null" );
-    //         var ref2 = new ActionReference();
-    //         var idcontentLayer = stringIDToTypeID( "contentLayer" );
-    //         var idOrdn = charIDToTypeID( "Ordn" );
-    //         var idTrgt = charIDToTypeID( "Trgt" );
-    //         ref2.putEnumerated( idcontentLayer, idOrdn, idTrgt );
-    //     desc9.putReference( idnull, ref2 );
-    //     var idT = charIDToTypeID( "T   " );
-    //         var desc10 = new ActionDescriptor();
-    //         var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
-    //             var desc11 = new ActionDescriptor();
-    //             var idstrokeStyleLineWidth = stringIDToTypeID( "strokeStyleLineWidth" );
-    //             var idPxl = charIDToTypeID( "#Pxl" );
-    //             desc11.putUnitDouble( idstrokeStyleLineWidth, idPxl, 20.000000 );
-    //             var idstrokeStyleVersion = stringIDToTypeID( "strokeStyleVersion" );
-    //             desc11.putInteger( idstrokeStyleVersion, 2 );
-    //             var idstrokeEnabled = stringIDToTypeID( "strokeEnabled" );
-    //             desc11.putBoolean( idstrokeEnabled, true );
-    //         var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
-    //         desc10.putObject( idstrokeStyle, idstrokeStyle, desc11 );
-    //     var idshapeStyle = stringIDToTypeID( "shapeStyle" );
-    //     desc9.putObject( idT, idshapeStyle, desc10 );
-    // executeAction( idsetd, desc9, DialogModes.NO );
-}
-
-// https://community.adobe.com/t5/photoshop-ecosystem-discussions/simpler-way-to-draw-a-circle-with-scripting/m-p/12052524#M544006
-
-
-function drawCircle(selectedSetting, x, y, radius){
-
-    // create path
-    var d = new ActionDescriptor();
-    var r = new ActionReference();
-    r.putProperty(stringIDToTypeID("path"), stringIDToTypeID("workPath"));
-    d.putReference(stringIDToTypeID("null"), r);
-    var d1 = new ActionDescriptor();
-    d1.putUnitDouble(stringIDToTypeID("top"), stringIDToTypeID("pixelsUnit"),    y - radius);
-    d1.putUnitDouble(stringIDToTypeID("left"), stringIDToTypeID("pixelsUnit"),   x - radius);
-    d1.putUnitDouble(stringIDToTypeID("bottom"), stringIDToTypeID("pixelsUnit"), y + radius);
-    d1.putUnitDouble(stringIDToTypeID("right"), stringIDToTypeID("pixelsUnit"),  x + radius);
-    d.putObject(stringIDToTypeID("to"), stringIDToTypeID("ellipse"), d1);
-    executeAction(stringIDToTypeID("set"), d, DialogModes.NO);
-
-
-    // create fill layer
-    var d = new ActionDescriptor();
-    var r = new ActionReference();
-    r.putClass(stringIDToTypeID("contentLayer"));
-    d.putReference(stringIDToTypeID("null"), r);
-    var d1 = new ActionDescriptor();
-    var d2 = new ActionDescriptor();
-    var d3 = new ActionDescriptor();
-    d3.putDouble(stringIDToTypeID("red"),   255);
-    d3.putDouble(stringIDToTypeID("green"), 255);
-    d3.putDouble(stringIDToTypeID("blue"),  255);
-    d2.putObject(stringIDToTypeID("color"), stringIDToTypeID("RGBColor"), d3);
-    d1.putObject(stringIDToTypeID("type"), stringIDToTypeID("solidColorLayer"), d2);
-    d.putObject(stringIDToTypeID("using"), stringIDToTypeID("contentLayer"), d1);
-    executeAction(stringIDToTypeID("make"), d, DialogModes.NO);
-
-    app.activeDocument.activeLayer.name = selectedSetting.displayName + " Circle";
-
-    return app.activeDocument.activeLayer;
-
 }
 
 function addText (text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization) {
@@ -435,9 +368,9 @@ function translateLayerTo(selectedLayer,xPosition,yPosition, anchorPosition) {
     selectedLayer.translate(dX,dY);
 }
 
-function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_b) {
+function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius, c_r, c_g, c_b) {
 
-    drawGrid (xPosition, yPosition, edgeLength, edgeLength, 4, 4, 2, 166, 166, 166, 65);
+    drawGrid (xPosition, yPosition, edgeLength, edgeLength, 4, 4, 2, 166, 166, 166, 65); // x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_b, opacity
 
     var pX = []         // x values
     var pY = []         // y values
@@ -526,8 +459,8 @@ function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_
 
         if(!((p[i][0] == 0 && p[i][1] == 0) || (p[i][0] == 255 && p[i][1] == 255))) {
 
-            // selectedSetting, x, y, radius
-            drawCircle(toneCurve, xPosition + p[i][0] / 256 * edgeLength, yPosition + edgeLength - p[i][1] / 256 * edgeLength, 3);
+            // xPosition, yPosition, circleRadius, strokeWidth, c_r, c_g, c_b
+            drawCircle(xPosition + p[i][0] / 256 * edgeLength, yPosition + edgeLength - p[i][1] / 256 * edgeLength, circleRadius, undefined, 255, 255, 255); // xPosition, yPosition, circleRadius, strokeWidth, c_r, c_g, c_b
         
         }
 
@@ -1166,10 +1099,163 @@ function drawGrid (x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_
 function addAllCurves (xPosition, yPosition, edgeLength, strokeWidth) {
 
     var yIncrement = edgeLength * 4 / 3;
-    // p, xPosition, yPosition, edgeLength, strokeWidth, c_r, c_g, c_b
-    addCurve(toneCurve.settingValue, xPosition, yPosition, edgeLength, strokeWidth, 255, 255, 255);
-    addCurve(toneCurveRed.settingValue, xPosition, yPosition + yIncrement, edgeLength, strokeWidth, 201, 67, 10);
-    addCurve(toneCurveGreen.settingValue, xPosition, yPosition + 2 * yIncrement, edgeLength, strokeWidth, 25, 128, 76);
-    addCurve(toneCurveBlue.settingValue, xPosition, yPosition + 3 * yIncrement, edgeLength, strokeWidth, 0, 151, 194);
+    // p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius, c_r, c_g, c_b
+    addCurve(toneCurve.settingValue, xPosition, yPosition, edgeLength, strokeWidth, 3, 255, 255, 255);
+    addCurve(toneCurveRed.settingValue, xPosition, yPosition + yIncrement, edgeLength, strokeWidth, 3, 201, 67, 10);
+    addCurve(toneCurveGreen.settingValue, xPosition, yPosition + 2 * yIncrement, edgeLength, strokeWidth, 3, 25, 128, 76);
+    addCurve(toneCurveBlue.settingValue, xPosition, yPosition + 3 * yIncrement, edgeLength, strokeWidth, 3, 0, 151, 194);
+
+}
+
+function drawCircle(xPosition, yPosition, circleRadius, strokeWidth, c_r, c_g, c_b)
+
+    {
+
+    try
+
+        {
+
+        select_layer_rgb();
+
+        var d1 = new ActionDescriptor();
+        var d2 = new ActionDescriptor();
+        var r1 = new ActionReference();
+        r1.putProperty( charIDToTypeID( "Path" ), charIDToTypeID( "WrPt" ) );
+        d1.putReference( charIDToTypeID( "null" ), r1 );
+        d2.putUnitDouble( charIDToTypeID( "Top " ), charIDToTypeID( "#Pxl" ), yPosition-circleRadius );
+        d2.putUnitDouble( charIDToTypeID( "Left" ), charIDToTypeID( "#Pxl" ), xPosition-circleRadius );
+        d2.putUnitDouble( charIDToTypeID( "Btom" ), charIDToTypeID( "#Pxl" ), yPosition+circleRadius );
+        d2.putUnitDouble( charIDToTypeID( "Rght" ), charIDToTypeID( "#Pxl" ), xPosition+circleRadius );
+        d1.putObject( charIDToTypeID( "T   " ), charIDToTypeID( "Elps" ), d2 );
+        executeAction( charIDToTypeID( "setd" ), d1, DialogModes.NO );
+        d1 = null;
+        d2 = null;
+        r1 = null;
+
+        if(strokeWidth == undefined) {
+            // create fill layer
+            var d = new ActionDescriptor();
+            var r = new ActionReference();
+            r.putClass(stringIDToTypeID("contentLayer"));
+            d.putReference(stringIDToTypeID("null"), r);
+            var d1 = new ActionDescriptor();
+            var d2 = new ActionDescriptor();
+            var d3 = new ActionDescriptor();
+            d3.putDouble(stringIDToTypeID("red"),   c_r);
+            d3.putDouble(stringIDToTypeID("green"), c_g);
+            d3.putDouble(stringIDToTypeID("blue"),  c_b);
+            d2.putObject(stringIDToTypeID("color"), stringIDToTypeID("RGBColor"), d3);
+            d1.putObject(stringIDToTypeID("type"), stringIDToTypeID("solidColorLayer"), d2);
+            d.putObject(stringIDToTypeID("using"), stringIDToTypeID("contentLayer"), d1);
+            executeAction(stringIDToTypeID("make"), d, DialogModes.NO);
+        } 
+
+        var idx = curr_path_idx();
+
+        app.activeDocument.pathItems[idx].makeSelection(0, true, SelectionType.REPLACE);
+
+        app.activeDocument.pathItems[idx].remove();
+
+        if(strokeWidth != undefined) {
+            stroke(strokeWidth, c_r, c_g, c_b);
+        }
+
+        app.activeDocument.selection.deselect();
+
+        return app.activeDocument.activeLayer;
+
+        }
+
+    catch (e) { alert(e); }
+
+    }
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+function select_layer_rgb()
+
+    {
+
+    try {
+
+        var d = new ActionDescriptor();
+
+        var r = new ActionReference();
+
+        r.putEnumerated( charIDToTypeID( "Chnl" ), charIDToTypeID( "Chnl" ), charIDToTypeID( "RGB " ) );
+
+        d.putReference( charIDToTypeID( "null" ), r );
+
+        d.putBoolean( charIDToTypeID( "MkVs" ), false );
+
+        executeAction( charIDToTypeID( "slct" ), d, DialogModes.NO );
+
+        r = null;
+
+        d = null;  
+
+        }
+
+    catch (e) { alert(e);  }
+
+    }
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+function curr_path_idx()
+
+    {
+
+    try {
+
+        var r = new ActionReference();
+
+        r.putProperty( charIDToTypeID( "Prpr" ), stringIDToTypeID( "targetPathIndex" ) );
+
+        r.putEnumerated( charIDToTypeID("Dcmn"), charIDToTypeID("Ordn"), charIDToTypeID("Trgt") );
+
+        r = executeActionGet(r);
+
+        return  r.getInteger( stringIDToTypeID( 'targetPathIndex' ));
+
+        }
+
+    catch (e) { alert(e); return -1; }
+
+    }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+function stroke(strokeWidth, c_r, c_g, c_b)
+
+    { 
+
+    try {
+
+        var d1 = new ActionDescriptor();
+
+        var d2 = new ActionDescriptor();
+
+        d1.putInteger( charIDToTypeID( "Wdth" ), strokeWidth );
+
+        d1.putEnumerated( charIDToTypeID( "Lctn" ), charIDToTypeID( "StrL" ), charIDToTypeID( "Cntr" ) );
+
+        d1.putUnitDouble( charIDToTypeID( "Opct" ), charIDToTypeID( "#Prc" ), 100.000000 );
+
+        d1.putEnumerated( charIDToTypeID( "Md  " ), charIDToTypeID( "BlnM" ), charIDToTypeID( "Nrml" ) );
+
+        d2.putDouble( charIDToTypeID( "Rd  " ), c_r );
+
+        d2.putDouble( charIDToTypeID( "Grn " ), c_g );
+
+        d2.putDouble( charIDToTypeID( "Bl  " ), c_b );
+
+        d1.putObject( charIDToTypeID( "Clr " ), charIDToTypeID( "RGBC" ), d2 );
+
+        executeAction( charIDToTypeID( "Strk" ), d1, DialogModes.NO );
+
+        }
+
+    catch (e) { alert(e); }
 
 }
