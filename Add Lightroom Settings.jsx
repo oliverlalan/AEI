@@ -129,9 +129,9 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 // addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
 // addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
 // addAdjustmentBars([grainAmount, grainSize, grainFrequency, vibrance,saturation], 850);
-addAllCurves(540, 360, 180, 4) // xPosition, yPosition, edgeLength, strokeWidth
+// addAllCurves(540, 360, 180, 4) // xPosition, yPosition, edgeLength, strokeWidth
 // addCurve(toneCurve.settingValue, 30, 30, 135, 3, 3, 201, 67, 10); // p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius, c_r, c_g, c_b
-// addHSLTable( 135, 825, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS)
+addHSLTable( 135, 855, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS) // xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
 // addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
 // addHistogram(true, false, false, 135);
 
@@ -370,7 +370,7 @@ function translateLayerTo(selectedLayer,xPosition,yPosition, anchorPosition) {
 
 function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius, c_r, c_g, c_b) {
 
-    drawGrid (xPosition, yPosition, edgeLength, edgeLength, 4, 4, 2, 166, 166, 166, 65); // x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_b, opacity
+    drawGrid (xPosition, yPosition, edgeLength, edgeLength, 4, 4, 2, 166, 166, 166, 100); // x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_b, opacity
 
     var pX = []         // x values
     var pY = []         // y values
@@ -609,6 +609,10 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
     
     var xInitialPosition = xPosition;
     var yInitialPosition = yPosition;
+    var c_r = 0;
+    var c_g = 0;
+    var c_b = 0;
+
     var HSLTable = [["",            "Hue",                      "Sat",                           "Lum"                             ],
                     ["Red",         redHue.settingValue,         redSaturation.settingValue,      redLuminance.settingValue        ],
                     ["Orange",      orangeHue.settingValue,      orangeSaturation.settingValue,   orangeLuminance.settingValue     ],
@@ -623,10 +627,39 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
 
         for (j = 0; j < HSLTable[0].length; j ++) {
 
-            var textLayer = addText(HSLTable[i][j], xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);  // text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+            if(j == 0) {
 
+                switch (HSLTable[i][j]) {
+
+                    case "Red":         c_r = 107;      c_g = 35;       c_b = 37;       break;
+                    case "Orange":      c_r = 151;      c_g = 110;      c_b = 60;       break;
+                    case "Yellow":      c_r = 141;      c_g = 132;      c_b = 37;       break;
+                    case "Green":       c_r = 26;       c_g = 97;       c_b = 35;       break;
+                    case "Aqua":        c_r = 27;       c_g = 151;      c_b = 145;      break;
+                    case "Blue":        c_r = 14;       c_g = 99;       c_b = 139;      break;
+                    case "Purple":      c_r = 105;      c_g = 39;       c_b = 93;       break;
+                    case "Magenta":     c_r = 134;      c_g = 47;       c_b = 86;       break;
+                    default:            c_r = 255;      c_g = 255;      c_b = 255;      break;
+
+                }
+
+                if(i !=0 ){
+
+                // xPosition, yPosition, circleRadius, strokeWidth, c_r, c_g, c_b
+                var HSLLayer = drawCircle(xPosition, yPosition + fontSize / 3, 8, undefined, c_r, c_g, c_b);
+
+                }
+            
+            } else {
+
+                var HSLLayer = addText(HSLTable[i][j], xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);  // text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+            
+            }
+            
             try {
+
                 textLayer.move(HSLGroup, ElementPlacement.INSIDE);
+
             } catch (e) {};
 
             xPosition += 60;
@@ -635,7 +668,7 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
 
         xPosition = xInitialPosition;
 
-        yPosition += 30;
+        yPosition += 35;
 
     }
     
