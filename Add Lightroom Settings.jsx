@@ -164,7 +164,7 @@ function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circl
     adjustmentGroup.name = selectedSetting.displayName + ' Group';
     var lineLayer = drawLine(minSettingX, minSettingY, maxSettingX, maxSettingY, strokeWidth, 255, 255, 255, 100);
     lineLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
-    var circleLayer = drawCircle(settingX, settingY, circleRadius, undefined, 255, 255, 255); // xPosition, yPosition, circleRadius, strokeWidth, c_r, c_g, c_b
+    var circleLayer = drawCircle(settingX, settingY, circleRadius, true, "FFFFFF", false, "FFFFFF", strokeWidth); // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
     circleLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
     var labelLayer = addText(selectedSetting.displayName, minSettingX, minSettingY - 1.5 * labelSize, "topleft", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
     labelLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
@@ -236,47 +236,26 @@ function convertPathtoShape() {
 }
 
 function setStroke(strokeWidth, c_r, c_g, c_b){
-    var idsetd = charIDToTypeID( "setd" );
         var desc3 = new ActionDescriptor();
-        var idnull = charIDToTypeID( "null" );
-            var ref1 = new ActionReference();
-            var idcontentLayer = stringIDToTypeID( "contentLayer" );
-            var idOrdn = charIDToTypeID( "Ordn" );
-            var idTrgt = charIDToTypeID( "Trgt" );
-            ref1.putEnumerated( idcontentLayer, idOrdn, idTrgt );
-        desc3.putReference( idnull, ref1 );
-        var idT = charIDToTypeID( "T   " );
+        var ref1 = new ActionReference();
+        ref1.putEnumerated( stringIDToTypeID( "contentLayer" ), charIDToTypeID( "Ordn" ), charIDToTypeID( "Trgt" ) );
+        desc3.putReference( charIDToTypeID( "null" ), ref1 );
             var desc4 = new ActionDescriptor();
-            var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
                 var desc5 = new ActionDescriptor();
-                var idstrokeStyleLineWidth = stringIDToTypeID( "strokeStyleLineWidth" );
-                var idPxl = charIDToTypeID( "#Pxl" );
-                desc5.putUnitDouble( idstrokeStyleLineWidth, idPxl, strokeWidth );
-                var idstrokeStyleContent = stringIDToTypeID( "strokeStyleContent" );
+                desc5.putUnitDouble( stringIDToTypeID( "strokeStyleLineWidth" ), charIDToTypeID( "#Pxl" ), strokeWidth );
                     var desc6 = new ActionDescriptor();
-                    var idClr = charIDToTypeID( "Clr " );
                         var desc7 = new ActionDescriptor();
-                        var idCyn = charIDToTypeID( "Rd  " );
-                        desc7.putDouble( idCyn, c_r );
-                        var idMgnt = charIDToTypeID( "Grn " );
-                        desc7.putDouble( idMgnt, c_g );
-                        var idYlw = charIDToTypeID( "Bl  " );
-                        desc7.putDouble( idYlw, c_b );
-                    var idRGBC = charIDToTypeID( "RGBC" );
-                    desc6.putObject( idClr, idRGBC, desc7 );
-                var idsolidColorLayer = stringIDToTypeID( "solidColorLayer" );
-                desc5.putObject( idstrokeStyleContent, idsolidColorLayer, desc6 );
-                var idstrokeStyleVersion = stringIDToTypeID( "strokeStyleVersion" );
-                desc5.putInteger( idstrokeStyleVersion, 2 );
-                var idstrokeEnabled = stringIDToTypeID( "strokeEnabled" );
-                desc5.putBoolean( idstrokeEnabled, true );
-                var idfillEnabled = stringIDToTypeID( "fillEnabled" );
-                desc5.putBoolean( idfillEnabled, false );
-            var idstrokeStyle = stringIDToTypeID( "strokeStyle" );
-            desc4.putObject( idstrokeStyle, idstrokeStyle, desc5 );
-        var idshapeStyle = stringIDToTypeID( "shapeStyle" );
-        desc3.putObject( idT, idshapeStyle, desc4 );
-    executeAction( idsetd, desc3, DialogModes.NO );
+                        desc7.putDouble( charIDToTypeID( "Rd  " ), c_r );
+                        desc7.putDouble( charIDToTypeID( "Grn " ), c_g );
+                        desc7.putDouble( charIDToTypeID( "Bl  " ), c_b );
+                    desc6.putObject( charIDToTypeID( "Clr " ), charIDToTypeID( "RGBC" ), desc7 );
+                desc5.putObject( stringIDToTypeID( "strokeStyleContent" ), stringIDToTypeID( "solidColorLayer" ), desc6 );
+                desc5.putInteger( stringIDToTypeID( "strokeStyleVersion" ), 2 );
+                desc5.putBoolean( stringIDToTypeID( "strokeEnabled" ), true );
+                desc5.putBoolean( stringIDToTypeID( "fillEnabled" ), false );
+            desc4.putObject( stringIDToTypeID( "strokeStyle" ), stringIDToTypeID( "strokeStyle" ), desc5 );
+        desc3.putObject( charIDToTypeID( "T   " ), stringIDToTypeID( "shapeStyle" ), desc4 );
+    executeAction( charIDToTypeID( "setd" ), desc3, DialogModes.NO );
 }
 
 function addText (text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization) {
@@ -447,10 +426,10 @@ function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius
 
     app.activeDocument.activeLayer.merge();
 
-    app.activeDocument.selection.select([[xPosition, yPosition],[xPosition, yPosition + edgeLength], [xPosition + edgeLength, yPosition + edgeLength], [xPosition + edgeLength, yPosition]]);
-    app.activeDocument.selection.invert();
-    app.activeDocument.selection.clear();
-    app.activeDocument.selection.deselect();
+    // app.activeDocument.selection.select([[xPosition, yPosition],[xPosition, yPosition + edgeLength], [xPosition + edgeLength, yPosition + edgeLength], [xPosition + edgeLength, yPosition]]);
+    // app.activeDocument.selection.invert();
+    // app.activeDocument.selection.clear();
+    // app.activeDocument.selection.deselect();
 
     app.activeDocument.activeLayer.name = "Tone Curve";
 
@@ -459,8 +438,8 @@ function addCurve(p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius
 
         if(!((p[i][0] == 0 && p[i][1] == 0) || (p[i][0] == 255 && p[i][1] == 255))) {
 
-            // xPosition, yPosition, circleRadius, strokeWidth, c_r, c_g, c_b
-            drawCircle(xPosition + p[i][0] / 256 * edgeLength, yPosition + edgeLength - p[i][1] / 256 * edgeLength, circleRadius, undefined, 255, 255, 255); // xPosition, yPosition, circleRadius, strokeWidth, c_r, c_g, c_b
+            // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
+            drawCircle(xPosition + p[i][0] / 256 * edgeLength, yPosition + edgeLength - p[i][1] / 256 * edgeLength, circleRadius, true, "FFFFFF", false, "FFFFFF", strokeWidth);
         
         }
 
@@ -609,9 +588,8 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
     
     var xInitialPosition = xPosition;
     var yInitialPosition = yPosition;
-    var c_r = 0;
-    var c_g = 0;
-    var c_b = 0;
+    var fill_hex = "FFFFFF";
+    var stroke_hex = "A6A6A6";
 
     var HSLTable = [["",            "Hue",                      "Sat",                           "Lum"                             ],
                     ["Red",         redHue.settingValue,         redSaturation.settingValue,      redLuminance.settingValue        ],
@@ -631,22 +609,22 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
 
                 switch (HSLTable[i][j]) {
 
-                    case "Red":         c_r = 107;      c_g = 35;       c_b = 37;       break;
-                    case "Orange":      c_r = 151;      c_g = 110;      c_b = 60;       break;
-                    case "Yellow":      c_r = 141;      c_g = 132;      c_b = 37;       break;
-                    case "Green":       c_r = 26;       c_g = 97;       c_b = 35;       break;
-                    case "Aqua":        c_r = 27;       c_g = 151;      c_b = 145;      break;
-                    case "Blue":        c_r = 14;       c_g = 99;       c_b = 139;      break;
-                    case "Purple":      c_r = 105;      c_g = 39;       c_b = 93;       break;
-                    case "Magenta":     c_r = 134;      c_g = 47;       c_b = 86;       break;
-                    default:            c_r = 255;      c_g = 255;      c_b = 255;      break;
+                    case "Red":         fill_hex = "800000";    break;
+                    case "Orange":      fill_hex = "CB7000";    break;
+                    case "Yellow":      fill_hex = "FCDF03";    break;
+                    case "Green":       fill_hex = "00730F";    break;
+                    case "Aqua":        fill_hex = "00B3AA";    break;
+                    case "Blue":        fill_hex = "009DE5";    break;
+                    case "Purple":      fill_hex = "6802D9";    break;
+                    case "Magenta":     fill_hex = "C9006F";    break;
+                    default:            fill_hex = "FFFFFF";    break;
 
                 }
 
                 if(i !=0 ){
 
-                // xPosition, yPosition, circleRadius, strokeWidth, c_r, c_g, c_b
-                var HSLLayer = drawCircle(xPosition, yPosition + fontSize / 3, 8, undefined, c_r, c_g, c_b);
+                // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
+                drawCircle(xPosition, yPosition + fontSize / 3, 8, true, fill_hex, true, stroke_hex, 1.5);
 
                 }
             
@@ -1133,162 +1111,107 @@ function addAllCurves (xPosition, yPosition, edgeLength, strokeWidth) {
 
     var yIncrement = edgeLength * 4 / 3;
     // p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius, c_r, c_g, c_b
-    addCurve(toneCurve.settingValue, xPosition, yPosition, edgeLength, strokeWidth, 3, 255, 255, 255);
+    addCurve(toneCurve.settingValue, xPosition, yPosition, edgeLength, strokeWidth, 3, 204, 204, 204);
     addCurve(toneCurveRed.settingValue, xPosition, yPosition + yIncrement, edgeLength, strokeWidth, 3, 201, 67, 10);
     addCurve(toneCurveGreen.settingValue, xPosition, yPosition + 2 * yIncrement, edgeLength, strokeWidth, 3, 25, 128, 76);
     addCurve(toneCurveBlue.settingValue, xPosition, yPosition + 3 * yIncrement, edgeLength, strokeWidth, 3, 0, 151, 194);
 
 }
 
-function drawCircle(xPosition, yPosition, circleRadius, strokeWidth, c_r, c_g, c_b)
+function drawCircle(xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth) {
 
-    {
+    var c = new SolidColor();
+    
+    c.rgb.hexValue = fill_hex;
 
-    try
+    var d = new ActionDescriptor();
 
-        {
-
-        select_layer_rgb();
-
-        var d1 = new ActionDescriptor();
-        var d2 = new ActionDescriptor();
-        var r1 = new ActionReference();
-        r1.putProperty( charIDToTypeID( "Path" ), charIDToTypeID( "WrPt" ) );
-        d1.putReference( charIDToTypeID( "null" ), r1 );
-        d2.putUnitDouble( charIDToTypeID( "Top " ), charIDToTypeID( "#Pxl" ), yPosition-circleRadius );
-        d2.putUnitDouble( charIDToTypeID( "Left" ), charIDToTypeID( "#Pxl" ), xPosition-circleRadius );
-        d2.putUnitDouble( charIDToTypeID( "Btom" ), charIDToTypeID( "#Pxl" ), yPosition+circleRadius );
-        d2.putUnitDouble( charIDToTypeID( "Rght" ), charIDToTypeID( "#Pxl" ), xPosition+circleRadius );
-        d1.putObject( charIDToTypeID( "T   " ), charIDToTypeID( "Elps" ), d2 );
-        executeAction( charIDToTypeID( "setd" ), d1, DialogModes.NO );
-        d1 = null;
-        d2 = null;
-        r1 = null;
-
-        if(strokeWidth == undefined) {
-            // create fill layer
-            var d = new ActionDescriptor();
-            var r = new ActionReference();
-            r.putClass(stringIDToTypeID("contentLayer"));
-            d.putReference(stringIDToTypeID("null"), r);
-            var d1 = new ActionDescriptor();
-            var d2 = new ActionDescriptor();
-            var d3 = new ActionDescriptor();
-            d3.putDouble(stringIDToTypeID("red"),   c_r);
-            d3.putDouble(stringIDToTypeID("green"), c_g);
-            d3.putDouble(stringIDToTypeID("blue"),  c_b);
-            d2.putObject(stringIDToTypeID("color"), stringIDToTypeID("RGBColor"), d3);
-            d1.putObject(stringIDToTypeID("type"), stringIDToTypeID("solidColorLayer"), d2);
-            d.putObject(stringIDToTypeID("using"), stringIDToTypeID("contentLayer"), d1);
-            executeAction(stringIDToTypeID("make"), d, DialogModes.NO);
-        } 
-
-        var idx = curr_path_idx();
-
-        app.activeDocument.pathItems[idx].makeSelection(0, true, SelectionType.REPLACE);
-
-        app.activeDocument.pathItems[idx].remove();
-
-        if(strokeWidth != undefined) {
-            stroke(strokeWidth, c_r, c_g, c_b);
-        }
-
-        app.activeDocument.selection.deselect();
-
-        return app.activeDocument.activeLayer;
-
-        }
-
-    catch (e) { alert(e); }
-
-    }
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-function select_layer_rgb()
-
-    {
+    var r = new ActionReference();
+    
+    r.putClass(stringIDToTypeID("contentLayer"));
+    
+    d.putReference(charIDToTypeID('null'), r);
+    
+    var d1 = new ActionDescriptor();
+    
+    var d2 = new ActionDescriptor();
+    
+    var d3 = new ActionDescriptor();
+    
+    d3.putDouble(charIDToTypeID('Rd  '), c.rgb.red);
+    
+    d3.putDouble(charIDToTypeID('Grn '), c.rgb.green);
+    
+    d3.putDouble(charIDToTypeID('Bl  '), c.rgb.blue);
+    
+    d2.putObject(charIDToTypeID('Clr '), stringIDToTypeID("RGBColor"), d3);
+    
+    d1.putObject(charIDToTypeID('Type'), stringIDToTypeID("solidColorLayer"), d2);
+    
+    var d4 = new ActionDescriptor();
+    
+    d4.putUnitDouble(charIDToTypeID('Top '), charIDToTypeID('#Pxl'), yPosition - circleRadius);
+    
+    d4.putUnitDouble(charIDToTypeID('Left'), charIDToTypeID('#Pxl'), xPosition - circleRadius);
+    
+    d4.putUnitDouble(charIDToTypeID('Btom'), charIDToTypeID('#Pxl'), yPosition + circleRadius);
+    
+    d4.putUnitDouble(charIDToTypeID('Rght'), charIDToTypeID('#Pxl'), xPosition + circleRadius);
+    
+    d1.putObject(charIDToTypeID('Shp '), charIDToTypeID('Elps'), d4);
+    
+    d.putObject(charIDToTypeID('Usng'), stringIDToTypeID("contentLayer"), d1);
+    
+    executeAction(charIDToTypeID('Mk  '), d, DialogModes.NO);
 
     try {
+
+        var c = new SolidColor();
+
+        c.rgb.hexValue = stroke_hex;
 
         var d = new ActionDescriptor();
 
         var r = new ActionReference();
 
-        r.putEnumerated( charIDToTypeID( "Chnl" ), charIDToTypeID( "Chnl" ), charIDToTypeID( "RGB " ) );
+        r.putEnumerated(stringIDToTypeID('contentLayer'), stringIDToTypeID('ordinal'), stringIDToTypeID('targetEnum'));
 
-        d.putReference( charIDToTypeID( "null" ), r );
-
-        d.putBoolean( charIDToTypeID( "MkVs" ), false );
-
-        executeAction( charIDToTypeID( "slct" ), d, DialogModes.NO );
-
-        r = null;
-
-        d = null;  
-
-        }
-
-    catch (e) { alert(e);  }
-
-    }
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-function curr_path_idx()
-
-    {
-
-    try {
-
-        var r = new ActionReference();
-
-        r.putProperty( charIDToTypeID( "Prpr" ), stringIDToTypeID( "targetPathIndex" ) );
-
-        r.putEnumerated( charIDToTypeID("Dcmn"), charIDToTypeID("Ordn"), charIDToTypeID("Trgt") );
-
-        r = executeActionGet(r);
-
-        return  r.getInteger( stringIDToTypeID( 'targetPathIndex' ));
-
-        }
-
-    catch (e) { alert(e); return -1; }
-
-    }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-function stroke(strokeWidth, c_r, c_g, c_b)
-
-    { 
-
-    try {
+        d.putReference(stringIDToTypeID('null'), r);
 
         var d1 = new ActionDescriptor();
 
         var d2 = new ActionDescriptor();
 
-        d1.putInteger( charIDToTypeID( "Wdth" ), strokeWidth );
+        var d3 = new ActionDescriptor();
 
-        d1.putEnumerated( charIDToTypeID( "Lctn" ), charIDToTypeID( "StrL" ), charIDToTypeID( "Cntr" ) );
+        var d4 = new ActionDescriptor();
 
-        d1.putUnitDouble( charIDToTypeID( "Opct" ), charIDToTypeID( "#Prc" ), 100.000000 );
+        d4.putDouble(stringIDToTypeID('red'),   c.rgb.red);
 
-        d1.putEnumerated( charIDToTypeID( "Md  " ), charIDToTypeID( "BlnM" ), charIDToTypeID( "Nrml" ) );
+        d4.putDouble(stringIDToTypeID('green'), c.rgb.green);
 
-        d2.putDouble( charIDToTypeID( "Rd  " ), c_r );
+        d4.putDouble(stringIDToTypeID('blue'),  c.rgb.blue);
 
-        d2.putDouble( charIDToTypeID( "Grn " ), c_g );
+        d3.putObject(stringIDToTypeID('color'), stringIDToTypeID('RGBColor'), d4);
 
-        d2.putDouble( charIDToTypeID( "Bl  " ), c_b );
+        d2.putObject(stringIDToTypeID('strokeStyleContent'), stringIDToTypeID('solidColorLayer'), d3);
 
-        d1.putObject( charIDToTypeID( "Clr " ), charIDToTypeID( "RGBC" ), d2 );
+        d2.putUnitDouble( stringIDToTypeID( "strokeStyleLineWidth" ), charIDToTypeID( "#Pxl" ), strokeWidth );
 
-        executeAction( charIDToTypeID( "Strk" ), d1, DialogModes.NO );
+        d2.putBoolean(stringIDToTypeID('strokeEnabled'), strokeEnabled);
+
+        d2.putBoolean( stringIDToTypeID( "fillEnabled" ), fillEnabled );
+
+        d1.putObject(stringIDToTypeID('strokeStyle'), stringIDToTypeID('strokeStyle'), d2);
+
+        d.putObject(stringIDToTypeID('to'), stringIDToTypeID('shapeStyle'), d1);
+
+        executeAction(stringIDToTypeID('set'), d, DialogModes.NO);
 
         }
 
-    catch (e) { alert(e); }
+    catch (e) { throw(e); }
 
-}
+    return app.activeDocument.activeLayer;
+    
+};
