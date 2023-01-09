@@ -14,74 +14,6 @@ addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosi
 
 function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
-    ///////////////////////////////////////////////// createProgressWindow
-
-    var createProgressWindow = function(title, message, hasCancelButton) {
-
-      var win;
-
-      if (title == null) title = "Work in progress";
-
-      if (message == null) message = "Please wait...";
-
-      if (hasCancelButton == null) hasCancelButton = false;
-
-      win = new Window("palette", "" + title, undefined);
-
-      win.bar = win.add("progressbar", {x: 20, y: 12, width: 300, height: 20 }, 0, 100);
-
-      win.stMessage = win.add("statictext", { x: 10, y: 36, width: 320, height: 20 }, "" + message);
-
-      win.stMessage.justify = 'center';  
-
-      if (hasCancelButton) {
-
-        win.cancelButton = win.add('button', undefined, 'Cancel');
-
-        win.cancelButton.onClick = function() {
-
-          win.close();
-
-          throw new Error('User canceled the pre-processing!');
-
-        };
-
-      }
-
-      this.reset = function(message) {
-
-        win.bar.value = 0;
-
-        win.stMessage.text = message;
-
-        return win.update();
-
-      };
-
-      this.updateProgress = function(perc, message) {
-
-        if (perc != null) win.bar.value = perc;
-
-        if (message != null) win.stMessage.text = message;
-
-        return win.update();
-
-      };
-
-      this.close = function() {
-
-        return win.close();
-
-      };
-
-      win.center(win.parent);
-
-      return win.show();
-
-    };
-
-    //
-
     // the other layer histograms, if exist, should be invisible so the reading is only on the pixels of the image itself
 
     if (getLayer("RGB histogram")) activeDocument.artLayers.getByName ("RGB histogram").visible = false;
@@ -154,20 +86,6 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
             }
 
-            //
-
-            var ww = activeDocument.width.as('px');
-
-            var hh = activeDocument.height.as('px');
-
-            var totalPixels = ww*hh;
-
-            var totalPixels1Col = totalPixels/256;
-
-            // 
-
-            var pBar = new createProgressWindow("Histogram building...", "Please wait", false);
-
             // 
 
             activeDocument.artLayers.add();
@@ -188,31 +106,22 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
             var hX = 100; // base x of graph
 
-            // base transparent
-
-            app.foregroundColor.rgb.red = 0;
-
-            app.foregroundColor.rgb.green = 0;
-
-            app.foregroundColor.rgb.blue = 0;
-
-            //
-
-            drawSelectionScreen (hX-2, hY+2, 258+hX, hY-322);
-
-            // fill (filltype [, mode] [, opacity] [, preserveTransparency])  // filltype: SolidColor  |  mode: ColorBlendMode  |  opacity: [1..100] 
-
-            app.activeDocument.selection.fill(app.foregroundColor, ColorBlendMode.SCREEN, 0, false); // background 
-
-            activeDocument.selection.deselect();
-
-            //
 
             var myHist = [];
 
-            var maxY = 0;
+            var histogramPoints = [];
 
             //
+
+            // find maxY for normalizing graph
+
+            var maxY = 0;
+
+            for ( i = 1; i <= 254; i++ ) {
+
+                if (Math.floor(Math.max(hL[i], hR[i], hG[i], hB[i])) > maxY) maxY = Math.floor(Math.max(hL[i], hR[i], hG[i], hB[i]));
+
+            }
 
             if (RGB) {
 
@@ -236,27 +145,17 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
                     //
 
-                    for ( i = 0; i <= 255; i++ ) {
+                    for ( i = 2; i <= 253; i++ ) {
 
                         var col = i+hX;
 
-                        var YYY = Math.min(Math.floor(myHist[i]*hhGraph/totalPixels1Col), 320);
+                        var YYY = Math.floor(myHist[i]*hhGraph/maxY);
 
-                        drawSelectionScreen (col, hY, col+1, hY-YYY);
-
-                        //
-
-                        var percent = Math.floor(((i+1)+(a*256))*100/768);
-
-                        pBar.updateProgress (percent, activeDocument.componentChannels[a].name.toUpperCase() + " Channel " + percent+ " % completed");
+                        histogramPoints.push([i, YYY]);
 
                     }
 
-                    // fill (filltype [, mode] [, opacity] [, preserveTransparency])  // filltype: SolidColor  |  mode: ColorBlendMode  |  opacity: [1..100] 
-
-                    app.activeDocument.selection.fill(app.foregroundColor, ColorBlendMode.SCREEN, 100, false);
-
-                    activeDocument.selection.deselect();
+                    drawSmoothHistogram(histogramPoints, 360, 360);
 
                 }
 
@@ -270,21 +169,6 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
                 myHist = hL;
 
-                // find maxY for normalizing graph
-
-                for ( i = 0; i <= 255; i++ ) {
-
-                     if (MaxRGB) {
-
-                        if (Math.floor(Math.max(hR[i], hG[i], hB[i])) > maxY) maxY = Math.floor(Math.max(hR[i], hG[i], hB[i]));
-
-                    } else {
-
-                        if (Math.floor(myHist[i] > maxY)) maxY = Math.floor(myHist[i]);
-
-                    }
-
-                }
 
                 for ( i = 0; i <= 255; i++ ) {
 
@@ -297,10 +181,17 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
                     } else {
 
                         var YYY = Math.floor(myHist[i]*hhGraph/maxY);
+                        // var YYY = (Math.floor(myHist[i-2]*hhGraph/maxY) + Math.floor(myHist[i-1]*hhGraph/maxY) + Math.floor(myHist[i]*hhGraph/maxY) + Math.floor(myHist[i+1]*hhGraph/maxY)+ Math.floor(myHist[i+2]*hhGraph/maxY)) / 5;
+
+                        
+                        // Smooth verstion 
+                        histogramPoints.push([i, YYY]);
 
                     }
 
-                    drawLineScreen (col, hY, col+1, hY-YYY, 2, 30);
+
+
+                    // drawSelectionScreen (col, hY, col+1, hY-YYY);
 
                     //
 
@@ -310,23 +201,12 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
                 }
 
-                // fill (filltype [, mode] [, opacity] [, preserveTransparency])  // filltype: SolidColor  |  mode: ColorBlendMode  |  opacity: [1..100] 
 
-                // app.activeDocument.selection.fill(app.foregroundColor, ColorBlendMode.SCREEN, 100, false);
+                drawSmoothHistogram(histogramPoints, 360, 360);
 
-                // feather (by) |   by: UnitValue
 
-                // app.activeDocument.selection.feather(UnitValue(0.3, 'px'));
-
-                // stroke ( strokeColor [, width] [, location] [, mode] [, opacity] [, preserveTransparency])   //    width: number |   location: StrokeLocation    |   mode: ColorBlendMode   |   opacity: [1..100]    | preserveTransparency: boolean
-                
-                // app.activeDocument.selection.stroke(app.foregroundColor, 2, StrokeLocation.INSIDE, ColorBlendMode.NORMAL, 100, false);
-
-                activeDocument.selection.deselect();
 
             }
-
-            pBar.close();
 
             // activeDocument.activeLayer = wasHereLayer;
 
@@ -348,56 +228,89 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
     }
 
-    function drawSelectionScreen(x1, y1, x2, y2) {
+    function drawSmoothHistogram (histogramPoints, xPosition, yPosition, c_r, c_g, c_b) {
+        
+        // Path definition
+        var histogramCurvePathArray = new Array();
 
-        try {
+        for (i = 0; i < histogramPoints.length - 1; i++) {
 
-            // SelectionType.SELECTEDAREA | DIMINISH | EXTEND | INTERSECT | REPLACE
+            var histogramCurveStartIndex = i;
+            var histogramCurveEndIndex = histogramCurveStartIndex + 1; 
 
-            activeDocument.selection.select([[ x1, y1], [x2, y1], [x2, y2], [x1,y2]], SelectionType.EXTEND, 0, false);
+            var lineArray = new Array()
+            lineArray[0] = new PathPointInfo
+            lineArray[0].anchor = Array(xPosition + histogramPoints[histogramCurveStartIndex][0], yPosition - histogramPoints[histogramCurveStartIndex][1])
+            lineArray[0].kind = PointKind.SMOOTHPOINT
+            lineArray[0].leftDirection = lineArray[0].anchor
+            lineArray[0].rightDirection = lineArray[0].anchor
+            lineArray[1] = new PathPointInfo
+            lineArray[1].anchor = Array(xPosition + histogramPoints[histogramCurveEndIndex][0] , yPosition - histogramPoints[histogramCurveEndIndex][1])
+            lineArray[1].kind = PointKind.SMOOTHPOINT
+            lineArray[1].leftDirection = lineArray[1].anchor
+            lineArray[1].rightDirection = lineArray[1].anchor
 
-        } catch(e) {}
+            histogramCurvePathArray[i] = new SubPathInfo()
+            histogramCurvePathArray[i].operation = ShapeOperation.SHAPEXOR
+            histogramCurvePathArray[i].closed = false
+            histogramCurvePathArray[i].entireSubPath = lineArray
+
+        }
+    
+        //create the path item
+        var myPathItem = activeDocument.pathItems.add("Histogram", histogramCurvePathArray)
+
+        var currentPathItem = app.activeDocument.pathItems.getByName("Histogram");
+
+        convertPathtoShape();
+
+        setStroke (2, c_r, c_g, c_b);
+
+        // app.activeDocument.activeLayer.vectorMaskFeather = strokeWidth * 0.1;
+        
+        myPathItem.remove();
+
 
     }
 
-    function drawLineScreen(x1, y1, x2, y2, width, transparency) {
+    function convertPathtoShape() {
+        var d = new ActionDescriptor();
+        var d2 = new ActionDescriptor();
+        var d3 = new ActionDescriptor();
+        var d4 = new ActionDescriptor();
+        var r = new ActionReference();
+        r.putClass( stringIDToTypeID( "contentLayer" ));
+        d.putReference( charIDToTypeID( "null" ), r );
+        d4.putDouble( charIDToTypeID( "Rd  " ), 255);
+        d4.putDouble( charIDToTypeID( "Grn " ), 255);
+        d4.putDouble( charIDToTypeID( "Bl  " ), 255);
+        d3.putObject( charIDToTypeID( "Clr " ), charIDToTypeID( "RGBC" ), d4 );
+        d2.putObject( charIDToTypeID( "Type" ), stringIDToTypeID( "solidColorLayer" ), d3 );
+        d.putObject( charIDToTypeID( "Usng" ), stringIDToTypeID( "contentLayer" ), d2 );
+        executeAction( charIDToTypeID( "Mk  " ), d, DialogModes.NO );
+    }
 
-        try {
-
-            var desc = new ActionDescriptor();
-
-            var lineDesc = new ActionDescriptor();
-
-            var startDesc = new ActionDescriptor();
-
-            startDesc.putUnitDouble( charIDToTypeID('Hrzn'), charIDToTypeID('#Pxl'), x1 );
-
-            startDesc.putUnitDouble( charIDToTypeID('Vrtc'), charIDToTypeID('#Pxl'), y1 );
-
-            lineDesc.putObject( charIDToTypeID('Strt'), charIDToTypeID('Pnt '), startDesc );
-
-            var endDesc = new ActionDescriptor();
-
-            endDesc.putUnitDouble( charIDToTypeID('Hrzn'), charIDToTypeID('#Pxl'), x2 );
-
-            endDesc.putUnitDouble( charIDToTypeID('Vrtc'), charIDToTypeID('#Pxl'), y2 );
-
-            lineDesc.putObject( charIDToTypeID('End '), charIDToTypeID('Pnt '), endDesc );
-
-            lineDesc.putUnitDouble( charIDToTypeID('Wdth'), charIDToTypeID('#Pxl'), width ); // 
-
-            desc.putObject( charIDToTypeID('Shp '), charIDToTypeID('Ln  '), lineDesc );
-
-            desc.putEnumerated( charIDToTypeID( "Md  " ), charIDToTypeID( "BlnM" ), charIDToTypeID( "Scrn" ) ); // mode: Screen 
-
-            desc.putUnitDouble( charIDToTypeID( "Opct" ), charIDToTypeID( "#Prc" ), transparency ); // [0-100] transparency
-
-            desc.putBoolean( charIDToTypeID('AntA'), false ); // important antialias should be false
-
-            executeAction( charIDToTypeID('Draw'), desc, DialogModes.NO );
-
-        } catch(e) {}
-
+    function setStroke(strokeWidth, c_r, c_g, c_b){
+            var desc3 = new ActionDescriptor();
+            var ref1 = new ActionReference();
+            ref1.putEnumerated( stringIDToTypeID( "contentLayer" ), charIDToTypeID( "Ordn" ), charIDToTypeID( "Trgt" ) );
+            desc3.putReference( charIDToTypeID( "null" ), ref1 );
+                var desc4 = new ActionDescriptor();
+                    var desc5 = new ActionDescriptor();
+                    desc5.putUnitDouble( stringIDToTypeID( "strokeStyleLineWidth" ), charIDToTypeID( "#Pxl" ), strokeWidth );
+                        var desc6 = new ActionDescriptor();
+                            var desc7 = new ActionDescriptor();
+                            desc7.putDouble( charIDToTypeID( "Rd  " ), c_r );
+                            desc7.putDouble( charIDToTypeID( "Grn " ), c_g );
+                            desc7.putDouble( charIDToTypeID( "Bl  " ), c_b );
+                        desc6.putObject( charIDToTypeID( "Clr " ), charIDToTypeID( "RGBC" ), desc7 );
+                    desc5.putObject( stringIDToTypeID( "strokeStyleContent" ), stringIDToTypeID( "solidColorLayer" ), desc6 );
+                    desc5.putInteger( stringIDToTypeID( "strokeStyleVersion" ), 2 );
+                    desc5.putBoolean( stringIDToTypeID( "strokeEnabled" ), true );
+                    desc5.putBoolean( stringIDToTypeID( "fillEnabled" ), false );
+                desc4.putObject( stringIDToTypeID( "strokeStyle" ), stringIDToTypeID( "strokeStyle" ), desc5 );
+            desc3.putObject( charIDToTypeID( "T   " ), stringIDToTypeID( "shapeStyle" ), desc4 );
+        executeAction( charIDToTypeID( "setd" ), desc3, DialogModes.NO );
     }
 
     //////////////////////////////////
