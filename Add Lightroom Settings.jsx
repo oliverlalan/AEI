@@ -581,7 +581,7 @@ function evalSpline (x, xs, ys, ks)
 }
 
 
-function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization) {
+function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization, textLabels) {
 
     var HSLGroup = activeDocument.layerSets.add();
     HSLGroup.name = "HSL";
@@ -607,7 +607,18 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
 
             if(j == 0) {
 
-                switch (HSLTable[i][j]) {
+                if(i !=0 ){
+
+                    if(textLabels == true) {
+
+                        HSLTable[i][j] = HSLTable[i][j].substring(0,3);
+
+                        addText(HSLTable[i][j], xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);
+
+
+                    } else {
+
+                        switch (HSLTable[i][j]) {
 
                     case "Red":         fill_hex = "800000";    break;
                     case "Orange":      fill_hex = "CB7000";    break;
@@ -619,18 +630,18 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
                     case "Magenta":     fill_hex = "C9006F";    break;
                     default:            fill_hex = "FFFFFF";    break;
 
-                }
+                        }
+                        
+                        // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
+                        drawCircle(xPosition, yPosition + fontSize / 3, 8, true, fill_hex, true, stroke_hex, 1.5);
 
-                if(i !=0 ){
-
-                // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
-                drawCircle(xPosition, yPosition + fontSize / 3, 8, true, fill_hex, true, stroke_hex, 1.5);
+                    }
 
                 }
             
             } else {
-
-                var HSLLayer = addText(HSLTable[i][j], xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);  // text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+                
+                addText(HSLTable[i][j], xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);  // text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
             
             }
             
