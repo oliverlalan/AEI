@@ -39,7 +39,7 @@ var shadowSat                     =  new Setting ( "S",                    "Spli
 var shadowLum                     =  new Setting ( "L",                    "ColorGradeShadowLum",                 -100,   +100    );
 var highlightHue                  =  new Setting ( "H",                    "SplitToningHighlightHue",             0,      +359    );
 var highlightSat                  =  new Setting ( "S",                    "SplitToningHighlightSaturation",      0,      +100    );
-var highlightLum                  =  new Setting ( "L",                    "ColorGradehighlightLum",              -100,   +100    );
+var highlightLum                  =  new Setting ( "L",                    "ColorGradeHighlightLum",              -100,   +100    );
 var globalHue                     =  new Setting ( "H",                    "ColorGradeGlobalHue",                 0,      +359    );
 var globalSat                     =  new Setting ( "S",                    "ColorGradeGlobalSat",                 0,      +100    );
 var globalLum                     =  new Setting ( "L",                    "ColorGradeGlobalLum",                 -100,   +100    );
@@ -140,24 +140,46 @@ function drawCircle(xPosition, yPosition, circleRadius, fillEnabled, fill_hex, s
         }
 
     catch (e) { throw(e); }
+
+    return app.activeDocument.activeLayer;
     
 };
 
-
+addColorGrades (360, 90, 67.5, 2);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // hue angulo
 // s radio
 
-function addColorGrade (hue, saturation, radius, xPosition, yPosition, strokeWidth) { // hue, saturation, radius, xPosition, yPosition, strokeWidth
+function addColorGrades (xPosition, yPosition, radius, strokeWidth) {
 
-    drawCircle(xPosition, yPosition, radius, false, "FFFFFF", true, "FFFFFF", strokeWidth); // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
+    var xIncrement = radius * 8 / 3;
+    var yIncrement = radius * 3.5;
+    
+    addColorGrade(globalHue,        globalSat,      globalLum,      radius,   xPosition,                    yPosition,     strokeWidth,      "G"); // hue, saturation, radius, xPosition, yPosition, strokeWidth
+    addColorGrade(shadowHue,        shadowSat,      shadowLum,      radius,   xPosition + xIncrement,       yPosition,     strokeWidth,      "S"); // hue, saturation, radius, xPosition, yPosition, strokeWidth
+    addColorGrade(midtoneHue,       midtoneSat,     midtoneLum,     radius,   xPosition + xIncrement * 2,   yPosition,     strokeWidth,      "M"); // hue, saturation, radius, xPosition, yPosition, strokeWidth
+    addColorGrade(highlightHue,     highlightSat,   highlightLum,   radius,   xPosition + xIncrement * 3,   yPosition,     strokeWidth,      "H"); // hue, saturation, radius, xPosition, yPosition, strokeWidth
 
-    var saturation = radius * saturation / 100 * 0.9; // to avoid overlap on the extreme
-    var t_x = xPosition + saturation * Math.cos(hue * Math.PI / 180);
-    var t_y = yPosition - saturation * Math.sin(hue * Math.PI / 180);
+}
 
-    drawCircle(t_x, t_y, radius/10, false, "FFFFFF", true, "FFFFFF", strokeWidth);
+function addColorGrade (hue, saturation, luminance, radius, xPosition, yPosition, strokeWidth, textLabel) { // hue, saturation, radius, xPosition, yPosition, strokeWidth
+
+    drawCircle(xPosition + radius, yPosition + radius, radius, false, "FFFFFF", true, "FFFFFF", strokeWidth); // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
+    
+    // 0.9 to avoid overlap on the extreme
+    var t_x = xPosition + saturation.settingValue * radius / 100 * 0.9 * Math.cos(hue.settingValue * Math.PI / 180);
+    var t_y = yPosition - saturation.settingValue * radius / 100 * 0.9 * Math.sin(hue.settingValue * Math.PI / 180);
+
+    drawCircle(t_x + radius, t_y + radius, radius/10, false, "FFFFFF", true, "FFFFFF", strokeWidth);
+
+    addAdjustmentBar (luminance, xPosition, yPosition  + radius * 7 / 3, radius * 2, 2, 4, undefined);
+
+    // text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+    addText(textLabel, xPosition, yPosition, "bottomright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+    addText(hue.displayName + hue.settingValue, xPosition, yPosition + radius * 8 / 3, "topleft", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS);
+    addText(saturation.displayName + saturation.settingValue, xPosition + radius, yPosition + radius * 8 / 3, "topcenter", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.CENTER, TextCase.ALLCAPS);
+    addText(luminance.displayName + luminance.settingValue, xPosition + radius * 2, yPosition + radius * 8 / 3, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS);
 
 }
 
@@ -174,15 +196,16 @@ function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circl
 
     var adjustmentGroup = activeDocument.layerSets.add();
     adjustmentGroup.name = selectedSetting.displayName + ' Group';
-    var lineLayer = drawLine(selectedSetting, minSettingX, minSettingY, maxSettingX, maxSettingY, strokeWidth, 255, 255, 255, 100);
+    var lineLayer = drawLine(minSettingX, minSettingY, maxSettingX, maxSettingY, strokeWidth, 255, 255, 255, 100);
     lineLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
-    var circleLayer = drawCircle(selectedSetting, settingX, settingY, circleRadius);
+    var circleLayer = drawCircle(settingX, settingY, circleRadius, true, "FFFFFF", false, "FFFFFF", strokeWidth); // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
     circleLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
-    var labelLayer = addText(selectedSetting.displayName, minSettingX, minSettingY - 1.5 * labelSize, "topleft", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
-    labelLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
-    var valueLayer = addText(xmpMeta.getProperty(ns,selectedSetting.crsName), maxSettingX, minSettingY - 1.5 * labelSize, "topright", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS);
-    valueLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
-
+    if(labelSize != undefined) {
+        var labelLayer = addText(selectedSetting.displayName, minSettingX, minSettingY - 1.5 * labelSize, "topleft", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+        labelLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
+        var valueLayer = addText(xmpMeta.getProperty(ns,selectedSetting.crsName), maxSettingX, minSettingY - 1.5 * labelSize, "topright", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS);
+        valueLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
+    }
 
 }
 
@@ -320,17 +343,76 @@ function translateLayerTo(selectedLayer,xPosition,yPosition, anchorPosition) {
 }
 
 
-var colorGrades = ["midtone", "shadow", "highlight", "global"];
+function convertPathtoShape() {
+	var d = new ActionDescriptor();
+	var d2 = new ActionDescriptor();
+	var d3 = new ActionDescriptor();
+	var d4 = new ActionDescriptor();
+	var r = new ActionReference();
+	r.putClass( stringIDToTypeID( "contentLayer" ));
+	d.putReference( charIDToTypeID( "null" ), r );
+	d4.putDouble( charIDToTypeID( "Rd  " ), 255);
+	d4.putDouble( charIDToTypeID( "Grn " ), 255);
+	d4.putDouble( charIDToTypeID( "Bl  " ), 255);
+	d3.putObject( charIDToTypeID( "Clr " ), charIDToTypeID( "RGBC" ), d4 );
+	d2.putObject( charIDToTypeID( "Type" ), stringIDToTypeID( "solidColorLayer" ), d3 );
+	d.putObject( charIDToTypeID( "Usng" ), stringIDToTypeID( "contentLayer" ), d2 );
+	executeAction( charIDToTypeID( "Mk  " ), d, DialogModes.NO );
+}
 
-addColorGrade(midtoneHue.settingValue, midtoneSat.settingValue, 90, 540, 675 ,2); // hue, saturation, radius, xPosition, yPosition, strokeWidth
+function setStroke(strokeWidth, c_r, c_g, c_b){
+        var desc3 = new ActionDescriptor();
+        var ref1 = new ActionReference();
+        ref1.putEnumerated( stringIDToTypeID( "contentLayer" ), charIDToTypeID( "Ordn" ), charIDToTypeID( "Trgt" ) );
+        desc3.putReference( charIDToTypeID( "null" ), ref1 );
+            var desc4 = new ActionDescriptor();
+                var desc5 = new ActionDescriptor();
+                desc5.putUnitDouble( stringIDToTypeID( "strokeStyleLineWidth" ), charIDToTypeID( "#Pxl" ), strokeWidth );
+                    var desc6 = new ActionDescriptor();
+                        var desc7 = new ActionDescriptor();
+                        desc7.putDouble( charIDToTypeID( "Rd  " ), c_r );
+                        desc7.putDouble( charIDToTypeID( "Grn " ), c_g );
+                        desc7.putDouble( charIDToTypeID( "Bl  " ), c_b );
+                    desc6.putObject( charIDToTypeID( "Clr " ), charIDToTypeID( "RGBC" ), desc7 );
+                desc5.putObject( stringIDToTypeID( "strokeStyleContent" ), stringIDToTypeID( "solidColorLayer" ), desc6 );
+                desc5.putInteger( stringIDToTypeID( "strokeStyleVersion" ), 2 );
+                desc5.putBoolean( stringIDToTypeID( "strokeEnabled" ), true );
+                desc5.putBoolean( stringIDToTypeID( "fillEnabled" ), false );
+            desc4.putObject( stringIDToTypeID( "strokeStyle" ), stringIDToTypeID( "strokeStyle" ), desc5 );
+        desc3.putObject( charIDToTypeID( "T   " ), stringIDToTypeID( "shapeStyle" ), desc4 );
+    executeAction( charIDToTypeID( "setd" ), desc3, DialogModes.NO );
+}
+
+function addText (text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization) {
+
+    if(text!= "") {
+
+        var textLayer = app.activeDocument.artLayers.add();
+
+        textLayer.kind = LayerKind.TEXT;
+        textLayer.textItem.contents = text;
+        textLayer.textItem.size = new UnitValue(fontSize, 'px');
+        fontColor = new SolidColor();
+        fontColor.rgb.hexValue = fontHexColor;
+        textLayer.textItem.color = fontColor;
+        textLayer.textItem.font = fontName;
+        textLayer.textItem.tracking = fontTracking;
+        textLayer.textItem.justification = fontJustification;
+        textLayer.textItem.capitalization = fontCapitalization;
+
+        translateLayerTo(textLayer, xPosition, yPosition, anchorPosition);
+
+        return app.activeDocument.activeLayer;
+
+    }
+
+}
+
+
+var colorGrades = ["midtone", "shadow", "highlight", "global"];
 // drawLine(midtoneLum.settingValue, ) // selectedSetting, x, y, lineLength, strokeWidth, circleRadius, labelSize
 
 
 var midtoneHue                    =  new Setting ( "H",                    "ColorGradeMidtoneHue",                0,      +359    );
 var midtoneSat                    =  new Setting ( "S",                    "ColorGradeMidtoneSat",                0,      +100    );
 var midtoneLum                    =  new Setting ( "L",                    "ColorGradeMidtoneLum",                -100,   +100    );
-
-
-
-
-

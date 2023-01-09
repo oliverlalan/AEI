@@ -1,10 +1,11 @@
 #target photoshop
 
-function Setting(displayName, crsName, min, max) {
+function Setting(displayName, crsName, min, max, defaultValue) {
     this.displayName = displayName;
     this.crsName = crsName;
     this.min = min;
     this.max = max;
+    this.defaultValue = defaultValue;
     this.settingValue = [];
 
     if(this.crsName.match("ToneCurvePV2012")) {
@@ -31,109 +32,109 @@ ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
 xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData); 
 
 // Basic parameters
-var temperature                   =  new Setting ( "Temperature",          "Temperature",                         +1000,  +10000  );
-var tint                          =  new Setting ( "Tint",                 "Tint",                                -150,   +150    );
+var temperature                   =  new Setting ( "Temperature",          "Temperature",                         +1000,  +10000  , 0);
+var tint                          =  new Setting ( "Tint",                 "Tint",                                -150,   +150    , 0);
                 
-var exposure                      =  new Setting ( "Exposure",             "Exposure2012",                        -5,     +5      );
-var contrast                      =  new Setting ( "Contrast",             "Contrast2012",                        -100,   +100    );
-var highlights                    =  new Setting ( "Highlights",           "Highlights2012",                      -100,   +100    );
-var shadows                       =  new Setting ( "Shadows",              "Shadows2012",                         -100,   +100    );
-var whites                        =  new Setting ( "Whites",               "Whites2012",                          -100,   +100    );
-var blacks                        =  new Setting ( "Blacks",               "Blacks2012",                          -100,   +100    );
+var exposure                      =  new Setting ( "Exposure",             "Exposure2012",                        -5,     +5      , 0);
+var contrast                      =  new Setting ( "Contrast",             "Contrast2012",                        -100,   +100    , 0);
+var highlights                    =  new Setting ( "Highlights",           "Highlights2012",                      -100,   +100    , 0);
+var shadows                       =  new Setting ( "Shadows",              "Shadows2012",                         -100,   +100    , 0);
+var whites                        =  new Setting ( "Whites",               "Whites2012",                          -100,   +100    , 0);
+var blacks                        =  new Setting ( "Blacks",               "Blacks2012",                          -100,   +100    , 0);
                 
-var texture                       =  new Setting ( "Texture",              "Texture",                             -100,   +100    );
-var clarity                       =  new Setting ( "Clarity",              "Clarity2012",                         -100,   +100    );
-var dehaze                        =  new Setting ( "Dehaze",               "Dehaze",                              -100,   +100    );
-var vibrance                      =  new Setting ( "Vibrance",             "Vibrance",                            -100,   +100    );
-var saturation                    =  new Setting ( "Saturation",           "Saturation",                          -100,   +100    );
+var texture                       =  new Setting ( "Texture",              "Texture",                             -100,   +100    , 0);
+var clarity                       =  new Setting ( "Clarity",              "Clarity2012",                         -100,   +100    , 0);
+var dehaze                        =  new Setting ( "Dehaze",               "Dehaze",                              -100,   +100    , 0);
+var vibrance                      =  new Setting ( "Vibrance",             "Vibrance",                            -100,   +100    , 0);
+var saturation                    =  new Setting ( "Saturation",           "Saturation",                          -100,   +100    , 0);
 
 // Tone Curve
-var toneCurve                     =  new Setting ( "Tone Curve",           "ToneCurvePV2012",                     0,      +255    );
-var toneCurveRed                  =  new Setting ( "Red Tone Curve",       "ToneCurvePV2012Red",                  0,      +255    );
-var toneCurveGreen                =  new Setting ( "Green Tone Curve",     "ToneCurvePV2012Green",                0,      +255    );
-var toneCurveBlue                 =  new Setting ( "Blue Tone Curve",      "ToneCurvePV2012Blue",                 0,      +255    );
+var toneCurve                     =  new Setting ( "Tone Curve",           "ToneCurvePV2012",                     0,      +255    , [[0,0], [255,255]]);
+var toneCurveRed                  =  new Setting ( "Red Tone Curve",       "ToneCurvePV2012Red",                  0,      +255    , [[0,0], [255,255]]);
+var toneCurveGreen                =  new Setting ( "Green Tone Curve",     "ToneCurvePV2012Green",                0,      +255    , [[0,0], [255,255]]);
+var toneCurveBlue                 =  new Setting ( "Blue Tone Curve",      "ToneCurvePV2012Blue",                 0,      +255    , [[0,0], [255,255]]);
 
 // HSL
-var redHue                        =  new Setting ( "Red Hue",              "HueAdjustmentRed",                    -100,   +100    );
-var orangeHue                     =  new Setting ( "Orange Hue",           "HueAdjustmentOrange",                 -100,   +100    );
-var yellowHue                     =  new Setting ( "Yellow Hue",           "HueAdjustmentYellow",                 -100,   +100    );
-var greenHue                      =  new Setting ( "Green Hue",            "HueAdjustmentGreen",                  -100,   +100    );
-var aquaHue                       =  new Setting ( "Aqua Hue",             "HueAdjustmentAqua",                   -100,   +100    );
-var blueHue                       =  new Setting ( "Blue Hue",             "HueAdjustmentBlue",                   -100,   +100    );
-var purpleHue                     =  new Setting ( "Purple Hue",           "HueAdjustmentPurple",                 -100,   +100    );
-var magentaHue                    =  new Setting ( "Magenta Hue",          "HueAdjustmentMagenta",                -100,   +100    );
-var redSaturation                 =  new Setting ( "Red Saturation",       "SaturationAdjustmentRed",             -100,   +100    );
-var orangeSaturation              =  new Setting ( "Orange Saturation",    "SaturationAdjustmentOrange",          -100,   +100    );
-var yellowSaturation              =  new Setting ( "Yellow Saturation",    "SaturationAdjustmentYellow",          -100,   +100    );
-var greenSaturation               =  new Setting ( "Green Saturation",     "SaturationAdjustmentGreen",           -100,   +100    );
-var aquaSaturation                =  new Setting ( "Aqua Saturation",      "SaturationAdjustmentAqua",            -100,   +100    );
-var blueSaturation                =  new Setting ( "Blue Saturation",      "SaturationAdjustmentBlue",            -100,   +100    );
-var purpleSaturation              =  new Setting ( "Purple Saturation",    "SaturationAdjustmentPurple",          -100,   +100    );
-var magentaSaturation             =  new Setting ( "Magenta Saturation",   "SaturationAdjustmentMagenta",         -100,   +100    );
-var redLuminance                  =  new Setting ( "Red Luminance",        "LuminanceAdjustmentRed",              -100,   +100    );
-var orangeLuminance               =  new Setting ( "Orange Luminance",     "LuminanceAdjustmentOrange",           -100,   +100    );
-var yellowLuminance               =  new Setting ( "Yellow Luminance",     "LuminanceAdjustmentYellow",           -100,   +100    );
-var greenLuminance                =  new Setting ( "Green Luminance",      "LuminanceAdjustmentGreen",            -100,   +100    );
-var aquaLuminance                 =  new Setting ( "Aqua Luminance",       "LuminanceAdjustmentAqua",             -100,   +100    );
-var blueLuminance                 =  new Setting ( "Blue Luminance",       "LuminanceAdjustmentBlue",             -100,   +100    );
-var purpleLuminance               =  new Setting ( "Purple Luminance",     "LuminanceAdjustmentPurple",           -100,   +100    );
-var magentaLuminance              =  new Setting ( "Magenta Luminance",    "LuminanceAdjustmentMagenta",          -100,   +100    );
+var redHue                        =  new Setting ( "Red Hue",              "HueAdjustmentRed",                    -100,   +100    , 0);
+var orangeHue                     =  new Setting ( "Orange Hue",           "HueAdjustmentOrange",                 -100,   +100    , 0);
+var yellowHue                     =  new Setting ( "Yellow Hue",           "HueAdjustmentYellow",                 -100,   +100    , 0);
+var greenHue                      =  new Setting ( "Green Hue",            "HueAdjustmentGreen",                  -100,   +100    , 0);
+var aquaHue                       =  new Setting ( "Aqua Hue",             "HueAdjustmentAqua",                   -100,   +100    , 0);
+var blueHue                       =  new Setting ( "Blue Hue",             "HueAdjustmentBlue",                   -100,   +100    , 0);
+var purpleHue                     =  new Setting ( "Purple Hue",           "HueAdjustmentPurple",                 -100,   +100    , 0);
+var magentaHue                    =  new Setting ( "Magenta Hue",          "HueAdjustmentMagenta",                -100,   +100    , 0);
+var redSaturation                 =  new Setting ( "Red Saturation",       "SaturationAdjustmentRed",             -100,   +100    , 0);
+var orangeSaturation              =  new Setting ( "Orange Saturation",    "SaturationAdjustmentOrange",          -100,   +100    , 0);
+var yellowSaturation              =  new Setting ( "Yellow Saturation",    "SaturationAdjustmentYellow",          -100,   +100    , 0);
+var greenSaturation               =  new Setting ( "Green Saturation",     "SaturationAdjustmentGreen",           -100,   +100    , 0);
+var aquaSaturation                =  new Setting ( "Aqua Saturation",      "SaturationAdjustmentAqua",            -100,   +100    , 0);
+var blueSaturation                =  new Setting ( "Blue Saturation",      "SaturationAdjustmentBlue",            -100,   +100    , 0);
+var purpleSaturation              =  new Setting ( "Purple Saturation",    "SaturationAdjustmentPurple",          -100,   +100    , 0);
+var magentaSaturation             =  new Setting ( "Magenta Saturation",   "SaturationAdjustmentMagenta",         -100,   +100    , 0);
+var redLuminance                  =  new Setting ( "Red Luminance",        "LuminanceAdjustmentRed",              -100,   +100    , 0);
+var orangeLuminance               =  new Setting ( "Orange Luminance",     "LuminanceAdjustmentOrange",           -100,   +100    , 0);
+var yellowLuminance               =  new Setting ( "Yellow Luminance",     "LuminanceAdjustmentYellow",           -100,   +100    , 0);
+var greenLuminance                =  new Setting ( "Green Luminance",      "LuminanceAdjustmentGreen",            -100,   +100    , 0);
+var aquaLuminance                 =  new Setting ( "Aqua Luminance",       "LuminanceAdjustmentAqua",             -100,   +100    , 0);
+var blueLuminance                 =  new Setting ( "Blue Luminance",       "LuminanceAdjustmentBlue",             -100,   +100    , 0);
+var purpleLuminance               =  new Setting ( "Purple Luminance",     "LuminanceAdjustmentPurple",           -100,   +100    , 0);
+var magentaLuminance              =  new Setting ( "Magenta Luminance",    "LuminanceAdjustmentMagenta",          -100,   +100    , 0);
                 
 // Color grading                    
-var midtoneHue                    =  new Setting ( "H",                    "ColorGradeMidtoneHue",                0,      +359    );
-var midtoneSat                    =  new Setting ( "S",                    "ColorGradeMidtoneSat",                0,      +100    );
-var midtoneLum                    =  new Setting ( "L",                    "ColorGradeMidtoneLum",                -100,   +100    );
-var shadowHue                     =  new Setting ( "H",                    "SplitToningShadowHue",                0,      +359    );         
-var shadowSat                     =  new Setting ( "S",                    "SplitToningShadowSaturation",         0,      +100    );
-var shadowLum                     =  new Setting ( "L",                    "ColorGradeShadowLum",                 -100,   +100    );
-var highlightHue                  =  new Setting ( "H",                    "SplitToningHighlightHue",             0,      +359    );
-var highlightSat                  =  new Setting ( "S",                    "SplitToningHighlightSaturation",      0,      +100    );
-var highlightLum                  =  new Setting ( "L",                    "ColorGradeHighlightLum",              -100,   +100    );
-var globalHue                     =  new Setting ( "H",                    "ColorGradeGlobalHue",                 0,      +359    );
-var globalSat                     =  new Setting ( "S",                    "ColorGradeGlobalSat",                 0,      +100    );
-var globalLum                     =  new Setting ( "L",                    "ColorGradeGlobalLum",                 -100,   +100    );
-var blending                      =  new Setting ( "Blending",             "ColorGradeBlending",                  0,      +100    );
-var balance                       =  new Setting ( "Balance",              "SplitToningBalance",                  -100,   +100    );
+var midtoneHue                    =  new Setting ( "H",                    "ColorGradeMidtoneHue",                0,      +359    , 0);
+var midtoneSat                    =  new Setting ( "S",                    "ColorGradeMidtoneSat",                0,      +100    , 0);
+var midtoneLum                    =  new Setting ( "L",                    "ColorGradeMidtoneLum",                -100,   +100    , 0);
+var shadowHue                     =  new Setting ( "H",                    "SplitToningShadowHue",                0,      +359    , 0);         
+var shadowSat                     =  new Setting ( "S",                    "SplitToningShadowSaturation",         0,      +100    , 0);
+var shadowLum                     =  new Setting ( "L",                    "ColorGradeShadowLum",                 -100,   +100    , 0);
+var highlightHue                  =  new Setting ( "H",                    "SplitToningHighlightHue",             0,      +359    , 0);
+var highlightSat                  =  new Setting ( "S",                    "SplitToningHighlightSaturation",      0,      +100    , 0);
+var highlightLum                  =  new Setting ( "L",                    "ColorGradeHighlightLum",              -100,   +100    , 0);
+var globalHue                     =  new Setting ( "H",                    "ColorGradeGlobalHue",                 0,      +359    , 0);
+var globalSat                     =  new Setting ( "S",                    "ColorGradeGlobalSat",                 0,      +100    , 0);
+var globalLum                     =  new Setting ( "L",                    "ColorGradeGlobalLum",                 -100,   +100    , 0);
+var blending                      =  new Setting ( "Blending",             "ColorGradeBlending",                  0,      +100    , 0);
+var balance                       =  new Setting ( "Balance",              "SplitToningBalance",                  -100,   +100    , 0);
         
 // Detail
 // Sharpenning
-var sharpeningAmount              =  new Setting ( "Amount",               "Sharpeness",                          0,      +150    );
-var sharpeningRadius              =  new Setting ( "Radius",               "SharpenRadius",                       +0.5,   +3      );
-var sharpeningDetail              =  new Setting ( "Detail",               "SharpenDetail",                       0,      +100    );
-var sharpeningMasking             =  new Setting ( "Masking",              "SharpenEdgeMasking",                  0,      +100    );
+var sharpeningAmount              =  new Setting ( "Amount",               "Sharpeness",                          0,      +150    , +40);
+var sharpeningRadius              =  new Setting ( "Radius",               "SharpenRadius",                       +0.5,   +3      , +1);
+var sharpeningDetail              =  new Setting ( "Detail",               "SharpenDetail",                       0,      +100    , +25);
+var sharpeningMasking             =  new Setting ( "Masking",              "SharpenEdgeMasking",                  0,      +100    , 0);
 // Noise Reduction
-var luminanceNoiseReduction       =  new Setting ( "Luminance",            "LuminanceSmoothing",                  -100,   +100    );
+var luminanceNoiseReduction       =  new Setting ( "Luminance",            "LuminanceSmoothing",                  -100,   +100    , 0);
 // TODO Add missing detail and contrast
-var colorNoiseReduction           =  new Setting ( "Color",                "ColorNoiseReduction",                 -100,   +100    );
-var colorNoiseReductionDetail     =  new Setting ( "Detail",               "ColorNoiseReductionDetail",           -100,   +100    );
-var colorNoiseReductionSmoothness =  new Setting ( "Smoothness",           "ColorNoiseReductionSmoothness",       -100,   +100    );
+var colorNoiseReduction           =  new Setting ( "Color",                "ColorNoiseReduction",                 -100,   +100    , +25);
+var colorNoiseReductionDetail     =  new Setting ( "Detail",               "ColorNoiseReductionDetail",           -100,   +100    , +50);
+var colorNoiseReductionSmoothness =  new Setting ( "Smoothness",           "ColorNoiseReductionSmoothness",       -100,   +100    , +50);
 
 // Effects
 // Vignetting
 // Grain
-var grainAmount                   =  new Setting ( "Amount",               "GrainAmount",                         -100,   +100    );
-var grainSize                     =  new Setting ( "Size",                 "GrainSize",                           -100,   +100    );
-var grainFrequency                =  new Setting ( "Roughness",            "GrainFrequency",                      -100,   +100    );
+var grainAmount                   =  new Setting ( "Amount",               "GrainAmount",                         -100,   +100    , 0);
+var grainSize                     =  new Setting ( "Size",                 "GrainSize",                           -100,   +100    , +25);
+var grainFrequency                =  new Setting ( "Roughness",            "GrainFrequency",                      -100,   +100    , +50);
 
 //Calibration
-var shadowTintCalibration         =  new Setting ( "Shadow Tint",          "ShadowTint",                          -100,   +100    );
-var redHueCalibration             =  new Setting ( "Red Hue",              "RedHue",                              -100,   +100    );
-var redSaturationCalibration      =  new Setting ( "Red Saturation",       "RedSaturation",                       -100,   +100    );
-var greenHueCalibration           =  new Setting ( "Green Hue",            "GreenHue",                            -100,   +100    );
-var greenSaturationCalibration    =  new Setting ( "Green Saturation",     "GreenSaturation",                     -100,   +100    );
-var blueHueCalibration            =  new Setting ( "Blue Hue",             "BlueHue",                             -100,   +100    );
-var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "BlueSaturation",                      -100,   +100    );
+var shadowTintCalibration         =  new Setting ( "Shadow Tint",          "ShadowTint",                          -100,   +100    , 0);
+var redHueCalibration             =  new Setting ( "Red Hue",              "RedHue",                              -100,   +100    , 0);
+var redSaturationCalibration      =  new Setting ( "Red Saturation",       "RedSaturation",                       -100,   +100    , 0);
+var greenHueCalibration           =  new Setting ( "Green Hue",            "GreenHue",                            -100,   +100    , 0);
+var greenSaturationCalibration    =  new Setting ( "Green Saturation",     "GreenSaturation",                     -100,   +100    , 0);
+var blueHueCalibration            =  new Setting ( "Blue Hue",             "BlueHue",                             -100,   +100    , 0);
+var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "BlueSaturation",                      -100,   +100    , 0);
 
 
-// addAdjustmentBar(saturation, 100, 100, 225, 2, 4, 16);
-// addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
-// addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
-// addAdjustmentBars([grainAmount, grainSize, grainFrequency, vibrance,saturation], 850);
-// addAllCurves(540, 360, 180, 4) // xPosition, yPosition, edgeLength, strokeWidth
-// addCurve(toneCurve.settingValue, 30, 30, 135, 3, 3, 201, 67, 10); // p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius, c_r, c_g, c_b
-addHSLTable( 135, 855, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS) // xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
-// addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
 // addHistogram(true, false, false, 135);
+addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
+// addAdjustmentBar(saturation, 100, 100, 225, 2, 4, 16);
+addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
+addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
+addHSLTable( 135, 855, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS, true) // xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization, textLabels
+addAdjustmentBars([grainAmount, grainSize, grainFrequency], 850);
+addAllCurves(540, 360, 180, 4) // xPosition, yPosition, edgeLength, strokeWidth
+// addCurve(toneCurve.settingValue, 30, 30, 135, 3, 3, 201, 67, 10); // p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius, c_r, c_g, c_b
 
 function addAdjustmentBars(parametersArray, yStartingPosition) {
 
@@ -141,9 +142,13 @@ function addAdjustmentBars(parametersArray, yStartingPosition) {
 
         if(i==0) {var yPosition = yStartingPosition}
 
-        addAdjustmentBar(parametersArray[i], 90, yPosition, 225, 2, 4, 16);
+        try {
 
-        yPosition +=45; 
+            addAdjustmentBar(parametersArray[i], 90, yPosition, 225, 2, 4, 16);
+
+            yPosition +=45;
+
+        } catch (e) {}; 
 
     }
 
@@ -160,17 +165,20 @@ function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circl
     var settingX = minSettingX + lineLength / 2 + selectedSetting.settingValue / (maxSetting - minSetting) * lineLength;
     var minSettingY = maxSettingY = settingY = y;
 
-    var adjustmentGroup = activeDocument.layerSets.add();
-    adjustmentGroup.name = selectedSetting.displayName + ' Group';
-    var lineLayer = drawLine(minSettingX, minSettingY, maxSettingX, maxSettingY, strokeWidth, 204, 204, 204, 100);
-    lineLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
-    var circleLayer = drawCircle(settingX, settingY, circleRadius, true, "FFFFFF", false, "FFFFFF", strokeWidth); // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
-    circleLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
-    var labelLayer = addText(selectedSetting.displayName, minSettingX, minSettingY - 1.5 * labelSize, "topleft", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
-    labelLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
-    var valueLayer = addText(xmpMeta.getProperty(ns,selectedSetting.crsName), maxSettingX, minSettingY - 1.5 * labelSize, "topright", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS);
-    valueLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
+    try {
 
+        var adjustmentGroup = activeDocument.layerSets.add();
+        adjustmentGroup.name = selectedSetting.displayName + ' Group';
+        var labelLayer = addText(selectedSetting.displayName, minSettingX, minSettingY - 1.5 * labelSize, "topleft", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+        labelLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
+        var valueLayer = addText(xmpMeta.getProperty(ns,selectedSetting.crsName), maxSettingX, minSettingY - 1.5 * labelSize, "topright", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS);
+        valueLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
+        var lineLayer = drawLine(minSettingX, minSettingY, maxSettingX, maxSettingY, strokeWidth, 204, 204, 204, 100);
+        lineLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
+        var circleLayer = drawCircle(settingX, settingY, circleRadius, true, "FFFFFF", false, "FFFFFF", strokeWidth); // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
+        circleLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
+
+    } catch (e) {};
 
 }
 
@@ -620,15 +628,15 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
 
                         switch (HSLTable[i][j]) {
 
-                    case "Red":         fill_hex = "800000";    break;
-                    case "Orange":      fill_hex = "CB7000";    break;
-                    case "Yellow":      fill_hex = "FCDF03";    break;
-                    case "Green":       fill_hex = "00730F";    break;
-                    case "Aqua":        fill_hex = "00B3AA";    break;
-                    case "Blue":        fill_hex = "009DE5";    break;
-                    case "Purple":      fill_hex = "6802D9";    break;
-                    case "Magenta":     fill_hex = "C9006F";    break;
-                    default:            fill_hex = "FFFFFF";    break;
+                            case "Red":         fill_hex = "800000";    break;
+                            case "Orange":      fill_hex = "CB7000";    break;
+                            case "Yellow":      fill_hex = "FCDF03";    break;
+                            case "Green":       fill_hex = "00730F";    break;
+                            case "Aqua":        fill_hex = "00B3AA";    break;
+                            case "Blue":        fill_hex = "009DE5";    break;
+                            case "Purple":      fill_hex = "6802D9";    break;
+                            case "Magenta":     fill_hex = "C9006F";    break;
+                            default:            fill_hex = "FFFFFF";    break;
 
                         }
                         
@@ -1119,13 +1127,40 @@ function drawGrid (x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_
 }
 
 function addAllCurves (xPosition, yPosition, edgeLength, strokeWidth) {
-
+    
     var yIncrement = edgeLength * 4 / 3;
     // p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius, c_r, c_g, c_b
-    addCurve(toneCurve.settingValue, xPosition, yPosition, edgeLength, strokeWidth, 3, 204, 204, 204);
-    addCurve(toneCurveRed.settingValue, xPosition, yPosition + yIncrement, edgeLength, strokeWidth, 3, 201, 67, 10);
-    addCurve(toneCurveGreen.settingValue, xPosition, yPosition + 2 * yIncrement, edgeLength, strokeWidth, 3, 25, 128, 76);
-    addCurve(toneCurveBlue.settingValue, xPosition, yPosition + 3 * yIncrement, edgeLength, strokeWidth, 3, 0, 151, 194);
+    for (i = 0; i < toneCurve.settingValue.length; i ++) {
+        if(toneCurve.settingValue[i][0] != toneCurve.settingValue[i][1]) {
+            addCurve(toneCurve.settingValue, xPosition, yPosition, edgeLength, strokeWidth, 3, 204, 204, 204);
+            yPosition += yIncrement;
+            break;
+        }
+    }
+
+    for (i = 0; i < toneCurveRed.settingValue; i ++) {
+        if(toneCurveRed.settingValue[i][0] != toneCurveRed.settingValue[i][1]) {
+            addCurve(toneCurveRed.settingValue, xPosition, yPosition, edgeLength, strokeWidth, 201, 67, 10);
+            yPosition += yIncrement;
+            break;
+        }
+    }
+
+    for (i = 0; i < toneCurveRed.settingValue; i ++) {
+        if(toneCurveRed.settingValue[i][0] != toneCurveRed.settingValue[i][1]) {
+            addCurve(toneCurveGreen.settingValue, xPosition, yPosition, edgeLength, strokeWidth, 3, 25, 128, 76);
+            yPosition += yIncrement;
+            break;
+        }
+    }
+
+    for (i = 0; i < toneCurveRed.settingValue; i ++) {
+        if(toneCurveRed.settingValue[i][0] != toneCurveRed.settingValue[i][1]) {
+            addCurve(toneCurveBlue.settingValue, xPosition, yPosition, edgeLength, strokeWidth, 3, 0, 151, 194);
+            yPosition += yIncrement;
+            break;
+        }
+    }
 
 }
 
