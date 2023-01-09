@@ -162,7 +162,7 @@ function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circl
 
     var adjustmentGroup = activeDocument.layerSets.add();
     adjustmentGroup.name = selectedSetting.displayName + ' Group';
-    var lineLayer = drawLine(minSettingX, minSettingY, maxSettingX, maxSettingY, strokeWidth, 255, 255, 255, 100);
+    var lineLayer = drawLine(minSettingX, minSettingY, maxSettingX, maxSettingY, strokeWidth, 204, 204, 204, 100);
     lineLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
     var circleLayer = drawCircle(settingX, settingY, circleRadius, true, "FFFFFF", false, "FFFFFF", strokeWidth); // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
     circleLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
