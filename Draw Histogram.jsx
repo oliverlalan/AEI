@@ -2,32 +2,33 @@
 
 #target photoshop
 
-// addHistogram(true, false, false, 135); // this draws a layer with a coloured 8bit RGB histogram 
-
-// addHistogram(false, false, true, 135); //  this draws the Max(, , ) Luminosity RGB histogram (gets the max value of each channel)
-
-// addHistogram(false, true, false, 135); // this draws a layer with 8bit Lightness channel Lab histogram 
-
-addHistogram(false, false, false, 135); // this draws a layer with 8bit Luminosity RGB histogram 
+addHistograms(90, 225, 135, 225);
 
 ///////////////////////////////  HISTOGRAM IN LAYER   ///////////////////////////////////
 
-function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
+function addHistograms(xPosition, yPosition, height, width) {
+
+    addHistogram("Red",     xPosition,      yPosition,      height,     width);
+    addHistogram("Green",   xPosition,      yPosition,      height,     width);
+    addHistogram("Blue",    xPosition,      yPosition,      height,     width);
+
+    activeDocument.artLayers.getByName ("Red histogram").visible = true;
+    activeDocument.artLayers.getByName ("Green histogram").visible = true;
+
+}
+
+function addHistogram(histogramType, xPosition, yPosition, graphHeight, graphWidth) {
 
     // the other layer histograms, if exist, should be invisible so the reading is only on the pixels of the image itself
 
-    if (getLayer("RGB histogram")) activeDocument.artLayers.getByName ("RGB histogram").visible = false;
+    if (getLayer("Red histogram")) activeDocument.artLayers.getByName ("Red histogram").visible = false;
+    if (getLayer("Green histogram")) activeDocument.artLayers.getByName ("Green histogram").visible = false;
+    if (getLayer("Blue histogram")) activeDocument.artLayers.getByName ("Blue histogram").visible = false;
+    if (getLayer("Lum histogram")) activeDocument.artLayers.getByName ("Lum histogram").visible = false;
+    if (getLayer("Lab histogram")) activeDocument.artLayers.getByName ("Lab histogram").visible = false;
+    if (getLayer("MaxRGB histogram")) activeDocument.artLayers.getByName ("MaxRGB histogram").visible = false;
 
-    if (getLayer("Lightness Lab histogram")) activeDocument.artLayers.getByName ("Lightness Lab histogram").visible = false;
-
-    if (getLayer("Luminosity RGB")) activeDocument.artLayers.getByName ("Luminosity RGB").visible = false;
-
-    if (getLayer("Luminosity Max")) activeDocument.artLayers.getByName ("Luminosity Max").visible = false;
-
-    //
-
-    var layerName = (RGB) ? "RGB histogram" : ((Lab) ? "Lightness Lab histogram" : ((MaxRGB) ? "Luminosity Max" : "Luminosity RGB"));  
-
+    var layerName = histogramType + " histogram"
     //
 
     if (!getLayer(layerName)) {
@@ -44,15 +45,11 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
             var unitsAntes = app.preferences.rulerUnits;
 
-            var foregroundPreviousColor = app.foregroundColor;
-
             app.preferences.rulerUnits = Units.PIXELS; // importante
 
             activeDocument.quickMaskMode = false;
 
             activeDocument.selection.deselect();
-
-            //
 
             // read histogram:
 
@@ -64,29 +61,17 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
             var hB = activeDocument.channels["Blue"].histogram;
 
-            // if you want the Luminosity of Lab, export it to Lab, read it, and revert it to RGB
-
-            if (Lab) {
+            if (histogramType == "Lab") {
 
                 activeDocument.changeMode (ChangeMode.LAB);
 
-                // read Lightness channel histogram of Lab 
-
-                var hL = activeDocument.channels["Lightness"].histogram;
-
-                // revert to RGB
+                var hLab = activeDocument.channels["Lightness"].histogram;
 
                 activeDocument.changeMode (ChangeMode.RGB);
 
-            } else {
-
-                // read Luminosity composite channel histogram of RGB 
-
-                var hL = activeDocument.histogram;
-
             }
 
-            // 
+            // add layer
 
             activeDocument.artLayers.add();
 
@@ -94,125 +79,105 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
             activeDocument.activeLayer.move( activeDocument, ElementPlacement.PLACEATBEGINNING );
 
-            activeDocument.activeLayer.blendMode = BlendMode.NORMAL; // blending mode "normal"
+            activeDocument.activeLayer.blendMode = BlendMode.SCREEN; // blending mode "normal"
 
             activeDocument.activeLayer.opacity = 100; // opacity 100%
 
             //
 
-            var hhGraph = graphHeight;
-
-            var hY = 400; // base y of graph
-
-            var hX = 100; // base x of graph
-
-
             var myHist = [];
 
             var histogramPoints = [];
 
-            //
+            var histogramHexColor = "FFFFFF";
 
             // find maxY for normalizing graph
 
             var maxY = 0;
 
-            for ( i = 1; i <= 254; i++ ) {
+            for ( i = 3; i <= 252; i++ ) {
 
                 if (Math.floor(Math.max(hL[i], hR[i], hG[i], hB[i])) > maxY) maxY = Math.floor(Math.max(hL[i], hR[i], hG[i], hB[i]));
 
             }
 
-            if (RGB) {
+            switch (histogramType) {
+                case "Red":
+                myHist = hR;
+                fillEnabled = true;
+                fill_hex = "c9430a";
+                strokeEnabled = false;
+                stroke_hex = "c9430a";
+                break;
 
-                for (var a in activeDocument.componentChannels) {
+                case "Green":
+                myHist = hG;
+                fillEnabled = true;
+                fill_hex = "19804c";
+                strokeEnabled = false;
+                stroke_hex = "19804c";
+                break;
 
-                    //  criar as 3 cores R, G e B e o graph da cada uma
+                case "Blue":
+                myHist = hB;
+                fillEnabled = true;
+                fill_hex = "0097c2";
+                strokeEnabled = false;
+                stroke_hex = "0097c2";
 
-                    (a==0) ? app.foregroundColor.rgb.red = 255 : app.foregroundColor.rgb.red = 0;
+                break;
 
-                    (a==1) ? app.foregroundColor.rgb.green = 255 : app.foregroundColor.rgb.green = 0;
-
-                    (a==2) ? app.foregroundColor.rgb.blue = 255 : app.foregroundColor.rgb.blue = 0;
-
-                    // 
-
-                    if (a==0) myHist = hR;
-
-                    if (a==1) myHist = hG;
-
-                    if (a==2) myHist = hB;
-
-                    //
-
-                    for ( i = 2; i <= 253; i++ ) {
-
-                        var col = i+hX;
-
-                        var YYY = Math.floor(myHist[i]*hhGraph/maxY);
-
-                        histogramPoints.push([i, YYY]);
-
-                    }
-
-                    drawSmoothHistogram(histogramPoints, 360, 360);
-
-                }
-
-            } else {
-
-                app.foregroundColor.rgb.red = 255;
-
-                app.foregroundColor.rgb.green = 255;
-
-                app.foregroundColor.rgb.blue = 255;
-
+                case "Lum":
                 myHist = hL;
+                fillEnabled = false;
+                fill_hex = "FFFFFF";
+                strokeEnabled = true;
+                stroke_hex = "FFFFFF";
 
+                break;
 
-                for ( i = 0; i <= 255; i++ ) {
+                case "Lab":
+                myHist = hLab;
+                fillEnabled = true;
+                fill_hex = "FFFFFF";
+                strokeEnabled = false;
+                stroke_hex = "FFFFFF";
+                break;
 
-                    var col = i+hX;
-
-                    if (MaxRGB) {
-
-                        var YYY = Math.floor(Math.max(hR[i], hG[i], hB[i])*hhGraph/maxY);
-
-                    } else {
-
-                        var YYY = Math.floor(myHist[i]*hhGraph/maxY);
-                        // var YYY = (Math.floor(myHist[i-2]*hhGraph/maxY) + Math.floor(myHist[i-1]*hhGraph/maxY) + Math.floor(myHist[i]*hhGraph/maxY) + Math.floor(myHist[i+1]*hhGraph/maxY)+ Math.floor(myHist[i+2]*hhGraph/maxY)) / 5;
-
-                        
-                        // Smooth verstion 
-                        histogramPoints.push([i, YYY]);
-
-                    }
-
-
-
-                    // drawSelectionScreen (col, hY, col+1, hY-YYY);
-
-                    //
-
-                    var percent = Math.floor((i+1)*100/256);
-
-                    pBar.updateProgress (percent, "Luminosity Channel " + percent+ " % completed");
-
-                }
-
-
-                drawSmoothHistogram(histogramPoints, 360, 360);
-
-
+                case "MaxRGB":
+                myHist = hL;
+                fillEnabled = false;
+                fill_hex = "FFFFFF";
+                strokeEnabled = true;
+                stroke_hex = "FFFFFF";
+                break;
 
             }
+
+            for ( i = 2; i <= 253; i++ ) {
+
+                if (histogramType == "MaxRGB") {
+
+                    // var YYY = Math.floor(Math.max(hR[i], hG[i], hB[i])*graphHeight/maxY);
+                    var YYY = (Math.floor(Math.max(hR[i-2], hG[i-2], hB[i-2])*graphHeight/maxY) + Math.floor(Math.max(hR[i-1], hG[i-1], hB[i-1])*graphHeight/maxY) + Math.floor(Math.max(hR[i], hG[i], hB[i])*graphHeight/maxY) + Math.floor(Math.max(hR[i+1], hG[i+1], hB[i+1])*graphHeight/maxY) + Math.floor(Math.max(hR[i+2], hG[i+2], hB[i+2])*graphHeight/maxY)) / 5;
+
+                } else {
+
+                    // var YYY = Math.floor(myHist[i]*graphHeight/maxY);
+                    var YYY = (Math.floor(myHist[i-2]*graphHeight/maxY) + Math.floor(myHist[i-1]*graphHeight/maxY) + Math.floor(myHist[i]*graphHeight/maxY) + Math.floor(myHist[i+1]*graphHeight/maxY)+ Math.floor(myHist[i+2]*graphHeight/maxY)) / 5;
+
+                }
+
+                YYY = Math.min(YYY, graphHeight);
+                histogramPoints.push([i * graphWidth / 252, YYY]);
+
+            }
+
+            drawSmoothHistogram(histogramPoints, xPosition, yPosition, fillEnabled, fill_hex, strokeEnabled, stroke_hex, 2);
 
             // activeDocument.activeLayer = wasHereLayer;
 
             app.preferences.rulerUnits = unitsAntes;
-
-            app.foregroundColor = foregroundPreviousColor;
 
         } else {
 
@@ -228,52 +193,56 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
 
     }
 
-    function drawSmoothHistogram (histogramPoints, xPosition, yPosition, c_r, c_g, c_b) {
+    function drawSmoothHistogram (histogramPoints, xPosition, yPosition, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth) {
+
+        var histogramPathPoints = new Array();
         
-        // Path definition
-        var histogramCurvePathArray = new Array();
+        for (i = 0; i < histogramPoints.length; i++) {
 
-        for (i = 0; i < histogramPoints.length - 1; i++) {
-
-            var histogramCurveStartIndex = i;
-            var histogramCurveEndIndex = histogramCurveStartIndex + 1; 
-
-            var lineArray = new Array()
-            lineArray[0] = new PathPointInfo
-            lineArray[0].anchor = Array(xPosition + histogramPoints[histogramCurveStartIndex][0], yPosition - histogramPoints[histogramCurveStartIndex][1])
-            lineArray[0].kind = PointKind.SMOOTHPOINT
-            lineArray[0].leftDirection = lineArray[0].anchor
-            lineArray[0].rightDirection = lineArray[0].anchor
-            lineArray[1] = new PathPointInfo
-            lineArray[1].anchor = Array(xPosition + histogramPoints[histogramCurveEndIndex][0] , yPosition - histogramPoints[histogramCurveEndIndex][1])
-            lineArray[1].kind = PointKind.SMOOTHPOINT
-            lineArray[1].leftDirection = lineArray[1].anchor
-            lineArray[1].rightDirection = lineArray[1].anchor
-
-            histogramCurvePathArray[i] = new SubPathInfo()
-            histogramCurvePathArray[i].operation = ShapeOperation.SHAPEXOR
-            histogramCurvePathArray[i].closed = false
-            histogramCurvePathArray[i].entireSubPath = lineArray
-
+            histogramPathPoints[i] = new PathPointInfo
+            histogramPathPoints[i].anchor = Array(xPosition + histogramPoints[i][0], yPosition - histogramPoints[i][1])
+            histogramPathPoints[i].kind = PointKind.SMOOTHPOINT
+            histogramPathPoints[i].leftDirection = histogramPathPoints[i].anchor
+            histogramPathPoints[i].rightDirection = histogramPathPoints[i].anchor
         }
+
+        histogramPathPoints[histogramPoints.length] = new PathPointInfo
+        histogramPathPoints[histogramPoints.length].anchor = Array(xPosition + graphWidth + 1, yPosition)
+        histogramPathPoints[histogramPoints.length].kind = PointKind.SMOOTHPOINT
+        histogramPathPoints[histogramPoints.length].leftDirection = histogramPathPoints[histogramPoints.length].anchor
+        histogramPathPoints[histogramPoints.length].rightDirection = histogramPathPoints[histogramPoints.length].anchor
+
+        histogramPathPoints[histogramPoints.length + 1] = new PathPointInfo
+        histogramPathPoints[histogramPoints.length + 1].anchor = Array(xPosition + 2, yPosition)
+        histogramPathPoints[histogramPoints.length + 1].kind = PointKind.SMOOTHPOINT
+        histogramPathPoints[histogramPoints.length + 1].leftDirection = histogramPathPoints[histogramPoints.length + 1].anchor
+        histogramPathPoints[histogramPoints.length + 1].rightDirection = histogramPathPoints[histogramPoints.length + 1].anchor
+
+        histogramPathPoints[histogramPoints.length + 2] = new PathPointInfo
+        histogramPathPoints[histogramPoints.length + 2].anchor = Array(xPosition + histogramPoints[0][0], yPosition - histogramPoints[0][1])
+        histogramPathPoints[histogramPoints.length + 2].kind = PointKind.SMOOTHPOINT
+        histogramPathPoints[histogramPoints.length + 2].leftDirection = histogramPathPoints[histogramPoints.length + 2].anchor
+        histogramPathPoints[histogramPoints.length + 2].rightDirection = histogramPathPoints[histogramPoints.length + 2].anchor
+ 
+
+        // Path definition
+        var histogramCurvePathArray = new SubPathInfo()
+        histogramCurvePathArray.operation = ShapeOperation.SHAPEXOR
+        histogramCurvePathArray.closed = false
+        histogramCurvePathArray.entireSubPath = histogramPathPoints;  
     
         //create the path item
-        var myPathItem = activeDocument.pathItems.add("Histogram", histogramCurvePathArray)
-
+        var myPathItem = activeDocument.pathItems.add("Histogram", [histogramCurvePathArray])
         var currentPathItem = app.activeDocument.pathItems.getByName("Histogram");
-
         convertPathtoShape();
-
-        setStroke (2, c_r, c_g, c_b);
-
-        // app.activeDocument.activeLayer.vectorMaskFeather = strokeWidth * 0.1;
-        
         myPathItem.remove();
 
+        pathSettings(fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth);
 
     }
 
     function convertPathtoShape() {
+
         var d = new ActionDescriptor();
         var d2 = new ActionDescriptor();
         var d3 = new ActionDescriptor();
@@ -290,30 +259,95 @@ function addHistogram(RGB, Lab, MaxRGB, graphHeight) {
         executeAction( charIDToTypeID( "Mk  " ), d, DialogModes.NO );
     }
 
-    function setStroke(strokeWidth, c_r, c_g, c_b){
-            var desc3 = new ActionDescriptor();
-            var ref1 = new ActionReference();
-            ref1.putEnumerated( stringIDToTypeID( "contentLayer" ), charIDToTypeID( "Ordn" ), charIDToTypeID( "Trgt" ) );
-            desc3.putReference( charIDToTypeID( "null" ), ref1 );
-                var desc4 = new ActionDescriptor();
-                    var desc5 = new ActionDescriptor();
-                    desc5.putUnitDouble( stringIDToTypeID( "strokeStyleLineWidth" ), charIDToTypeID( "#Pxl" ), strokeWidth );
-                        var desc6 = new ActionDescriptor();
-                            var desc7 = new ActionDescriptor();
-                            desc7.putDouble( charIDToTypeID( "Rd  " ), c_r );
-                            desc7.putDouble( charIDToTypeID( "Grn " ), c_g );
-                            desc7.putDouble( charIDToTypeID( "Bl  " ), c_b );
-                        desc6.putObject( charIDToTypeID( "Clr " ), charIDToTypeID( "RGBC" ), desc7 );
-                    desc5.putObject( stringIDToTypeID( "strokeStyleContent" ), stringIDToTypeID( "solidColorLayer" ), desc6 );
-                    desc5.putInteger( stringIDToTypeID( "strokeStyleVersion" ), 2 );
-                    desc5.putBoolean( stringIDToTypeID( "strokeEnabled" ), true );
-                    desc5.putBoolean( stringIDToTypeID( "fillEnabled" ), false );
-                desc4.putObject( stringIDToTypeID( "strokeStyle" ), stringIDToTypeID( "strokeStyle" ), desc5 );
-            desc3.putObject( charIDToTypeID( "T   " ), stringIDToTypeID( "shapeStyle" ), desc4 );
-        executeAction( charIDToTypeID( "setd" ), desc3, DialogModes.NO );
-    }
+    function pathSettings(fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth){
 
-    //////////////////////////////////
+        try {
+
+            var f = new SolidColor();
+            
+            f.rgb.hexValue = fill_hex;
+
+            var d = new ActionDescriptor();
+
+            var r = new ActionReference();
+
+            r.putEnumerated(stringIDToTypeID('contentLayer'), stringIDToTypeID('ordinal'), stringIDToTypeID('targetEnum'));
+
+            d.putReference(stringIDToTypeID('null'), r);
+
+            var d1 = new ActionDescriptor();
+
+            var d2 = new ActionDescriptor();
+
+            var d3 = new ActionDescriptor();
+
+            d3.putDouble(stringIDToTypeID('red'),   f.rgb.red);
+
+            d3.putDouble(stringIDToTypeID('green'), f.rgb.green);
+
+            d3.putDouble(stringIDToTypeID('blue'),  f.rgb.blue);
+
+            d2.putObject(stringIDToTypeID('color'), stringIDToTypeID('RGBColor'), d3);
+
+            d1.putObject(stringIDToTypeID('fillContents'), stringIDToTypeID('solidColorLayer'), d2);
+
+            d.putObject(stringIDToTypeID('to'), stringIDToTypeID('shapeStyle'), d1);
+
+            executeAction(stringIDToTypeID('set'), d, DialogModes.NO);
+
+        }   catch (e) { throw(e); }
+
+        try {
+
+            var f = new SolidColor();
+            
+            f.rgb.hexValue = histogramHexColor;
+
+            var s = new SolidColor();
+
+            s.rgb.hexValue = stroke_hex;
+
+            var d = new ActionDescriptor();
+
+            var r = new ActionReference();
+
+            r.putEnumerated(stringIDToTypeID('contentLayer'), stringIDToTypeID('ordinal'), stringIDToTypeID('targetEnum'));
+
+            d.putReference(stringIDToTypeID('null'), r);
+
+            var d1 = new ActionDescriptor();
+
+            var d2 = new ActionDescriptor();
+
+            var d3 = new ActionDescriptor();
+
+            var d4 = new ActionDescriptor();
+
+            d4.putDouble(stringIDToTypeID('red'),   s.rgb.red);
+
+            d4.putDouble(stringIDToTypeID('green'), s.rgb.green);
+
+            d4.putDouble(stringIDToTypeID('blue'),  s.rgb.blue);
+
+            d3.putObject(stringIDToTypeID('color'), stringIDToTypeID('RGBColor'), d4);
+
+            d2.putObject(stringIDToTypeID('strokeStyleContent'), stringIDToTypeID('solidColorLayer'), d3);
+
+            d2.putUnitDouble( stringIDToTypeID( "strokeStyleLineWidth" ), charIDToTypeID( "#Pxl" ), strokeWidth );
+
+            d2.putBoolean(stringIDToTypeID('strokeEnabled'), strokeEnabled);
+
+            d2.putBoolean( stringIDToTypeID( "fillEnabled" ), fillEnabled );
+
+            d1.putObject(stringIDToTypeID('strokeStyle'), stringIDToTypeID('strokeStyle'), d2);
+
+            d.putObject(stringIDToTypeID('to'), stringIDToTypeID('shapeStyle'), d1);
+
+            executeAction(stringIDToTypeID('set'), d, DialogModes.NO);
+
+        }   catch (e) { throw(e); }
+
+    }
 
     function getLayer(layername) {
 
