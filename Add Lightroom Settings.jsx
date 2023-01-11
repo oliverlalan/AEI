@@ -126,12 +126,12 @@ var blueHueCalibration            =  new Setting ( "Blue Hue",             "Blue
 var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "BlueSaturation",                      -100,   +100    , 0);
 
 
-// addHistograms(90, 225, 135, 225); // xPosition, yPosition, height, width
+addHistograms(90, 225, 135, 225); // xPosition, yPosition, height, width
 // addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
 // addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
 // addHSLTable( 115, 855, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS, false) // xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization, textLabels
 // // addAdjustmentBars([grainAmount, grainSize, grainFrequency], 850);
-addAllCurves(540, 360, 180, 4) // xPosition, yPosition, edgeLength, strokeWidth
+// addAllCurves(540, 360, 180, 4) // xPosition, yPosition, edgeLength, strokeWidth
 
 // addAdjustmentBar (saturation, 135, 135, 225, 2, 4, 16)
 
@@ -779,12 +779,23 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
 
 function addHistograms(xPosition, yPosition, height, width) {
 
-    addHistogram("Red",     xPosition,      yPosition,      height,     width);
-    addHistogram("Green",   xPosition,      yPosition,      height,     width);
-    addHistogram("Blue",    xPosition,      yPosition,      height,     width);
+    var redHistogram = addHistogram("Red",     xPosition,      yPosition,      height,     width);
+    var greenHistogram = addHistogram("Green",   xPosition,      yPosition,      height,     width);
+    var blueHistogram = addHistogram("Blue",    xPosition,      yPosition,      height,     width);
 
-    activeDocument.artLayers.getByName ("Red histogram").visible = true;
-    activeDocument.artLayers.getByName ("Green histogram").visible = true;
+    activeDocument.artLayers.getByName("Red histogram").visible = true;
+    activeDocument.artLayers.getByName("Green histogram").visible = true;
+
+    var histogramsGroup = activeDocument.layerSets.add();
+    histogramsGroup.name = 'Histograms';
+    redHistogram.move(histogramsGroup, ElementPlacement.INSIDE);
+    greenHistogram.move(histogramsGroup, ElementPlacement.INSIDE);
+    blueHistogram.move(histogramsGroup, ElementPlacement.INSIDE);
+
+    // app.activeDocument.selection.select([[xPosition, yPosition],[xPosition, yPosition - height], [xPosition + width, yPosition - height], [xPosition + width, yPosition]]);
+    // app.activeDocument.selection.invert();
+    // app.activeDocument.selection.clear();
+    // app.activeDocument.selection.deselect();
 
 }
 
@@ -947,6 +958,8 @@ function addHistogram(histogramType, xPosition, yPosition, graphHeight, graphWid
             drawSmoothHistogram(histogramPoints, xPosition, yPosition, fillEnabled, fill_hex, strokeEnabled, stroke_hex, 2);
 
             app.preferences.rulerUnits = unitsAntes;
+
+            return app.activeDocument.activeLayer;
 
         } else {
 
