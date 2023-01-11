@@ -12,10 +12,20 @@ function Setting(displayName, crsName, min, max, defaultValue) {
 
         for (i=0; i<xmpMeta.countArrayItems(ns,this.crsName); i++) {
 
-            var inputValue  = xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[0];
-            var outputValue = xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[1];
+            var inputValue  = parseInt(xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[0]);
+            var outputValue = parseInt(xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[1]);
 
             this.settingValue.push([inputValue, outputValue]);
+
+        }
+
+        if (arraysEqual(this.settingValue, this.defaultValue)) {
+
+            this.isCustom = false;
+
+        } else {
+
+            this.isCustom = true;
 
         }
 
@@ -23,8 +33,29 @@ function Setting(displayName, crsName, min, max, defaultValue) {
         
         this.settingValue = xmpMeta.getProperty(ns, this.crsName);
 
+        if (this.settingValue == this.defaultValue) {
+
+            this.isCustom = false;
+
+        } else {
+
+            this.isCustom = true;
+
+        }
+
     }
 
+}
+
+function arraysEqual (a, b) {
+    if (a===b) return true;
+    if (a == null || b == null) return false;
+    if (a.length !== b.length) return false;
+
+    for (var i = 0; i < a.length; i++) {
+        if ((a[i][0] !== b[i][0])||(a[i][1] !== b[i][1])) return false;
+    }
+    return true;
 }
 
 var ns = "http://ns.adobe.com/camera-raw-settings/1.0/"; // Found in xmp header
