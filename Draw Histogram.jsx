@@ -299,10 +299,6 @@ function addHistogram(histogramType, xPosition, yPosition, graphHeight, graphWid
 
         try {
 
-            var f = new SolidColor();
-            
-            f.rgb.hexValue = histogramHexColor;
-
             var s = new SolidColor();
 
             s.rgb.hexValue = stroke_hex;
