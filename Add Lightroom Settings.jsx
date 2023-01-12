@@ -157,36 +157,40 @@ var blueHueCalibration            =  new Setting ( "Blue Hue",             "Blue
 var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "BlueSaturation",                      -100,   +100    , 0);
 
 
-addHistograms(90, 225, 135, 225); // xPosition, yPosition, height, width
-// addAdjustmentBars([exposure, contrast, highlights, shadows, whites, blacks], 295);
-// addAdjustmentBars([texture, clarity, dehaze, vibrance,saturation], 609);
+// addHistograms(90, 225, 135, 225); // xPosition, yPosition, height, width
+// addSettingsSet("Basic Tone", [exposure, contrast, highlights, shadows, whites, blacks], 90, 295);
+// addSettingsSet("Basic Presence", [texture, clarity, dehaze, vibrance,saturation], 90, 609);
 // addHSLTable( 115, 855, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS, false) // xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization, textLabels
-// // addAdjustmentBars([grainAmount, grainSize, grainFrequency], 850);
-// addAllCurves(540, 360, 180, 4) // xPosition, yPosition, edgeLength, strokeWidth
+// // addSettingsSet("Grain", [grainAmount, grainSize, grainFrequency], 90, 850);
+// addAllCurves(540, 360, 180) // xPosition, yPosition, edgeLength
 
-// addAdjustmentBar (saturation, 135, 135, 225, 2, 4, 16)
+function addSettingsSet(setName, settingsSet, xPosition, yPosition) {
 
-// addCurve(toneCurve, 540, 360, 180, 4, 3, "CCCCCC")
+    var settingsSetGroup = activeDocument.layerSets.add();
+    settingsSetGroup.name = setName;
 
-function addAdjustmentBars(parametersArray, yStartingPosition) {
+    for (i = 0; i < settingsSet.length; i++) {
 
-    for (i = 0; i < parametersArray.length; i++) {
+        var settingGroup = addSetting(settingsSet[i], xPosition, yPosition, 225, 4);
 
-        if(i==0) {var yPosition = yStartingPosition}
+        settingGroup.name = settingsSet[i].displayName;
 
-        try {
+        var dummieGroup = settingsSetGroup.layerSets.add();
 
-            addAdjustmentBar(parametersArray[i], 90, yPosition, 225, 2, 4, 16);
+        settingGroup.move(dummieGroup, ElementPlacement.PLACEBEFORE);
 
-            yPosition +=45;
+        dummieGroup.remove();
 
-        }   catch (e) { throw(e); }
+        yPosition +=45;
 
     }
 
 }
 
-function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circleRadius, labelSize) {
+function addSetting (selectedSetting, x, y, lineLength, circleRadius) {
+
+    var strokeWidth = circleRadius / 4;
+    var labelSize = circleRadius * 4;
     
     var minSetting = selectedSetting.min;
     var maxSetting = selectedSetting.max;
@@ -197,22 +201,23 @@ function addAdjustmentBar (selectedSetting, x, y, lineLength, strokeWidth, circl
     var settingX = minSettingX + lineLength / 2 + selectedSetting.settingValue / (maxSetting - minSetting) * lineLength;
     var minSettingY = maxSettingY = settingY = y;
 
-    var adjustmentGroup = activeDocument.layerSets.add();
-    adjustmentGroup.name = selectedSetting.displayName + ' Group';
+    var settingGroup = activeDocument.layerSets.add();
     var labelLayer = addText(selectedSetting.displayName, minSettingX, minSettingY - 1.5 * labelSize, "topleft", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
     labelLayer.name = 'Label';
-    labelLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
+    labelLayer.move(settingGroup, ElementPlacement.INSIDE);
     var valueLayer = addText(xmpMeta.getProperty(ns,selectedSetting.crsName), maxSettingX, minSettingY - 1.5 * labelSize, "topright", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS);
     valueLayer.name = 'Value';
-    valueLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
+    valueLayer.move(settingGroup, ElementPlacement.INSIDE);
     var lineLayer = drawLine(minSettingX, minSettingY, maxSettingX, maxSettingY);
-    setShapeSettings(false, "FFFFFF", true, "CCCCCC", strokeWidth);
+    setShapeSettings(false, "FFFFFF", true, "FFFFFF", strokeWidth);
     lineLayer.name = 'Line';
-    lineLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
+    lineLayer.move(settingGroup, ElementPlacement.INSIDE);
     var circleLayer = drawCircle(settingX, settingY, circleRadius); // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
     setShapeSettings(true, "FFFFFF", false, "FFFFFF", strokeWidth);
     circleLayer.name = 'Circle';
-    circleLayer.move(adjustmentGroup, ElementPlacement.INSIDE);
+    circleLayer.move(settingGroup, ElementPlacement.INSIDE);
+
+    return settingGroup;
 
 }
 
@@ -372,6 +377,8 @@ function setShapeSettings(fillEnabled, fill_hex, strokeEnabled, stroke_hex, stro
 
 function addText (text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization) {
 
+    text = text.toString();
+
     if(text!= "") {
 
         var textLayer = app.activeDocument.artLayers.add();
@@ -459,13 +466,16 @@ function translateLayerTo(selectedLayer,xPosition,yPosition, anchorPosition) {
     selectedLayer.translate(dX,dY);
 }
 
-function addCurve(selectedSetting, xPosition, yPosition, edgeLength, strokeWidth, circleRadius, stroke_hex) {
+function addCurve(selectedSetting, xPosition, yPosition, edgeLength, stroke_hex) {
+
+    var strokeWidth = edgeLength * 0.025;
+    var circleRadius = edgeLength * 0.02;
 
     var curveGroup = activeDocument.layerSets.add();
     curveGroup.name = selectedSetting.displayName + ' Group';
 
     // Draw Tone Curve background grid
-    var curveGrid = drawGrid (xPosition, yPosition, edgeLength, edgeLength, 4, 4, 2, "A6A6A6", 100); // x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_b, opacity
+    var curveGrid = drawGrid (xPosition, yPosition, edgeLength, edgeLength, 4, 4, strokeWidth * 0.35, "A6A6A6", 100); // x, y, width, height, columns, rows, strokeWidth, c_r, c_g, c_b, opacity
     curveGrid.name = selectedSetting.displayName + ' Grid';
     curveGrid.move(curveGroup, ElementPlacement.INSIDE);
 
@@ -556,8 +566,9 @@ function addCurve(selectedSetting, xPosition, yPosition, edgeLength, strokeWidth
 
         if(!((curveAnchorPoints[i][0] == 0 && curveAnchorPoints[i][1] == 0) || (curveAnchorPoints[i][0] == 255 && curveAnchorPoints[i][1] == 255))) {
 
-            // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
-            var anchorPoint = drawCircle(xPosition + curveAnchorPoints[i][0] / 256 * edgeLength, yPosition + edgeLength - curveAnchorPoints[i][1] / 256 * edgeLength, circleRadius, true, "FFFFFF", false, "FFFFFF", strokeWidth);
+            // xPosition, yPosition, circleRadius
+            var anchorPoint = drawCircle(xPosition + curveAnchorPoints[i][0] / 256 * edgeLength, yPosition + edgeLength - curveAnchorPoints[i][1] / 256 * edgeLength, circleRadius);
+            setShapeSettings(true, "FFFFFF", false, "FFFFFF", strokeWidth);
             anchorPoint.name = '[' + curveAnchorPoints[i][0] + ' ,' + curveAnchorPoints[i][1] + ']';
             anchorPoint.move(curveAnchorPointsGroup, ElementPlacement.INSIDE);
         
@@ -730,15 +741,17 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
     var fill_hex = "FFFFFF";
     var stroke_hex = "FFFFFF";
 
-    var HSLTable = [["",            "Hue",                      "Sat",                           "Lum"                             ],
-                    ["Red",         redHue.settingValue,         redSaturation.settingValue,      redLuminance.settingValue        ],
-                    ["Orange",      orangeHue.settingValue,      orangeSaturation.settingValue,   orangeLuminance.settingValue     ],
-                    ["Yellow",      yellowHue.settingValue,      yellowSaturation.settingValue,   yellowLuminance.settingValue     ],
-                    ["Green",       greenHue.settingValue,       greenSaturation.settingValue,    greenLuminance.settingValue      ],
-                    ["Aqua",        aquaHue.settingValue,        aquaSaturation.settingValue,     aquaLuminance.settingValue       ],
-                    ["Blue",        blueHue.settingValue,        blueSaturation.settingValue,     blueLuminance.settingValue       ],
-                    ["Purple",      purpleHue.settingValue,      purpleSaturation.settingValue,   purpleLuminance.settingValue     ],
-                    ["Magenta",     magentaHue.settingValue,     magentaSaturation.settingValue,  magentaLuminance.settingValue    ]]
+    var HSLTable = [
+        ["",            "Hue",                      "Sat",                           "Lum"                             ],
+        ["Red",         redHue.settingValue,         redSaturation.settingValue,      redLuminance.settingValue        ],
+        ["Orange",      orangeHue.settingValue,      orangeSaturation.settingValue,   orangeLuminance.settingValue     ],
+        ["Yellow",      yellowHue.settingValue,      yellowSaturation.settingValue,   yellowLuminance.settingValue     ],
+        ["Green",       greenHue.settingValue,       greenSaturation.settingValue,    greenLuminance.settingValue      ],
+        ["Aqua",        aquaHue.settingValue,        aquaSaturation.settingValue,     aquaLuminance.settingValue       ],
+        ["Blue",        blueHue.settingValue,        blueSaturation.settingValue,     blueLuminance.settingValue       ],
+        ["Purple",      purpleHue.settingValue,      purpleSaturation.settingValue,   purpleLuminance.settingValue     ],
+        ["Magenta",     magentaHue.settingValue,     magentaSaturation.settingValue,  magentaLuminance.settingValue    ]
+    ]
 
     for (i = 0; i < HSLTable.length; i ++) {
 
@@ -752,8 +765,11 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
 
                         HSLTable[i][j] = HSLTable[i][j].substring(0,3);
 
-                        addText(HSLTable[i][j], xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);
+                        var textLayer = addText(HSLTable[i][j], xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);
 
+                        textLayer.name = HSLTable[i][j] + ' Label';
+                        
+                        textLayer.move(HSLGroup, ElementPlacement.INSIDE);
 
                     } else {
 
@@ -771,8 +787,15 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
 
                         }
                         
-                        // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
-                        drawCircle(xPosition, yPosition + fontSize / 3, 8, true, fill_hex, true, stroke_hex, 2);
+                        // xPosition, yPosition, circleRadius
+
+                        var circleLayer = drawCircle(xPosition, yPosition + fontSize / 3, 8);
+
+                        setShapeSettings(true, fill_hex, true, stroke_hex, 1.5);
+
+                        circleLayer.name = HSLTable[i][j] + ' Label';
+                        
+                        circleLayer.move(HSLGroup, ElementPlacement.INSIDE);
 
                     }
 
@@ -781,18 +804,26 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
                 xPosition += 80;
             
             } else {
-                
-                addText(HSLTable[i][j], xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);  // text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
 
-                xPosition += 60;
+                var textLayer = addText(HSLTable[i][j], xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);  // text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+
+                if(i == 0) {
+
+                    textLayer.name = HSLTable[i][j] + ' Label';
+                        
+                    textLayer.move(HSLGroup, ElementPlacement.INSIDE);
+
+                }   else    {
+
+                    textLayer.name = HSLTable[i][0] + ' ' + HSLTable[0][j] + ': ' + textLayer.name;
+                        
+                    textLayer.move(HSLGroup, ElementPlacement.INSIDE);
+
+                }
+
+                xPosition += 60;    
             
             }
-            
-            try {
-
-                textLayer.move(HSLGroup, ElementPlacement.INSIDE);
-
-            }   catch (e) { throw(e); }
 
         } 
 
@@ -1123,40 +1154,41 @@ function drawGrid (x, y, width, height, columns, rows, strokeWidth, stroke_hex, 
 
 }
 
-function addAllCurves (xPosition, yPosition, edgeLength, strokeWidth) {
+function addAllCurves (xPosition, yPosition, edgeLength) {
     
     var yIncrement = edgeLength * 4 / 3;
-    // p, xPosition, yPosition, edgeLength, strokeWidth, circleRadius, c_r, c_g, c_b
-    for (i = 0; i < toneCurve.settingValue.length; i ++) {
-        if(toneCurve.settingValue[i][0] != toneCurve.settingValue[i][1]) {
-            addCurve(toneCurve, xPosition, yPosition, edgeLength, strokeWidth, 3, "CCCCCC");
-            yPosition += yIncrement;
-            break;
-        }
-    }
+    // p, xPosition, yPosition, edgeLength, stroke_hex
+    var allCurves = [toneCurve, toneCurveRed, toneCurveGreen, toneCurveBlue];
 
-    for (i = 0; i < toneCurveRed.settingValue.length; i ++) {
-        if(toneCurveRed.settingValue[i][0] != toneCurveRed.settingValue[i][1]) {
-            addCurve(toneCurveRed, xPosition, yPosition, edgeLength, strokeWidth, 3, "c9430a");
-            yPosition += yIncrement;
-            break;
-        }
-    }
+    for (c = 0; c < allCurves.length; c ++) {
 
-    for (i = 0; i < toneCurveGreen.settingValue.length; i ++) {
-        if(toneCurveGreen.settingValue[i][0] != toneCurveGreen.settingValue[i][1]) {
-            addCurve(toneCurveGreen, xPosition, yPosition, edgeLength, strokeWidth, 3, "19804c");
-            yPosition += yIncrement;
-            break;
-        }
-    }
+        if(allCurves[c].isCustom) {
 
-    for (i = 0; i < toneCurveBlue.settingValue.length; i ++) {
-        if(toneCurveBlue.settingValue[i][0] != toneCurveBlue.settingValue[i][1]) {
-            addCurve(toneCurveBlue, xPosition, yPosition, edgeLength, strokeWidth, 3, "0097c2");
+            switch (allCurves[c].displayName) {
+
+                case "Red Tone Curve":
+                var stroke_hex = "c9430a";
+                break;
+
+                case "Green Tone Curve":
+                var stroke_hex = "19804c";
+                break;
+
+                case "Blue Tone Curve":
+                var stroke_hex = "0097c2";
+                break;
+
+                default:
+                var stroke_hex = "CCCCCC";
+
+            }
+
+            addCurve(allCurves[c], xPosition, yPosition, edgeLength, stroke_hex);
+
             yPosition += yIncrement;
-            break;
+
         }
+
     }
 
 }
