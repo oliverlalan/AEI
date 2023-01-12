@@ -188,7 +188,7 @@ function addSettingsSet(setName, settingsSet, xPosition, yPosition) {
 
 }
 
-function addSetting (selectedSetting, x, y, lineLength, circleRadius) {
+function addSetting (selectedSetting, x, y, lineLength, circleRadius, includeLabels) {
 
     var strokeWidth = circleRadius / 2;
     var labelSize = circleRadius * 4;
@@ -203,12 +203,15 @@ function addSetting (selectedSetting, x, y, lineLength, circleRadius) {
     var minSettingY = maxSettingY = settingY = y;
 
     var settingGroup = activeDocument.layerSets.add();
-    var labelLayer = addText(selectedSetting.displayName, minSettingX, minSettingY - 1.5 * labelSize, "topleft", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
-    labelLayer.name = 'Label';
-    labelLayer.move(settingGroup, ElementPlacement.INSIDE);
-    var valueLayer = addText(xmpMeta.getProperty(ns,selectedSetting.crsName), maxSettingX, minSettingY - 1.5 * labelSize, "topright", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS);
-    valueLayer.name = 'Value';
-    valueLayer.move(settingGroup, ElementPlacement.INSIDE);
+    if(includeLabels) {
+        var labelLayer = addText(selectedSetting.displayName, minSettingX, minSettingY - 1.5 * labelSize, "topleft", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+        labelLayer.name = 'Label';
+        labelLayer.move(settingGroup, ElementPlacement.INSIDE);
+        var valueLayer = addText(selectedSetting.settingValue, maxSettingX, minSettingY - 1.5 * labelSize, "topright", labelSize, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS);
+        valueLayer.name = 'Value';
+        valueLayer.move(settingGroup, ElementPlacement.INSIDE);
+    }
+    
     var lineLayer = drawLine(minSettingX, minSettingY, maxSettingX, maxSettingY);
     setShapeSettings(false, "FFFFFF", true, "FFFFFF", strokeWidth);
     lineLayer.name = 'Line';
