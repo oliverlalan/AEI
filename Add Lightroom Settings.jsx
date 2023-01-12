@@ -163,6 +163,7 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 // addHSLTable( 115, 855, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS, false) // xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization, textLabels
 // // addSettingsSet("Grain", [grainAmount, grainSize, grainFrequency], 90, 850);
 // addAllCurves(540, 360, 180) // xPosition, yPosition, edgeLength
+addColorGrades (360, 90, 67.5, 2);
 
 function addSettingsSet(setName, settingsSet, xPosition, yPosition) {
 
@@ -189,7 +190,7 @@ function addSettingsSet(setName, settingsSet, xPosition, yPosition) {
 
 function addSetting (selectedSetting, x, y, lineLength, circleRadius) {
 
-    var strokeWidth = circleRadius / 4;
+    var strokeWidth = circleRadius / 2;
     var labelSize = circleRadius * 4;
     
     var minSetting = selectedSetting.min;
@@ -1242,3 +1243,38 @@ function drawCircle(xPosition, yPosition, circleRadius) {
     return app.activeDocument.activeLayer;
     
 };
+
+function addColorGrades (xPosition, yPosition, radius, strokeWidth) {
+
+    var xIncrement = radius * 8 / 3;
+    var yIncrement = radius * 3.5;
+    
+    addColorGrade(globalHue,        globalSat,      globalLum,      radius,   xPosition,                    yPosition,     strokeWidth,      "G"); // hue, saturation, radius, xPosition, yPosition, strokeWidth
+    addColorGrade(shadowHue,        shadowSat,      shadowLum,      radius,   xPosition + xIncrement,       yPosition,     strokeWidth,      "S"); // hue, saturation, radius, xPosition, yPosition, strokeWidth
+    addColorGrade(midtoneHue,       midtoneSat,     midtoneLum,     radius,   xPosition + xIncrement * 2,   yPosition,     strokeWidth,      "M"); // hue, saturation, radius, xPosition, yPosition, strokeWidth
+    addColorGrade(highlightHue,     highlightSat,   highlightLum,   radius,   xPosition + xIncrement * 3,   yPosition,     strokeWidth,      "H"); // hue, saturation, radius, xPosition, yPosition, strokeWidth
+
+}
+
+function addColorGrade (hue, saturation, luminance, radius, xPosition, yPosition, strokeWidth, textLabel) { // hue, saturation, radius, xPosition, yPosition, strokeWidth
+
+
+    drawCircle(xPosition + radius, yPosition + radius, radius); // xPosition, yPosition, circleRadius, fillEnabled, fill_hex, strokeEnabled, stroke_hex, strokeWidth
+    setShapeSettings(false, "FFFFFF", true, "FFFFFF", strokeWidth);
+    
+    // 0.9 to avoid overlap on the extreme
+    var t_x = xPosition + saturation.settingValue * radius / 100 * 0.9 * Math.cos(hue.settingValue * Math.PI / 180);
+    var t_y = yPosition - saturation.settingValue * radius / 100 * 0.9 * Math.sin(hue.settingValue * Math.PI / 180);
+
+    drawCircle(t_x + radius, t_y + radius, radius/10);
+    setShapeSettings(false, "FFFFFF", true, "FFFFFF", strokeWidth);
+
+    addSetting (luminance, xPosition, yPosition  + radius * 7 / 3, radius * 2, 4);
+
+    // text, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+    addText(textLabel, xPosition, yPosition, "bottomright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS); // selectedSetting, xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization
+    addText(hue.displayName + hue.settingValue, xPosition, yPosition + radius * 8 / 3, "topleft", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.LEFT, TextCase.ALLCAPS);
+    addText(saturation.displayName + saturation.settingValue, xPosition + radius, yPosition + radius * 8 / 3, "topcenter", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.CENTER, TextCase.ALLCAPS);
+    addText(luminance.displayName + luminance.settingValue, xPosition + radius * 2, yPosition + radius * 8 / 3, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS);
+
+}
