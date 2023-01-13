@@ -145,7 +145,7 @@ function drawCircle(xPosition, yPosition, circleRadius, fillEnabled, fill_hex, s
     
 };
 
-addColorGrades (360, 90, 67.5, 2);
+addColorGrades (360, 90, 90, 2);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // hue angulo
