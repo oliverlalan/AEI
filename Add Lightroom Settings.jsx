@@ -1343,9 +1343,23 @@ function createUneditedCopy (docRef) {
 
     sourceFile.copy(targetFile);
 
+    if(sourceFileExtension != "dng") {
+
+        var sourceSidecarFilePath = sourceFilePath.substr(0, sourceFilePath.lastIndexOf(".")) + '.xmp';
+        sourceSidecarFile = new File(sourceSidecarFilePath);
+        sourceSidecarFile.close();
+
+        var targetSidecarFilePath = sourceFilePath.substr(0, sourceFilePath.lastIndexOf(".")) + '_unedited.xmp';
+        targetSidecarFile = new File(targetSidecarFilePath);
+        sourceSidecarFile.close();
+
+        sourceSidecarFile.copy(targetSidecarFile);
+
+    }
+
     // Update Values
     var resetParametersArray = [
-        temperature, tint, exposure,highlights,shadows,whites,blacks,
+        exposure,contrast,highlights,shadows,whites,blacks,
         texture,clarity,dehaze,vibrance,saturation,
         redHue,orangeHue,yellowHue,greenHue,aquaHue,blueHue,purpleHue,magentaHue,
         redSaturation,orangeSaturation,yellowSaturation,greenSaturation,aquaSaturation,blueSaturation,purpleSaturation,magentaSaturation,
@@ -1358,25 +1372,7 @@ function createUneditedCopy (docRef) {
         shadowTintCalibration,redHueCalibration,redSaturationCalibration,greenHueCalibration,greenSaturationCalibration,blueHueCalibration,blueSaturationCalibration
     ]
 
-    if(sourceFileExtension == "dng"){
-
-        resetSettings ( targetFilePath, resetParametersArray );
-
-    }   else    {
-
-        var sourceSidecarFilePath = sourceFilePath.substr(0, sourceFilePath.lastIndexOf(".")) + '.xmp';
-        sourceSidecarFile = new File(sourceSidecarFilePath);
-        sourceSidecarFile.close();
-
-        var targetSidecarFilePath = sourceFilePath.substr(0, sourceFilePath.lastIndexOf(".")) + '_unedited.xmp';
-        targetSidecarFile = new File(targetSidecarFilePath);
-        sourceSidecarFile.close();
-
-        sourceSidecarFile.copy(targetSidecarFile);
-
-        resetSettings ( targetSidecarFilePath, resetParametersArray );
-
-    }
+    resetSettings ( targetFilePath, resetParametersArray );
 
     placeFile(targetFile);
 
@@ -1384,27 +1380,59 @@ function createUneditedCopy (docRef) {
 
 function resetSettings (filePath, settingsArray) {
 
+    var filePathExtension = filePath.substr(filePath.lastIndexOf(".") + 1, filePath.length);
 
-    
+    if(filePathExtension == "dng") {
 
-    var xmpMeta = xmpMetaInitial;
+        xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData);
 
-    for (i = 0; i < settingsArray.length; i ++) {
+        for (i = 0; i < settingsArray.length; i ++) {
         
-        var setting = settingsArray[i];
+            var setting = settingsArray[i];
 
-        xmpMeta.setProperty(ns, setting.crsName, setting.defaultValue);
+            xmpMeta.setProperty(ns, setting.crsName, setting.defaultValue);
 
-        setting.isCustom = false;
+            setting.isCustom = false;
+
+        }
+
+        var xmpFile = new XMPFile (filePath, XMPConst.FILE_UNKNOWN, XMPConst.OPEN_FOR_UPDATE);
+
+        xmpFile.putXMP(xmpMeta.serialize());
+        xmpFile.closeFile();
+
+    }   else    {
+
+        var xmpFilePath = filePath.substr(0, filePath.lastIndexOf(".")) + '.xmp';
+        xmpFile = new File(xmpFilePath);
+
+        xmpFile.open('r');
+        xmpFile.encoding = 'UTF8';
+        xmpFile.lineFeed = 'unix';
+        xmpFile.open('r', "TEXT", "????");
+
+        var xmpInitial = xmpFile.read();
+        xmpFile.close();
+
+        xmpMeta = new XMPMeta (xmpInitial);
+
+        for (i = 0; i < settingsArray.length; i ++) {
+        
+            var setting = settingsArray[i];
+
+            xmpMeta.setProperty(ns, setting.crsName, setting.defaultValue);
+
+            setting.isCustom = false;
+
+        }
+
+        xmpFile.open('w');
+        xmpFile.encoding = 'UTF8';
+        xmpFile.lineFeed = 'unix';
+        xmpFile.write(xmpMeta.serialize());
+        xmpFile.close();
 
     }
-
-    var xmpFile = new XMPFile (filePath, XMPConst.FILE_UNKNOWN, XMPConst.OPEN_FOR_UPDATE);
-
-    var canPut = xmpFile.canPutXMP(xmpMeta.serialize())
-
-    xmpFile.putXMP(xmpMeta.serialize());
-    xmpFile.closeFile();
 
 }
 
