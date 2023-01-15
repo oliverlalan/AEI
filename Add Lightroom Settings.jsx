@@ -1361,6 +1361,7 @@ function createUneditedCopy (docRef) {
     var resetParametersArray = [
         exposure,contrast,highlights,shadows,whites,blacks,
         texture,clarity,dehaze,vibrance,saturation,
+        toneCurve, toneCurveRed, toneCurveGreen, toneCurveBlue,
         redHue,orangeHue,yellowHue,greenHue,aquaHue,blueHue,purpleHue,magentaHue,
         redSaturation,orangeSaturation,yellowSaturation,greenSaturation,aquaSaturation,blueSaturation,purpleSaturation,magentaSaturation,
         redLuminance,orangeLuminance,yellowLuminance,greenLuminance,aquaLuminance,blueLuminance,purpleLuminance,magentaLuminance,
@@ -1387,12 +1388,22 @@ function resetSettings (filePath, settingsArray) {
         xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData);
 
         for (i = 0; i < settingsArray.length; i ++) {
-        
-            var setting = settingsArray[i];
 
-            xmpMeta.setProperty(ns, setting.crsName, setting.defaultValue);
+            if ( settingsArray[i].crsName.match("ToneCurvePV2012") ){
 
-            setting.isCustom = false;
+                for (j=0; j<settingsArray[i].settingValue.length; j++) {
+
+                    xmpMeta.setArrayItem(ns, settingsArray[i].crsName, j+1, settingsArray[i].settingValue[j][0] + ", " + settingsArray[i].settingValue[j][0]);
+
+                }
+
+            } else {
+
+                xmpMeta.setProperty(ns, settingsArray[i].crsName, settingsArray[i].defaultValue);
+
+            }
+
+            settingsArray[i].isCustom = false;
 
         }
 
@@ -1417,12 +1428,22 @@ function resetSettings (filePath, settingsArray) {
         xmpMeta = new XMPMeta (xmpInitial);
 
         for (i = 0; i < settingsArray.length; i ++) {
-        
-            var setting = settingsArray[i];
 
-            xmpMeta.setProperty(ns, setting.crsName, setting.defaultValue);
+            if ( settingsArray[i].crsName.match("ToneCurvePV2012") ){
 
-            setting.isCustom = false;
+                for (j=0; j<settingsArray[i].settingValue.length; j++) {
+
+                    xmpMeta.setArrayItem(ns, settingsArray[i].crsName, j+1, settingsArray[i].settingValue[j][0] + ", " + settingsArray[i].settingValue[j][0]);
+
+                }
+
+            } else {
+
+                xmpMeta.setProperty(ns, settingsArray[i].crsName, settingsArray[i].defaultValue);
+
+            }
+
+            settingsArray[i].isCustom = false;
 
         }
 
