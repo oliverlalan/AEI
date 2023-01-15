@@ -1,6 +1,16 @@
 #target photoshop
 
+ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
+var ns = XMPConst.NS_CAMERA_RAW //"http://ns.adobe.com/camera-raw-settings/1.0/"; // Found in xmp header
+
+var rawFile = app.activeDocument.fullName;
+
+var xmpMetaInitial = new XMPMeta(app.activeDocument.xmpMetadata.rawData); 
+
 function Setting(displayName, crsName, min, max, defaultValue) {
+
+    var xmpMeta = xmpMetaInitial;
+
     this.displayName = displayName;
     this.crsName = crsName;
     this.min = min;
@@ -58,9 +68,6 @@ function arraysEqual (a, b) {
     return true;
 }
 
-var ns = "http://ns.adobe.com/camera-raw-settings/1.0/"; // Found in xmp header
-ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
-xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData); 
 
 // Basic parameters
 var temperature                   =  new Setting ( "Temperature",          "Temperature",                         +1000,  +10000  , 0);
@@ -163,7 +170,14 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 // addHSLTable( 115, 855, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS, false) // xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization, textLabels
 // // addSettingsSet("Grain", [grainAmount, grainSize, grainFrequency], 90, 850, 225);
 // addAllCurves(540, 360, 180) // xPosition, yPosition, edgeLength
-addColorGrades (135, 90, 90, 2);
+// addColorGrades (135, 90, 90, 2);
+// resetSettings([exposure, contrast, highlights, shadows, blacks, whites]);
+// setXmp(xmpFile, [exposure, contrast, highlights, shadows, blacks, whites]);
+// placeFile(rawFile);
+
+createUneditedCopy(app.activeDocument);
+// setXmp(xmpFile, []);
+
 
 function addSettingsSet(setName, settingsSet, xPosition, yPosition, lineLength) {
 
@@ -1315,5 +1329,101 @@ function addColorGrade (hue, saturation, luminance, radius, xPosition, yPosition
     luminanceLabel.move(colorGradeGroup, ElementPlacement.INSIDE);
 
     return colorGradeGroup;
+
+}
+
+function createUneditedCopy (docRef) {
+
+    var sourceFilePath = docRef.fullName.fsName;
+    var sourceFileExtension = sourceFilePath.substr(sourceFilePath.lastIndexOf(".") + 1, sourceFilePath.length);
+    sourceFile = new File(sourceFilePath);
+
+    var targetFilePath = docRef.fullName.fsName.substr(0, docRef.fullName.fsName.lastIndexOf('.')) + '_unedited.' + sourceFileExtension;
+    targetFile = new File(targetFilePath);
+
+    sourceFile.copy(targetFile);
+
+    // Update Values
+    var resetParametersArray = [
+        temperature, tint, exposure,highlights,shadows,whites,blacks,
+        texture,clarity,dehaze,vibrance,saturation,
+        redHue,orangeHue,yellowHue,greenHue,aquaHue,blueHue,purpleHue,magentaHue,
+        redSaturation,orangeSaturation,yellowSaturation,greenSaturation,aquaSaturation,blueSaturation,purpleSaturation,magentaSaturation,
+        redLuminance,orangeLuminance,yellowLuminance,greenLuminance,aquaLuminance,blueLuminance,purpleLuminance,magentaLuminance,
+        midtoneHue,midtoneSat,midtoneLum,shadowHue,shadowSat,shadowLum,highlightHue,highlightSat,highlightLum,
+        globalHue,globalSat,globalLum,blending,balance,
+        sharpeningAmount,sharpeningDetail,sharpeningMasking,sharpeningRadius,
+        luminanceNoiseReduction,colorNoiseReduction,colorNoiseReductionDetail,colorNoiseReductionSmoothness,
+        grainAmount,grainSize,grainFrequency,
+        shadowTintCalibration,redHueCalibration,redSaturationCalibration,greenHueCalibration,greenSaturationCalibration,blueHueCalibration,blueSaturationCalibration
+    ]
+
+    if(sourceFileExtension == "dng"){
+
+        resetSettings ( targetFilePath, resetParametersArray );
+
+    }   else    {
+
+        var sourceSidecarFilePath = sourceFilePath.substr(0, sourceFilePath.lastIndexOf(".")) + '.xmp';
+        sourceSidecarFile = new File(sourceSidecarFilePath);
+        sourceSidecarFile.close();
+
+        var targetSidecarFilePath = sourceFilePath.substr(0, sourceFilePath.lastIndexOf(".")) + '_unedited.xmp';
+        targetSidecarFile = new File(targetSidecarFilePath);
+        sourceSidecarFile.close();
+
+        sourceSidecarFile.copy(targetSidecarFile);
+
+        resetSettings ( targetSidecarFilePath, resetParametersArray );
+
+    }
+
+    placeFile(targetFile);
+
+}
+
+function resetSettings (filePath, settingsArray) {
+
+
+    
+
+    var xmpMeta = xmpMetaInitial;
+
+    for (i = 0; i < settingsArray.length; i ++) {
+        
+        var setting = settingsArray[i];
+
+        xmpMeta.setProperty(ns, setting.crsName, setting.defaultValue);
+
+        setting.isCustom = false;
+
+    }
+
+    var xmpFile = new XMPFile (filePath, XMPConst.FILE_UNKNOWN, XMPConst.OPEN_FOR_UPDATE);
+
+    var canPut = xmpFile.canPutXMP(xmpMeta.serialize())
+
+    xmpFile.putXMP(xmpMeta.serialize());
+    xmpFile.closeFile();
+
+}
+
+function placeFile (file) {
+
+    var desc = new ActionDescriptor();
+
+    desc.putPath(charIDToTypeID('null'), file);
+
+    desc.putEnumerated(charIDToTypeID('FTcs'), charIDToTypeID('QCSt'), charIDToTypeID('Qcsa'));
+        
+        var offsetDesc = new ActionDescriptor();
+        
+        offsetDesc.putUnitDouble(charIDToTypeID('Hrzn'), charIDToTypeID('#Pxl'), 0.000000);
+        
+        offsetDesc.putUnitDouble(charIDToTypeID('Vrtc'), charIDToTypeID('#Pxl'), 0.000000);
+    
+    desc.putObject(charIDToTypeID('Ofst'),  charIDToTypeID('Ofst'), offsetDesc);
+    
+    executeAction(charIDToTypeID('Plc '), desc, DialogModes.NO);
 
 }
