@@ -1,73 +1,11 @@
 #target photoshop
 
+var rawFile = app.activeDocument.fullName;
+
 ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
 var ns = XMPConst.NS_CAMERA_RAW //"http://ns.adobe.com/camera-raw-settings/1.0/"; // Found in xmp header
 
-var rawFile = app.activeDocument.fullName;
-
 var xmpMetaInitial = new XMPMeta(app.activeDocument.xmpMetadata.rawData); 
-
-function Setting(displayName, crsName, min, max, defaultValue) {
-
-    var xmpMeta = xmpMetaInitial;
-
-    this.displayName = displayName;
-    this.crsName = crsName;
-    this.min = min;
-    this.max = max;
-    this.defaultValue = defaultValue;
-    this.settingValue = [];
-
-    if(this.crsName.match("ToneCurvePV2012")) {
-
-        for (i=0; i<xmpMeta.countArrayItems(ns,this.crsName); i++) {
-
-            var inputValue  = parseInt(xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[0]);
-            var outputValue = parseInt(xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[1]);
-
-            this.settingValue.push([inputValue, outputValue]);
-
-        }
-
-        if (arraysEqual(this.settingValue, this.defaultValue)) {
-
-            this.isCustom = false;
-
-        } else {
-
-            this.isCustom = true;
-
-        }
-
-    } else {
-        
-        this.settingValue = xmpMeta.getProperty(ns, this.crsName);
-
-        if (this.settingValue == this.defaultValue) {
-
-            this.isCustom = false;
-
-        } else {
-
-            this.isCustom = true;
-
-        }
-
-    }
-
-}
-
-function arraysEqual (a, b) {
-    if (a===b) return true;
-    if (a == null || b == null) return false;
-    if (a.length !== b.length) return false;
-
-    for (var i = 0; i < a.length; i++) {
-        if ((a[i][0] !== b[i][0])||(a[i][1] !== b[i][1])) return false;
-    }
-    return true;
-}
-
 
 // Basic parameters
 var temperature                   =  new Setting ( "Temperature",          "Temperature",                         +1000,  +10000  , 0);
@@ -174,10 +112,58 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 // resetSettings([exposure, contrast, highlights, shadows, blacks, whites]);
 // setXmp(xmpFile, [exposure, contrast, highlights, shadows, blacks, whites]);
 // placeFile(rawFile);
-
 createUneditedCopy(app.activeDocument);
-// setXmp(xmpFile, []);
 
+
+function Setting(displayName, crsName, min, max, defaultValue) {
+
+    var xmpMeta = xmpMetaInitial;
+
+    this.displayName = displayName;
+    this.crsName = crsName;
+    this.min = min;
+    this.max = max;
+    this.defaultValue = defaultValue;
+    this.settingValue = [];
+
+    if(this.crsName.match("ToneCurvePV2012")) {
+
+        for (i=0; i<xmpMeta.countArrayItems(ns,this.crsName); i++) {
+
+            var inputValue  = parseInt(xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[0]);
+            var outputValue = parseInt(xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[1]);
+
+            this.settingValue.push([inputValue, outputValue]);
+
+        }
+
+        if (arraysEqual(this.settingValue, this.defaultValue)) {
+
+            this.isCustom = false;
+
+        } else {
+
+            this.isCustom = true;
+
+        }
+
+    } else {
+        
+        this.settingValue = xmpMeta.getProperty(ns, this.crsName);
+
+        if (this.settingValue == this.defaultValue) {
+
+            this.isCustom = false;
+
+        } else {
+
+            this.isCustom = true;
+
+        }
+
+    }
+
+}
 
 function addSettingsSet(setName, settingsSet, xPosition, yPosition, lineLength) {
 
@@ -187,13 +173,10 @@ function addSettingsSet(setName, settingsSet, xPosition, yPosition, lineLength) 
     for (i = 0; i < settingsSet.length; i++) {
 
         var settingGroup = addSetting(settingsSet[i], xPosition, yPosition, lineLength, 4, true);
-
         settingGroup.name = settingsSet[i].displayName;
 
         var dummieGroup = settingsSetGroup.layerSets.add();
-
         settingGroup.move(dummieGroup, ElementPlacement.PLACEBEFORE);
-
         dummieGroup.remove();
 
         yPosition +=45;
@@ -272,31 +255,18 @@ function drawLine( x1, y1, x2, y2) {  // x1, y1, x2, y2
 function convertPathtoShape() {
 
 	var d = new ActionDescriptor();
-
 	var d2 = new ActionDescriptor();
-
 	var d3 = new ActionDescriptor();
-
 	var d4 = new ActionDescriptor();
-
 	var r = new ActionReference();
-
 	r.putClass( stringIDToTypeID( "contentLayer" ));
-
 	d.putReference( charIDToTypeID( "null" ), r );
-
 	d4.putDouble( charIDToTypeID( "Rd  " ), 255);
-	
     d4.putDouble( charIDToTypeID( "Grn " ), 255);
-	
     d4.putDouble( charIDToTypeID( "Bl  " ), 255);
-	
     d3.putObject( charIDToTypeID( "Clr " ), charIDToTypeID( "RGBC" ), d4 );
-	
     d2.putObject( charIDToTypeID( "Type" ), stringIDToTypeID( "solidColorLayer" ), d3 );
-	
     d.putObject( charIDToTypeID( "Usng" ), stringIDToTypeID( "contentLayer" ), d2 );
-	
     executeAction( charIDToTypeID( "Mk  " ), d, DialogModes.NO );
 
 }
@@ -308,35 +278,20 @@ function setShapeSettings(fillEnabled, fill_hex, strokeEnabled, stroke_hex, stro
     try {
 
         var f = new SolidColor();
-
         f.rgb.hexValue = fill_hex;
-
         var d = new ActionDescriptor();
-
         var r = new ActionReference();
-
         r.putEnumerated(stringIDToTypeID('contentLayer'), stringIDToTypeID('ordinal'), stringIDToTypeID('targetEnum'));
-
         d.putReference(stringIDToTypeID('null'), r);
-
         var d1 = new ActionDescriptor();
-
         var d2 = new ActionDescriptor();
-
         var d3 = new ActionDescriptor();
-
         d3.putDouble(stringIDToTypeID('red'),   f.rgb.red);
-
         d3.putDouble(stringIDToTypeID('green'), f.rgb.green);
-
         d3.putDouble(stringIDToTypeID('blue'),  f.rgb.blue);
-
         d2.putObject(stringIDToTypeID('color'), stringIDToTypeID('RGBColor'), d3);
-
         d1.putObject(stringIDToTypeID('fillContents'), stringIDToTypeID('solidColorLayer'), d2);
-
         d.putObject(stringIDToTypeID('to'), stringIDToTypeID('shapeStyle'), d1);
-
         executeAction(stringIDToTypeID('set'), d, DialogModes.NO);
 
     }   catch (e) { throw(e); }
@@ -346,47 +301,26 @@ function setShapeSettings(fillEnabled, fill_hex, strokeEnabled, stroke_hex, stro
     try {
 
         var s = new SolidColor();
-
         s.rgb.hexValue = stroke_hex;
-
         var d = new ActionDescriptor();
-
         var r = new ActionReference();
-
         r.putEnumerated(stringIDToTypeID('contentLayer'), stringIDToTypeID('ordinal'), stringIDToTypeID('targetEnum'));
-
         d.putReference(stringIDToTypeID('null'), r);
-
         var d1 = new ActionDescriptor();
-
         var d2 = new ActionDescriptor();
-
         var d3 = new ActionDescriptor();
-
         var d4 = new ActionDescriptor();
-
         d4.putDouble(stringIDToTypeID('red'),   s.rgb.red);
-
         d4.putDouble(stringIDToTypeID('green'), s.rgb.green);
-
         d4.putDouble(stringIDToTypeID('blue'),  s.rgb.blue);
-
         d3.putObject(stringIDToTypeID('color'), stringIDToTypeID('RGBColor'), d4);
-
         d2.putObject(stringIDToTypeID('strokeStyleContent'), stringIDToTypeID('solidColorLayer'), d3);
-
         d2.putInteger( stringIDToTypeID( "strokeStyleVersion" ), 2 );
-
         d2.putUnitDouble( stringIDToTypeID( "strokeStyleLineWidth" ), charIDToTypeID( "#Pxl" ), strokeWidth );
-
         d2.putBoolean(stringIDToTypeID('strokeEnabled'), strokeEnabled);
-
         d2.putBoolean( stringIDToTypeID( "fillEnabled" ), fillEnabled );
-
         d1.putObject(stringIDToTypeID('strokeStyle'), stringIDToTypeID('strokeStyle'), d2);
-
         d.putObject(stringIDToTypeID('to'), stringIDToTypeID('shapeStyle'), d1);
-
         executeAction(stringIDToTypeID('set'), d, DialogModes.NO);
 
     }   catch (e) { throw(e); }
@@ -418,6 +352,17 @@ function addText (text, xPosition, yPosition, anchorPosition, fontSize, fontHexC
 
     }
 
+}
+
+function arraysEqual (a, b) {
+    if (a===b) return true;
+    if (a == null || b == null) return false;
+    if (a.length !== b.length) return false;
+
+    for (var i = 0; i < a.length; i++) {
+        if ((a[i][0] !== b[i][0])||(a[i][1] !== b[i][1])) return false;
+    }
+    return true;
 }
 
 function translateLayerTo(selectedLayer,xPosition,yPosition, anchorPosition) {
@@ -576,7 +521,6 @@ function addCurve(selectedSetting, xPosition, yPosition, edgeLength, stroke_hex)
     // app.activeDocument.selection.deselect();
 
     // Add anchor points, avoiding first and last anchor points, [0,0] and [255,255]
-
     var curveAnchorPointsGroup = activeDocument.layerSets.getByName(selectedSetting.displayName + ' Group').layerSets.add();
     curveAnchorPointsGroup.name = 'Anchor Points';
 
@@ -597,7 +541,6 @@ function addCurve(selectedSetting, xPosition, yPosition, edgeLength, stroke_hex)
     // Add anchor points labels
 
     // Compute text spacing based on number of anchor points, avoiding first and last anchor points, [0,0] and [255,255]
-
     var yIncrementsAmount = 0;
 
     for (i = 0; i < curveAnchorPoints.length; i ++) {
@@ -611,7 +554,6 @@ function addCurve(selectedSetting, xPosition, yPosition, edgeLength, stroke_hex)
     }
 
     // Initialize text positions
-
     var inputXPosition = xPosition + edgeLength * 4 / 3;
     var outputXPosition = xPosition + edgeLength * 5 / 3;
     var inputYPosition = yPosition + edgeLength * (0.6 - 0.1 * yIncrementsAmount);
@@ -619,7 +561,6 @@ function addCurve(selectedSetting, xPosition, yPosition, edgeLength, stroke_hex)
     var outputYPosition = inputYPosition;
 
     // Add text labels
-
     var curveAnchorPointsLabelsGroup = activeDocument.layerSets.getByName(selectedSetting.displayName + ' Group').layerSets.add();
     curveAnchorPointsLabelsGroup.name = 'Anchor Points Labels';
 
@@ -649,7 +590,6 @@ function addCurve(selectedSetting, xPosition, yPosition, edgeLength, stroke_hex)
     //https://github.com/kuckir/CSPL.js/blob/master/CSPL.js
     //https://blog.ivank.net/interpolation-with-cubic-splines.html
 
-    // gaussJ = {};
     function solve (A, x)	// in Matrix, out solutions
     {
         var m = A.length;
@@ -782,11 +722,8 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
                     if(textLabels == true) {
 
                         HSLTable[i][j] = HSLTable[i][j].substring(0,3);
-
                         var textLayer = addText(HSLTable[i][j], xPosition, yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);
-
                         textLayer.name = HSLTable[i][j] + ' Label';
-                        
                         textLayer.move(HSLGroup, ElementPlacement.INSIDE);
 
                     } else {
@@ -808,11 +745,8 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
                         // xPosition, yPosition, circleRadius
 
                         var circleLayer = drawCircle(xPosition, yPosition + fontSize / 3, 8);
-
                         setShapeSettings(true, fill_hex, true, stroke_hex, 1.5);
-
                         circleLayer.name = HSLTable[i][j] + ' Label';
-                        
                         circleLayer.move(HSLGroup, ElementPlacement.INSIDE);
 
                     }
@@ -828,13 +762,11 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
                 if(i == 0) {
 
                     textLayer.name = HSLTable[i][j] + ' Label';
-                        
                     textLayer.move(HSLGroup, ElementPlacement.INSIDE);
 
                 }   else    {
 
-                    textLayer.name = HSLTable[i][0] + ' ' + HSLTable[0][j] + ': ' + textLayer.name;
-                        
+                    textLayer.name = HSLTable[i][0] + ' ' + HSLTable[0][j] + ': ' + textLayer.name;  
                     textLayer.move(HSLGroup, ElementPlacement.INSIDE);
 
                 }
@@ -846,16 +778,11 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
         } 
 
         xPosition = xInitialPosition;
-
         yPosition += 35;
 
     }
     
 }
-
-// Source: https://community.adobe.com/t5/photoshop-ecosystem-discussions/histogram-passed-and-drawn-into-a-layer-done/m-p/9581663
-
-///////////////////////////////  HISTOGRAM IN LAYER   ///////////////////////////////////
 
 function addHistograms(xPosition, yPosition, height, width) {
 
@@ -879,6 +806,8 @@ function addHistograms(xPosition, yPosition, height, width) {
 
 }
 
+// Source: https://community.adobe.com/t5/photoshop-ecosystem-discussions/histogram-passed-and-drawn-into-a-layer-done/m-p/9581663
+
 function addHistogram(histogramType, xPosition, yPosition, graphHeight, graphWidth) {
 
     // the other layer histograms, if exist, should be invisible so the reading is only on the pixels of the image itself
@@ -891,66 +820,43 @@ function addHistogram(histogramType, xPosition, yPosition, graphHeight, graphWid
     if (getLayer("MaxRGB histogram")) activeDocument.artLayers.getByName ("MaxRGB histogram").visible = false;
 
     var layerName = histogramType + " histogram"
-    //
 
     if (!getLayer(layerName)) {
 
         // it works only on RGB images
-
         if (activeDocument.mode == DocumentMode.RGB) {
 
             // if the image is 16bit/channel or more it sets 8bits/channel before read the histogram
-
             if (!activeDocument.bitsPerChannel == BitsPerChannelType.EIGHT) activeDocument.bitsPerChannel = BitsPerChannelType.EIGHT;
-
-            var wasHereLayer = activeDocument.activeLayer;
-
-            var unitsAntes = app.preferences.rulerUnits;
-
             app.preferences.rulerUnits = Units.PIXELS; // importante
-
             activeDocument.quickMaskMode = false;
-
             activeDocument.selection.deselect();
 
             // read histogram:
-
             var hL = activeDocument.histogram;
-
             var hR = activeDocument.channels["Red"].histogram;
-
             var hG = activeDocument.channels["Green"].histogram;
-
             var hB = activeDocument.channels["Blue"].histogram;
 
             if (histogramType == "Lab") {
 
                 activeDocument.changeMode (ChangeMode.LAB);
-
                 var hLab = activeDocument.channels["Lightness"].histogram;
-
                 activeDocument.changeMode (ChangeMode.RGB);
 
             }
 
             // add layer
-
             activeDocument.artLayers.add();
-
             activeDocument.activeLayer.name = layerName;
-
             activeDocument.activeLayer.move( activeDocument, ElementPlacement.PLACEATBEGINNING );
-
             activeDocument.activeLayer.blendMode = BlendMode.SCREEN; // blending mode "normal"
-
             activeDocument.activeLayer.opacity = 100; // opacity 100%
 
             //
 
             var myHist = [];
-
             var histogramPoints = [];
-
             var histogramHexColor = "FFFFFF";
 
             // find maxY for normalizing graph
@@ -1037,8 +943,6 @@ function addHistogram(histogramType, xPosition, yPosition, graphHeight, graphWid
 
             drawSmoothHistogram(histogramPoints, xPosition, yPosition, fillEnabled, fill_hex, strokeEnabled, stroke_hex, 2);
 
-            app.preferences.rulerUnits = unitsAntes;
-
             return app.activeDocument.activeLayer;
 
         } else {
@@ -1112,7 +1016,6 @@ function addHistogram(histogramType, xPosition, yPosition, graphHeight, graphWid
             if (String(activeDocument.artLayers[a].name) == layername) {
 
                 result = true;
-
                 break;
 
             }
@@ -1132,10 +1035,10 @@ function drawGrid (x, y, width, height, columns, rows, strokeWidth, stroke_hex, 
     var pX2 = x + strokeWidth / 2;
     var pY2 = y + height;
 
-    var xIncrement = (width - strokeWidth) / (columns - 1);
-    var yIncrement = (height - strokeWidth) / (rows - 1);
+    var xIncrement = (width - strokeWidth) / (columns);
+    var yIncrement = (height - strokeWidth) / (rows);
 
-    for ( i = 0; i < columns; i ++) {
+    for ( i = 0; i < columns + 1; i ++) {
 
         drawLine(pX1, pY1, pX2, pY2);
         setShapeSettings(false, "FFFFFF", true, stroke_hex, strokeWidth);
@@ -1216,43 +1119,24 @@ function drawCircle(xPosition, yPosition, circleRadius) {
     try {
 
         var d = new ActionDescriptor();
-
         var r = new ActionReference();
-        
         r.putClass(stringIDToTypeID("contentLayer"));
-        
         d.putReference(charIDToTypeID('null'), r);
-        
         var d1 = new ActionDescriptor();
-        
         var d2 = new ActionDescriptor();
-        
         var d3 = new ActionDescriptor();
-        
         d3.putDouble(charIDToTypeID('Rd  '), 255);
-        
         d3.putDouble(charIDToTypeID('Grn '), 255);
-        
         d3.putDouble(charIDToTypeID('Bl  '), 255);
-        
         d2.putObject(charIDToTypeID('Clr '), stringIDToTypeID("RGBColor"), d3);
-        
         d1.putObject(charIDToTypeID('Type'), stringIDToTypeID("solidColorLayer"), d2);
-        
         var d4 = new ActionDescriptor();
-        
         d4.putUnitDouble(charIDToTypeID('Top '), charIDToTypeID('#Pxl'), yPosition - circleRadius);
-        
         d4.putUnitDouble(charIDToTypeID('Left'), charIDToTypeID('#Pxl'), xPosition - circleRadius);
-        
         d4.putUnitDouble(charIDToTypeID('Btom'), charIDToTypeID('#Pxl'), yPosition + circleRadius);
-        
         d4.putUnitDouble(charIDToTypeID('Rght'), charIDToTypeID('#Pxl'), xPosition + circleRadius);
-        
         d1.putObject(charIDToTypeID('Shp '), charIDToTypeID('Elps'), d4);
-        
         d.putObject(charIDToTypeID('Usng'), stringIDToTypeID("contentLayer"), d1);
-        
         executeAction(charIDToTypeID('Mk  '), d, DialogModes.NO);
 
     }   catch (e) { throw(e); }
@@ -1276,11 +1160,9 @@ function addColorGrades (xPosition, yPosition, radius, strokeWidth) {
     for (cg = 0; cg < colorGrades.length; cg++) {
 
         var colorGradeGroup = addColorGrade(colorGrades[cg][0], colorGrades[cg][1], colorGrades[cg][2], radius, xPosition, yPosition, strokeWidth, colorGrades[cg][3]);
-
+        
         var dummieGroup = colorGradesGroup.layerSets.add();
-
         colorGradeGroup.move(dummieGroup, ElementPlacement.PLACEBEFORE);
-
         dummieGroup.remove();
 
         yPosition += radius * 3;
@@ -1460,19 +1342,12 @@ function resetSettings (filePath, settingsArray) {
 function placeFile (file) {
 
     var desc = new ActionDescriptor();
-
     desc.putPath(charIDToTypeID('null'), file);
-
     desc.putEnumerated(charIDToTypeID('FTcs'), charIDToTypeID('QCSt'), charIDToTypeID('Qcsa'));
-        
         var offsetDesc = new ActionDescriptor();
-        
         offsetDesc.putUnitDouble(charIDToTypeID('Hrzn'), charIDToTypeID('#Pxl'), 0.000000);
-        
         offsetDesc.putUnitDouble(charIDToTypeID('Vrtc'), charIDToTypeID('#Pxl'), 0.000000);
-    
     desc.putObject(charIDToTypeID('Ofst'),  charIDToTypeID('Ofst'), offsetDesc);
-    
     executeAction(charIDToTypeID('Plc '), desc, DialogModes.NO);
 
 }
