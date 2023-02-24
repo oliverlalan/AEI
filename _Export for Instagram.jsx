@@ -33,14 +33,21 @@ var fillColor = "8C8C8C";
 var strokeColor = "FFFFFF";
 var strokeWidth = 2;
 
-var panelBackgroundColor = "000000";
+var maskVisibleColor = "000000";
+var maskInvisibleColor = "FFFFFF";
+
+var darkGlassDesign = "full";
+
 var panelBackgroundOpacity = 65;
 var panelBackgroundDesign = "vertical-3/8";
 
 
 var targetWidth = 1080;
 var targetHeight = 1350;
-var blurSize = targetWidth / 216;
+
+var blurPixelRadius = targetWidth / 216;
+var noiseAmount = 3;
+var toneCurveMaxOutput = 90;
 
 
 // Photo parameters
@@ -136,7 +143,7 @@ var redSaturationCalibration      =  new Setting ( "Red Saturation",       "RedS
 var greenHueCalibration           =  new Setting ( "Green Hue",            "GreenHue",                            -100,   +100    , 0);
 var greenSaturationCalibration    =  new Setting ( "Green Saturation",     "GreenSaturation",                     -100,   +100    , 0);
 var blueHueCalibration            =  new Setting ( "Blue Hue",             "BlueHue",                             -100,   +100    , 0);
-var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "BlueSaturation",                      -100,   +100    , 0);
+var blueSaturationCalibration     =  new Setting ( "Blue Saturatmetersion",      "BlueSaturation",                      -100,   +100    , 0);
 
 
 
@@ -144,10 +151,10 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // Playground
+// addHistograms(100, 100, 256, 256, 2);
 
-
+// addPrintedPhoto(app.activeDocument.activeLayer);
 // var refLayerName = "Layer 0"
 // addBasicPanel();
 // addColorMixerPanel();
@@ -165,15 +172,21 @@ convertColorProfileToSRGB(docRef);
 var uneditedFile = createUneditedCopy(docRef);
 var docRef_unedited = app.open(targetFile, OpenDocumentType.CAMERARAW, false);
 openAsLayer(docRef_unedited);
+app.activeDocument.activeLayer.name = docRefName;
 convertColorProfileToSRGB(docRef_unedited);
 
 // Original - Instagram version
-var docRef_before = duplicateDocument(docRef_unedited, "resizeToFit_before");
+var docRef_before = duplicateDocument(docRef_unedited, "resizedToFit_before");
 resizeImageToFitCanvas(docRef_before, targetWidth, targetHeight);
 
 // Unedited - Instagram version
-var docRef_after = duplicateDocument(docRef, "resizeToFit_before_after");
+var docRef_after = duplicateDocument(docRef, "resizedToFit_after");
 resizeImageToFitCanvas(docRef_after, targetWidth, targetHeight);
+
+// Unedited - printedPhoto version
+var docRef_printedPhoto = duplicateDocument(docRef, "printedPhoto");
+resizeImageToFitCanvas(docRef_printedPhoto, targetWidth, targetHeight);
+addPrintedPhoto(docRef_printedPhoto.activeLayer);
 
 // Resize to desired working size
 resizeImageToFillCanvas(docRef, targetWidth, targetHeight);
@@ -222,45 +235,44 @@ addMask('vertical');
 addBeforeAfterLabels ('vertical');
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
-
 // Create panel_basic version
 var docRef_panel_basic = duplicateDocument(docRef, "panel_basic");
-addPanelBackground (panelBackgroundColor, panelBackgroundOpacity, panelBackgroundDesign);
+addDarkGlassLayer(undefined, "leftsidebar");
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var basicPanelGroup = addBasicPanel();
 
 // Create panel_toneCurve version
 var docRef_panel_toneCurves = duplicateDocument(docRef, "panel_toneCurves");
-addPanelBackground (panelBackgroundColor, panelBackgroundOpacity, panelBackgroundDesign);
+addDarkGlassLayer(undefined, "leftsidebar");
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var toneCurvesPanelGroup = addToneCurvesPanel();
 
 // Create panel_colorMixer version
 var docRef_panel_colorMixer = duplicateDocument(docRef, "panel_colorMixer");
-addPanelBackground (panelBackgroundColor, panelBackgroundOpacity, panelBackgroundDesign);
+addDarkGlassLayer(undefined, "leftsidebar");
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var colorMixerPanelGroup = addColorMixerPanel();
 
 // Create panel_colorGrading version
 var docRef_panel_colorGrading = duplicateDocument(docRef, "panel_colorGrading");
-addPanelBackground (panelBackgroundColor, panelBackgroundOpacity, panelBackgroundDesign);
+addDarkGlassLayer(undefined, "leftsidebar");
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var colorGradingPanelGroup = addColorGradingPanel();
 
 // Create panel_all version
 var docRef_panel_all = duplicateDocument(docRef, "panel_all");
-addPanelBackground (panelBackgroundColor, panelBackgroundOpacity, "full");
+addDarkGlassLayer(undefined, "center");
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var allPanelsGroup = addAllPanels();
 
 // Create preset_info version
 var docRef_preset = duplicateDocument(docRef, "preset");
-addPanelBackground (panelBackgroundColor, panelBackgroundOpacity, "full");
+addDarkGlassLayer(undefined, "center");
 var presetInfoGroup = addPresetInfo();
 
 // Create photo_context version
 var docRef_photoContext = duplicateDocument(docRef, "photoContext");
-addPanelBackground (panelBackgroundColor, panelBackgroundOpacity, "full");
+addDarkGlassLayer(undefined, "center");
 var photoContextGroup = addPhotoContext();
 
 // Create camera_settings version
@@ -380,6 +392,10 @@ function getDocumentProperty(propertyName) {
                 break;
 
                 case "Sony A7IV":
+                    propertyValue= "Sony A7 Mark IV";
+                break;
+
+                case "ILCE-7M4":
                     propertyValue= "Sony A7 Mark IV";
                 break;
 
@@ -531,16 +547,20 @@ function findPresetInfoInKeywords () {
 
     var docKeywords = getDocumentKeywords();
 
-    var presetInfo;
-
     for (var i=0; i<docKeywords.length; i++) {
 
-        if(docKeywords[i].match("Preset")) presetInfo = docKeywords[i] break;
+        if(docKeywords[i].match("Preset")) var presetInfo = docKeywords[i] break;
 
     }
 
-    var presetPackName = presetInfo.split("|")[1];
-    var presetName = presetInfo.split("|")[2];
+    if(presetInfo == undefined) {
+        var presetPackName = "Unknown";
+        var presetName = "Unknown";
+    }   else{
+        var presetPackName = presetInfo.split("|")[1];
+        var presetName = presetInfo.split("|")[2];
+    }
+
 
     return { 
         'presetPackName': presetPackName, 
@@ -672,9 +692,9 @@ function exportDocumentsAsPNG (documentsArray, path) {
 
     if(documentsArray == undefined) documentsArray = app.documents;
 
-    for (doc = 0; doc < documentsArray.length; doc ++) {
+    for (var i = 0; i < documentsArray.length; i ++) {
 
-        exportCopyAsPNG(documentsArray[doc], docRefPath);
+        exportCopyAsPNG(documentsArray[i], docRefPath, undefined);
 
     }
 
@@ -691,7 +711,7 @@ function exportCopyAsPNG(selectedDocument, filePath, fileName, filePreffix, file
     }
 
     if (fileName === undefined) {
-        fileName = selectedDocument.name.substr(0, selectedDocument.name.lastIndexOf('.'));
+        fileName = selectedDocument.name;
     }
 
     if (fileSuffix !== undefined) {
@@ -775,6 +795,8 @@ function resetSettings (filePath, settingsArray) {
     if(filePathExtension == "dng") {
 
         xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData);
+
+        xmpMeta.setProperty(ns, "AlreadyApplied", false);
 
         for (i = 0; i < settingsArray.length; i ++) {
 
@@ -1018,17 +1040,28 @@ function addMask(fillShape){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function makeClippingMask (selectedLayer) {
+
+    app.activeDocument.activeLayer = selectedLayer;
+
+    var desc = new ActionDescriptor();
+    var ref = new ActionReference();
+
+    ref.putEnumerated( charIDToTypeID( "Lyr " ), charIDToTypeID( "Ordn" ), charIDToTypeID( "Trgt" ) );
+    desc.putReference( charIDToTypeID( "null" ), ref );
+
+    executeAction( charIDToTypeID( "GrpL" ), desc, DialogModes.NO );
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function addFile (filePath) {
 
     file = new File(filePath);
 
     var desc = new ActionDescriptor();
     desc.putPath(charIDToTypeID('null'), file);
-    desc.putEnumerated(charIDToTypeID('FTcs'), charIDToTypeID('QCSt'), charIDToTypeID('Qcsa'));
-        var offsetDesc = new ActionDescriptor();
-        offsetDesc.putUnitDouble(charIDToTypeID('Hrzn'), charIDToTypeID('#Pxl'), 0.000000);
-        offsetDesc.putUnitDouble(charIDToTypeID('Vrtc'), charIDToTypeID('#Pxl'), 0.000000);
-    desc.putObject(charIDToTypeID('Ofst'),  charIDToTypeID('Ofst'), offsetDesc);
     executeAction(charIDToTypeID('Plc '), desc, DialogModes.NO);
 
     return app.activeDocument.activeLayer;
@@ -1153,17 +1186,46 @@ function resizeLayerToFillDimensions (selectedLayer, placeholderWidth, placehold
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function makeDarkerNoisierBlurier(selectedLayer, blur, noise, dark) {
-    
-    selectedLayer.activeLayer;
+// resizeLayerToFitDimensions (app.activeDocument.activeLayer, 1000, 1000);
 
-    targetLayer.duplicate(targetLayer, ElementPlacement.PLACEAFTER);
+function resizeLayerToFitDimensions (selectedLayer, placeholderWidth, placeholderHeight) {
 
-    targetLayer.applyGaussianBlur(blur);
+    var placeholderWidth = new UnitValue (placeholderWidth, 'px');
+    var placeholderHeight = new UnitValue (placeholderHeight, 'px');
+    var placeholderAspectRatio = placeholderWidth / placeholderHeight;
 
-    targetLayer.adjustCurves([[0,0],[255,dark]]);
+    // Resize layers
+    var layerWidth = new UnitValue(selectedLayer.bounds[2].value - selectedLayer.bounds[0].value, 'px');
+    var layerHeight = new UnitValue(selectedLayer.bounds[3].value - selectedLayer.bounds[1].value, 'px');
+    var layerAspectRatio = layerWidth / layerHeight;
 
-    targetLayer.applyAddNoise(noise, NoiseDistribution.GAUSSIAN, true);
+    if(placeholderAspectRatio > layerAspectRatio) {
+
+        var resizeRatio = placeholderHeight / layerHeight * 100;
+
+    } else {
+
+        var resizeRatio = placeholderWidth / layerWidth * 100;
+
+    }
+
+    activeDocument.artLayers.add().remove();
+
+    selectedLayer.resize(resizeRatio, resizeRatio, AnchorPosition.MIDDLECENTER);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function makeDarkerNoisierBlurier(selectedLayer, blurPixelRadius, noiseAmount, toneCurveMaxOutput) {
+
+    if(selectedLayer == undefined) { selectedLayer = app.activeDocument.activeLayer }
+
+    selectedLayer.applyGaussianBlur(blurPixelRadius);
+
+    selectedLayer.adjustCurves([[0, 0], [255, toneCurveMaxOutput]]);
+
+    selectedLayer.applyAddNoise(noiseAmount, NoiseDistribution.GAUSSIAN, true);
 
 }
 
@@ -1345,7 +1407,7 @@ function addMetadata (exifTag, fontSize, textColor, fontName, fontTracking, incl
                     var leading = parseInt(textLayer.textItem.leading);
                     textLayer.textItem.leading = new UnitValue(leading * 1.05, "px"); // To decrease iterations.
                 }
-                while(textBoxDimensions.height > getRealTextLayerDimensions(textLayer).height);
+                while(textBoxDimensions.height > getRealTextLayerProperties(textLayer).height);
 
                 textLayer.textItem.leading = new UnitValue(leading, "px"); //To ensure it fits.
 
@@ -1353,25 +1415,6 @@ function addMetadata (exifTag, fontSize, textColor, fontName, fontTracking, incl
                     return { 
                         width : layer.textItem.width,
                         height : layer.textItem.height
-                    };
-                }
-
-                function getRealTextLayerDimensions(textLayer) {
-                    var textLayerCopy = textLayer.duplicate(activeDocument, ElementPlacement.INSIDE);
-
-                    textLayerCopy.textItem.height = activeDocument.height;
-                    textLayerCopy.rasterize(RasterizeType.TEXTCONTENTS);
-
-                    var dimensions = getLayerDimensions(textLayerCopy);
-                    textLayerCopy.remove();
-
-                    return dimensions;
-                }
-
-                function getLayerDimensions(layer) {
-                    return { 
-                        width : layer.bounds[2] - layer.bounds[0],
-                        height : layer.bounds[3] - layer.bounds[1]
                     };
                 }
 
@@ -1393,6 +1436,7 @@ function addBeforeAfterLabels (fillDesign) {
     //     toneCurveBackgroundGradient.name = selectedSetting.displayName + 'Background Gradient';
     //     moveLayerInsideLayerset(toneCurveBackgroundGradient, toneCurveGroup);
 
+    // Document parameters
     var docWidth = activeDocument.width.as('px');
     var docHeight = activeDocument.height.as('px');
 
@@ -1548,7 +1592,7 @@ function addLogo (logoVariation, logoPosition, relativeTargetHeight) {
     var logoGroup = activeDocument.layerSets.add();
     logoGroup.name = "Logo Group";
 
-    // Parameters
+    // Document parameters
     var docWidth = app.activeDocument.width.as('px');
     var docHeight = app.activeDocument.height.as('px');
 
@@ -1639,8 +1683,14 @@ function standardPosition (standardPositionName) {
         case 'center':
         var xPosition = docWidth / 2;
         var yPosition = docHeight / 2;
-        var anchorPosition = "bottomright";
+        var anchorPosition = "middlecenter";
         break;
+
+        case 'leftsidebar':
+        var xPosition = docWidth * 3 /8;
+        var yPosition = docHeight / 2;
+        var anchorPosition = "middleright";
+        
 
     }
 
@@ -1656,6 +1706,7 @@ function standardPosition (standardPositionName) {
 
 function drawStandardShape (standardShapenName) {
 
+    // Document parameters
     var docWidth = app.activeDocument.width.as('px');
     var docHeight = app.activeDocument.height.as('px');
 
@@ -1721,7 +1772,7 @@ function drawStandardShape (standardShapenName) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function addPanelBackground (panelBackgroundColor, panelBackgroundOpacity, panelBackgroundDesign) {
+function addPanelBackground (maskVisibleColor, panelBackgroundOpacity, panelBackgroundDesign) {
 
     // Add group
     var panelBackgroundGroup = activeDocument.layerSets.add();
@@ -1729,13 +1780,49 @@ function addPanelBackground (panelBackgroundColor, panelBackgroundOpacity, panel
 
     // Add layer
     var panelBackgroundLayer = drawStandardShape(panelBackgroundDesign);
-    setShapeSettings(true, panelBackgroundColor, false);
+    setShapeSettings(true, maskVisibleColor, false);
     panelBackgroundLayer.opacity = panelBackgroundOpacity;
     panelBackgroundLayer.name = "Background";
 
     moveLayerInsideLayerset(panelBackgroundLayer, panelBackgroundGroup);
 
     return panelBackgroundGroup;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function addDarkGlassLayer (selectedLayer, darkGlassDesign) {
+
+    var docWidth = app.activeDocument.width;
+    var docHeight = app.activeDocument.height;
+
+    // Add Group
+    var darkGlassGroup = activeDocument.layerSets.add();
+    darkGlassGroup.name = "Dark Glass";
+
+    // Add Mask
+    var darkGlassMask = drawStandardShape("full");
+    setShapeSettings(true, maskVisibleColor, false);
+    darkGlassMask.name = "Dark Glass Mask";
+    moveLayerInsideLayerset(darkGlassMask, darkGlassGroup);
+
+    // Translate mask
+    var darkGlassGroupPosition = standardPosition(darkGlassDesign)
+    translateLayerTo(darkGlassMask, darkGlassGroupPosition.xPosition, darkGlassGroupPosition.yPosition, darkGlassGroupPosition.anchorPosition);
+
+    // Add Glass
+    if(selectedLayer == undefined) { selectedLayer = app.activeDocument.artLayers.getByName(docRefName) }
+    var darkGlassLayer = selectedLayer.duplicate(darkGlassGroup, ElementPlacement.INSIDE);
+    darkGlassLayer.name = "Dark Glass";
+
+    // Apply Effects
+    darkGlassLayer.applyGaussianBlur(blurPixelRadius);
+    darkGlassLayer.adjustCurves([[0, 0], [255, toneCurveMaxOutput]]);
+    darkGlassLayer.applyAddNoise(noiseAmount, NoiseDistribution.GAUSSIAN, true);
+
+    // Apply mask
+    makeClippingMask (darkGlassLayer);
 
 }
 
@@ -2329,7 +2416,7 @@ function addBasicPanel(panelXPosition, panelYPosition) {
     var groupYPosition = panelYPosition;
     
 
-    // Parameters TODO: Define based in document dimensions
+    // Parameters TODO: Define based in document layerProperties
     var sliderSettingsSetSpacing = 60;
     var sliderLineLength = histogramWidth = histogramHeigth =  docWidth * 5 / 24;
     var sliderStyle = "horizontal";
@@ -3306,24 +3393,24 @@ function addAllPanels(panelXPosition, panelYPosition) { //TODO: Define alternati
     groupXPosition += groupXPositionIncrement;
 
     // Create panel_colorGrading version
-    var allPanelsColorGradingGroup = addColorGradingPanel(groupXPosition, groupYPosition);
-    moveLayerInsideLayerset(allPanelsColorGradingGroup, allPanelsGroup);
-    groupXPosition += groupXPositionIncrement;
+    // var allPanelsColorGradingGroup = addColorGradingPanel(groupXPosition, groupYPosition);
+    // moveLayerInsideLayerset(allPanelsColorGradingGroup, allPanelsGroup);
+    // groupXPosition += groupXPositionIncrement;
 
     // Create panel_toneCurve version
-    // var allPanelsToneCurvesGroup = addToneCurvesPanel(groupXPosition, groupYPosition);
-    // moveLayerInsideLayerset(allPanelsToneCurvesGroup, allPanelsGroup);
-    // groupXPosition += groupXPositionIncrement;
-
-    // Create panel_HSLTable version
-    var allPanelsHSLTableGroup = addHSLTablePanel( groupXPosition, groupYPosition, false);
-    moveLayerInsideLayerset(allPanelsHSLTableGroup, allPanelsGroup);
+    var allPanelsToneCurvesGroup = addToneCurvesPanel(groupXPosition, groupYPosition);
+    moveLayerInsideLayerset(allPanelsToneCurvesGroup, allPanelsGroup);
     groupXPosition += groupXPositionIncrement;
 
-    // Create panel_colorMixer version
-    // var allPanelsColorMixerGroup = addColorMixerPanel(groupXPosition, groupYPosition);
-    // moveLayerInsideLayerset(allPanelsColorMixerGroup, allPanelsGroup);
+    // Create panel_HSLTable version
+    // var allPanelsHSLTableGroup = addHSLTablePanel( groupXPosition, groupYPosition, false);
+    // moveLayerInsideLayerset(allPanelsHSLTableGroup, allPanelsGroup);
     // groupXPosition += groupXPositionIncrement;
+
+    // Create panel_colorMixer version
+    var allPanelsColorMixerGroup = addColorMixerPanel(groupXPosition, groupYPosition);
+    moveLayerInsideLayerset(allPanelsColorMixerGroup, allPanelsGroup);
+    groupXPosition += groupXPositionIncrement;
 
     return allPanelsGroup;
 
@@ -3337,7 +3424,7 @@ function addPresetInfo() {
     var presetInfoGroup = activeDocument.layerSets.add();
     presetInfoGroup.name = "Preset Info";
 
-    // Doc parameters
+    // Document parameters
     var docWidth = app.activeDocument.width.as('px');
     var docHeight = app.activeDocument.height.as('px');
 
@@ -3355,18 +3442,18 @@ function addPresetInfo() {
     fitTextLayerToWidth (presetPackNameLayer, docWidth * 16 / 24);
     translateLayerTo(presetPackNameLayer, docWidth / 2, docHeight * 13 / 30, "bottomcenter");
     moveLayerInsideLayerset(presetPackNameLayer, presetInfoGroup);
-    var presetPackNameLabelLayer =  addText ("preset pack", docWidth / 2, docHeight * 14 / 30, "bottomcenter", 24, fontHexColor, "WorkSansRoman-Regular", 1000,  Justification.CENTER, TextCase.ALLCAPS);
+    var presetPackNameLabelLayer =  addText ("Preset pack", docWidth / 2, docHeight * 14 / 30, "bottomcenter", 24, fontHexColor, "WorkSansRoman-Regular", 1000,  Justification.CENTER, TextCase.ALLCAPS);
     moveLayerInsideLayerset(presetPackNameLabelLayer, presetInfoGroup);
 
     // Made by
-    var madeByTextLayer =           addText ("made with ❤️ by", docWidth / 2, docHeight * 18 / 30, "topcenter", 24, fontHexColor, "WorkSansRoman-Regular", 150,  Justification.CENTER, TextCase.ALLCAPS);
+    var madeByTextLayer =           addText ("Made with \u2764 by", docWidth / 2, docHeight * 18 / 30, "topcenter", 24, fontHexColor, "WorkSansRoman-Regular", 150,  Justification.CENTER, TextCase.ALLCAPS);
     set_text_style(10, 1, 24, "EmojiOneColor");
     moveLayerInsideLayerset(madeByTextLayer, presetInfoGroup);
     var madeByLogoLayer =           placeFile(logosPath + "ChainCircle x Raleway_White - Vertical" + ".ai", 8 / 3 / 30, docWidth / 2, docHeight * 22 / 30, "bottomcenter");
     moveLayerInsideLayerset(madeByLogoLayer, presetInfoGroup);
 
     // Available for
-    var availableForTextLayer =     addText ("available for", docWidth * 3 / 24, docHeight * 26 / 30, "topleft", 24, fontHexColor, "WorkSansRoman-Regular", 150,  Justification.LEFT, TextCase.ALLCAPS);
+    var availableForTextLayer =     addText ("Available for", docWidth * 3 / 24, docHeight * 26 / 30, "topleft", 24, fontHexColor, "WorkSansRoman-Regular", 150,  Justification.LEFT, TextCase.ALLCAPS);
     moveLayerInsideLayerset(availableForTextLayer, presetInfoGroup);
     var lightroomIconLayer =        placeFile(logosPath + "Adobe Lightroom Logo" + ".ai",           1 / 30, docWidth * 3 / 24, docHeight * 28 / 30, "bottomleft");
     moveLayerInsideLayerset(lightroomIconLayer, presetInfoGroup);
@@ -3386,15 +3473,17 @@ function addPresetInfo() {
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function addPhotoContext() {
 
     // Group definition
     var photoContextGroup = activeDocument.layerSets.add();
     photoContextGroup.name = "Photo Context";
 
-    // Doc parameters
-    docWidth = app.activeDocument.width.as('px');
-    docHeight = app.activeDocument.height.as('px');
+    // Document parameters
+    var docWidth = app.activeDocument.width.as('px');
+    var docHeight = app.activeDocument.height.as('px');
 
     // Parameters
     fontSize = 30;
@@ -3409,16 +3498,21 @@ function addPhotoContext() {
     };
 
     // Add location
-    var photoContextLocation =  addText (getDocumentProperty("Location"), docWidth * 3 / 24, docHeight * 4.5 / 30, "topleft", fontSize, fontHexColor, fontName, fontTracking, Justification.LEFT, fontCapitalization)
+    var locationContent = getDocumentProperty("Location");
+    var photoContextLocation =  addText (locationContent, docWidth * 3 / 24, docHeight * 4.5 / 30, "topleft", fontSize, fontHexColor, fontName, fontTracking, Justification.LEFT, fontCapitalization)
     moveLayerInsideLayerset(photoContextLocation, photoContextGroup);
 
     // Add date
-    var photoContextDate =      addText (getDocumentProperty("Date"), docWidth * 21 / 24, docHeight * 4.5 / 30, "topright", fontSize, fontHexColor, fontName, fontTracking, Justification.RIGHT, fontCapitalization)
+    var dateContent = getDocumentProperty("Date");
+    var photoContextDate =      addText (dateContent, docWidth * 21 / 24, docHeight * 4.5 / 30, "topright", fontSize, fontHexColor, fontName, fontTracking, Justification.RIGHT, fontCapitalization)
     moveLayerInsideLayerset(photoContextDate, photoContextGroup);
 
     // Add caption
-    var photoContextCaption =   addText (getDocumentProperty("Caption"), docWidth * 3 / 24, docHeight * 8 / 30, "topleft", fontSize, fontHexColor, fontName, fontTracking, Justification.CENTER, fontCapitalization)
-    fitTextLayerToBox (photoContextCaption, margins.left, margins.top, margins.right, margins.bottom);
+    var captionContent = getDocumentProperty("Caption");
+    var photoContextCaption =   addText (captionContent, docWidth * 3 / 24, docHeight * 8 / 30, "topleft", fontSize, fontHexColor, fontName, fontTracking, Justification.CENTER, fontCapitalization)
+    if(captionContent && captionContent.length>50)  {
+        fitTextLayerToBox (photoContextCaption, margins.left, margins.top, margins.right, margins.bottom);
+    }
     moveLayerInsideLayerset(photoContextCaption, photoContextGroup);
 
     // Add logo
@@ -3426,6 +3520,62 @@ function addPhotoContext() {
     moveLayerInsideLayerset(photoContextLogoLayer, photoContextGroup);
 
     return photoContextGroup;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function addPrintedPhoto(photoLayer) {
+
+    // Group definition
+    var printedPhotoGroup = activeDocument.layerSets.add();
+    printedPhotoGroup.name = "PrintedPhoto";
+
+    // Document parameters
+    var docWidth = app.activeDocument.width.as('px');
+    var docHeight = app.activeDocument.height.as('px');
+
+    // Define global lighting
+    setGlobalLighting(90, 30);
+
+    // Add background
+    var backgroundImagePath = "/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram%20Photos/Assets/Textures/marble-color.png" 
+    var gradientType = "radial";
+    var gradientStops = [{ color: "000000",  opacity: 0 ,    midPoint: 70}, { color: "000000",  opacity: 25 ,  midPoint: 70}];
+    var gradientAngle = 0;
+    var gradientOffset = [0,0];
+
+    var backgroundImageLayer = placeFileRandomly(backgroundImagePath);
+    backgroundImageLayer.name = "Background Image";
+    moveLayerInsideLayerset(backgroundImageLayer, printedPhotoGroup);
+    var backgroundGradientLayer = drawStandardShape("full");
+    backgroundGradientLayer.name = "Background Gradient";
+    fillShapeWithGradient(gradientType, gradientStops, gradientAngle, gradientOffset);
+    moveLayerInsideLayerset(backgroundGradientLayer, printedPhotoGroup);
+
+    // Resize photo to fit and add effects
+    resizeLayerToFitDimensions(photoLayer, docWidth * 20 / 24, docHeight * 20 / 30);
+    photoLayer.move(backgroundGradientLayer, ElementPlacement.PLACEBEFORE);
+    addPhotoOnPaperStyle(photoLayer);
+
+    // Add Paper 
+    var photoPaperLayer = addPhotoPaper(photoLayer);
+    photoPaperLayer.name = "Photo Paper";
+    photoPaperLayer.move(photoLayer, ElementPlacement.PLACEAFTER);
+
+    // Text Parameters
+    var fontSize = 24;
+
+    // Add camera info
+    var cameraParametersContent = getDocumentProperty("Model") + "  |  " + getDocumentProperty("EXIF tag 42036") + "\r" + getDocumentProperty("Shutter Speed") + "  |  " + getDocumentProperty("Aperture Value") + "  |  " + getDocumentProperty("ISO Speed Ratings");
+    var cameraParametersLayer = addText (cameraParametersContent, docWidth * 2 / 24, docWidth * 3 / 24, "bottomleft", fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);
+    cameraParametersLayer.name = "Camera Parameters";
+    moveLayerInsideLayerset(cameraParametersLayer, printedPhotoGroup);
+
+    // Add Settings info
+    var settingsBannerLayer = addText ("Settings  \u25B7", docWidth * 22 / 24, docHeight * 28 / 30, "bottomright", fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization);
+    settingsBannerLayer.name = "Settings Banner";
+    moveLayerInsideLayerset(settingsBannerLayer, printedPhotoGroup);
 
 }
 
@@ -3480,6 +3630,7 @@ function set_text_style(from, len, size, fontPostScriptName) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function addColorOverlay(fillColor, opacity, blendMode) {
+
 	var c2t = function (s) {
 		return app.charIDToTypeID(s);
 	};
@@ -3684,17 +3835,17 @@ function fitTextLayerToWidth (textLayer, targetWidth){
         var size = textLayer.textItem.size;
         textLayer.textItem.size = size * 0.95; // To decrease iterations.
     }
-    while(targetWidth < getRealTextLayerDimensions(textLayer).width);
+    while(targetWidth < getRealTextLayerProperties(textLayer).width);
 
     do {
         var tracking = textLayer.textItem.tracking;
         textLayer.textItem.tracking = tracking * 1.05; // To decrease iterations.
     }
-    while(targetWidth > getRealTextLayerDimensions(textLayer).width);
+    while(targetWidth > getRealTextLayerProperties(textLayer).width);
 
     textLayer.textItem.tracking = tracking; //To ensure it fits.
 
-    function getRealTextLayerDimensions(textLayer) {
+    function getRealTextLayerProperties(textLayer) {
 
         var textLayerCopy = textLayer.duplicate(activeDocument, ElementPlacement.INSIDE);
 
@@ -3747,12 +3898,14 @@ function fitTextLayerToBox (textLayer, leftMargin, topMargin, rightMargin, botto
     if(textLayer.textItem.contents != "") {
         textLayer.textItem.useAutoLeading = false;
         textLayer.textItem.leading = 60;
+        var i = 0;
 
         do {
             var leading = textLayer.textItem.leading;
             textLayer.textItem.leading = leading * 1.05; // To decrease iterations.
+            if(i>20) break;
         }
-        while(textLayer.textItem.height > getRealTextLayerDimensions(textLayer).height);
+        while(textLayer.textItem.height > getRealTextLayerProperties(textLayer).height);
 
         textLayer.textItem.leading = leading; //To ensure it fits.
 
@@ -3762,27 +3915,311 @@ function fitTextLayerToBox (textLayer, leftMargin, topMargin, rightMargin, botto
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function getRealTextLayerDimensions(textLayer) {
+function getRealTextLayerProperties(textLayer) {
 
     var textLayerCopy = textLayer.duplicate(activeDocument, ElementPlacement.INSIDE);
 
-    textLayerCopy.textItem.height = activeDocument.height;
+    textLayerCopy.textItem.height = app.activeDocument.height;
+    
     textLayerCopy.rasterize(RasterizeType.TEXTCONTENTS);
 
-    var dimensions = getLayerDimensions(textLayerCopy);
+    var layerProperties = getLayerProperties(textLayerCopy);
     textLayerCopy.remove();
 
-    return dimensions;
+    return layerProperties;
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function getLayerDimensions(layer) {
+function getLayerProperties(layer) {
 
     return { 
         width : layer.bounds[2] - layer.bounds[0],
-        height : layer.bounds[3] - layer.bounds[1]
+        height : layer.bounds[3] - layer.bounds[1],
+        right: layer.bounds[2],
+        left: layer.bounds[0],
+        top: layer.bounds[1],
+        bottom: layer.bounds[3]
     };
     
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function placeFileRandomly(filePath)    {
+
+    var layer = addFile(filePath);
+
+    var docWidth = app.activeDocument.width;
+    var docHeight = app.activeDocument.height;
+
+    var layerProperties = getLayerProperties(layer);
+    var layerWidth = layerProperties.width;
+    var layerHeight = layerProperties.height;
+
+    randomXPosition = - Math.floor(Math.random() * (layerWidth - docWidth));
+    randomYPosition = - Math.floor(Math.random() * (layerHeight - docHeight));
+
+    translateLayerTo(layer, randomXPosition, randomYPosition, "topleft");
+
+    return layer;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function addPhotoPaper (layer) {
+
+    // Document parameters
+    var docWidth = app.activeDocument.width.as('px');
+    var docHeight = app.activeDocument.height.as('px');
+    var photoMargin = docWidth / 24;
+
+    var layerProperties = getLayerProperties(layer);
+    var layerWidth = layerProperties.width.as('px');
+    var layerHeight = layerProperties.height.as('px');
+    var layerLeft = layerProperties.left.as('px');
+    var layerTop = layerProperties.top.as('px');
+
+    var paperLayer = drawSquare(layerLeft - photoMargin, layerTop - photoMargin, layerWidth + 2 * photoMargin, layerHeight + 2 * photoMargin);
+    fillShapeWithPaperTexture ("Polaroid Paper", 5);
+    addPaperStyle(100, true, true, true, 0, 0, 0, 65, true, 90, 4, 0, 5, 0, false, "Linear", true, true, true, true, 242.249024, 240.634248, 237.404664, 100, true, true, true, 255, 255, 255, 50, 0, 0, 0, 50, true, 90, 30, 100, 2, "Linear", false, 0, false, false);
+
+    paperLayer.move(layer, ElementPlacement.PLACEAFTER);
+
+    return paperLayer;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function fillShapeWithPaperTexture(textureName, scale) {
+
+    var c2t = function (s) {
+		return app.charIDToTypeID(s);
+	};
+
+	var s2t = function (s) {
+		return app.stringIDToTypeID(s);
+	};
+
+	var descriptor = new ActionDescriptor();
+	var descriptor2 = new ActionDescriptor();
+	var descriptor3 = new ActionDescriptor();
+	var descriptor5 = new ActionDescriptor();
+	var descriptor6 = new ActionDescriptor();
+	var reference = new ActionReference();
+
+	reference.putEnumerated( s2t( "contentLayer" ), s2t( "ordinal" ), s2t( "targetEnum" ));
+	descriptor.putReference( c2t( "null" ), reference );
+	descriptor3.putUnitDouble( s2t( "scale" ), s2t( "percentUnit" ), scale );
+	descriptor5.putString( s2t( "name" ), textureName );
+	descriptor3.putObject( s2t( "pattern" ), s2t( "pattern" ), descriptor5 );
+	descriptor2.putObject( s2t( "fillContents" ), s2t( "patternLayer" ), descriptor3 );
+	descriptor6.putBoolean( s2t( "fillEnabled" ), true );
+	descriptor2.putObject( s2t( "strokeStyle" ), s2t( "strokeStyle" ), descriptor6 );
+	descriptor.putObject( s2t( "to" ), s2t( "shapeStyle" ), descriptor2 );
+	executeAction( s2t( "set" ), descriptor, DialogModes.NO );
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function addPaperStyle(scale, enabled, present, showInDialog, red, Grn, blue, opacity, useGlobalAngle, localLightingAngle, distance, chokeMatte, blur, noise, AntA, name2, layerConceals, enabled2, present2, showInDialog2, red2, Grn2, blue2, opacity2, enabled3, present3, showInDialog3, red3, Grn3, blue3, highlightOpacity, red4, Grn4, blue4, shadowOpacity, useGlobalAngle2, localLightingAngle2, localLightingAltitude, strengthRatio, blur2, name3, antialiasGloss, softness, useShape, useTexture) {
+	var c2t = function (s) {
+		return app.charIDToTypeID(s);
+	};
+
+	var s2t = function (s) {
+		return app.stringIDToTypeID(s);
+	};
+
+	var descriptor = new ActionDescriptor();
+	var descriptor2 = new ActionDescriptor();
+	var descriptor3 = new ActionDescriptor();
+	var descriptor4 = new ActionDescriptor();
+	var descriptor5 = new ActionDescriptor();
+	var descriptor6 = new ActionDescriptor();
+	var descriptor7 = new ActionDescriptor();
+	var descriptor8 = new ActionDescriptor();
+	var descriptor9 = new ActionDescriptor();
+	var descriptor10 = new ActionDescriptor();
+	var descriptor11 = new ActionDescriptor();
+	var reference = new ActionReference();
+
+	reference.putProperty( s2t( "property" ), s2t( "layerEffects" ));
+	reference.putEnumerated( s2t( "layer" ), s2t( "ordinal" ), s2t( "targetEnum" ));
+	descriptor.putReference( c2t( "null" ), reference );
+	descriptor2.putUnitDouble( s2t( "scale" ), s2t( "percentUnit" ), scale );
+	descriptor3.putBoolean( s2t( "enabled" ), enabled );
+	descriptor3.putBoolean( s2t( "present" ), present );
+	descriptor3.putBoolean( s2t( "showInDialog" ), showInDialog );
+	descriptor3.putEnumerated( s2t( "mode" ), s2t( "blendMode" ), s2t( "multiply" ));
+	descriptor4.putDouble( s2t( "red" ), red );
+	descriptor4.putDouble( c2t( "Grn " ), Grn );
+	descriptor4.putDouble( s2t( "blue" ), blue );
+	descriptor3.putObject( s2t( "color" ), s2t( "RGBColor" ), descriptor4 );
+	descriptor3.putUnitDouble( s2t( "opacity" ), s2t( "percentUnit" ), opacity );
+	descriptor3.putBoolean( s2t( "useGlobalAngle" ), useGlobalAngle );
+	descriptor3.putUnitDouble( s2t( "localLightingAngle" ), s2t( "angleUnit" ), localLightingAngle );
+	descriptor3.putUnitDouble( s2t( "distance" ), s2t( "pixelsUnit" ), distance );
+	descriptor3.putUnitDouble( s2t( "chokeMatte" ), s2t( "pixelsUnit" ), chokeMatte );
+	descriptor3.putUnitDouble( s2t( "blur" ), s2t( "pixelsUnit" ), blur );
+	descriptor3.putUnitDouble( s2t( "noise" ), s2t( "percentUnit" ), noise );
+	descriptor3.putBoolean( c2t( "AntA" ), AntA );
+	descriptor5.putString( s2t( "name" ), name2 );
+	descriptor3.putObject( c2t( "TrnS" ), c2t( "ShpC" ), descriptor5 );
+	descriptor3.putBoolean( s2t( "layerConceals" ), layerConceals );
+	descriptor2.putObject( s2t( "dropShadow" ), s2t( "dropShadow" ), descriptor3 );
+	descriptor6.putBoolean( s2t( "enabled" ), enabled2 );
+	descriptor6.putBoolean( s2t( "present" ), present2 );
+	descriptor6.putBoolean( s2t( "showInDialog" ), showInDialog2 );
+	descriptor6.putEnumerated( s2t( "mode" ), s2t( "blendMode" ), s2t( "multiply" ));
+	descriptor7.putDouble( s2t( "red" ), red2 );
+	descriptor7.putDouble( c2t( "Grn " ), Grn2 );
+	descriptor7.putDouble( s2t( "blue" ), blue2 );
+	descriptor6.putObject( s2t( "color" ), s2t( "RGBColor" ), descriptor7 );
+	descriptor6.putUnitDouble( s2t( "opacity" ), s2t( "percentUnit" ), opacity2 );
+	descriptor2.putObject( s2t( "solidFill" ), s2t( "solidFill" ), descriptor6 );
+	descriptor8.putBoolean( s2t( "enabled" ), enabled3 );
+	descriptor8.putBoolean( s2t( "present" ), present3 );
+	descriptor8.putBoolean( s2t( "showInDialog" ), showInDialog3 );
+	descriptor8.putEnumerated( s2t( "highlightMode" ), s2t( "blendMode" ), s2t( "screen" ));
+	descriptor9.putDouble( s2t( "red" ), red3 );
+	descriptor9.putDouble( c2t( "Grn " ), Grn3 );
+	descriptor9.putDouble( s2t( "blue" ), blue3 );
+	descriptor8.putObject( s2t( "highlightColor" ), s2t( "RGBColor" ), descriptor9 );
+	descriptor8.putUnitDouble( s2t( "highlightOpacity" ), s2t( "percentUnit" ), highlightOpacity );
+	descriptor8.putEnumerated( s2t( "shadowMode" ), s2t( "blendMode" ), s2t( "multiply" ));
+	descriptor10.putDouble( s2t( "red" ), red4 );
+	descriptor10.putDouble( c2t( "Grn " ), Grn4 );
+	descriptor10.putDouble( s2t( "blue" ), blue4 );
+	descriptor8.putObject( s2t( "shadowColor" ), s2t( "RGBColor" ), descriptor10 );
+	descriptor8.putUnitDouble( s2t( "shadowOpacity" ), s2t( "percentUnit" ), shadowOpacity );
+	descriptor8.putEnumerated( s2t( "bevelTechnique" ), s2t( "bevelTechnique" ), s2t( "softMatte" ));
+	descriptor8.putEnumerated( s2t( "bevelStyle" ), s2t( "bevelEmbossStyle" ), s2t( "innerBevel" ));
+	descriptor8.putBoolean( s2t( "useGlobalAngle" ), useGlobalAngle2 );
+	descriptor8.putUnitDouble( s2t( "localLightingAngle" ), s2t( "angleUnit" ), localLightingAngle2 );
+	descriptor8.putUnitDouble( s2t( "localLightingAltitude" ), s2t( "angleUnit" ), localLightingAltitude );
+	descriptor8.putUnitDouble( s2t( "strengthRatio" ), s2t( "percentUnit" ), strengthRatio );
+	descriptor8.putUnitDouble( s2t( "blur" ), s2t( "pixelsUnit" ), blur2 );
+	descriptor8.putEnumerated( s2t( "bevelDirection" ), s2t( "bevelEmbossStampStyle" ), c2t( "In  " ));
+	descriptor11.putString( s2t( "name" ), name3 );
+	descriptor8.putObject( c2t( "TrnS" ), c2t( "ShpC" ), descriptor11 );
+	descriptor8.putBoolean( s2t( "antialiasGloss" ), antialiasGloss );
+	descriptor8.putUnitDouble( s2t( "softness" ), s2t( "pixelsUnit" ), softness );
+	descriptor8.putBoolean( s2t( "useShape" ), useShape );
+	descriptor8.putBoolean( s2t( "useTexture" ), useTexture );
+	descriptor2.putObject( s2t( "bevelEmboss" ), s2t( "bevelEmboss" ), descriptor8 );
+	descriptor.putObject( s2t( "to" ), s2t( "layerEffects" ), descriptor2 );
+	executeAction( s2t( "set" ), descriptor, DialogModes.NO );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function addPhotoOnPaperStyle(selectedlayer) {
+
+    app.activeDocument.activeLayer = selectedlayer;
+
+	var c2t = function (s) {
+		return app.charIDToTypeID(s);
+	};
+
+	var s2t = function (s) {
+		return app.stringIDToTypeID(s);
+	};
+
+	var descriptor = new ActionDescriptor();
+	var reference = new ActionReference();
+	reference.putProperty( s2t( "property" ), s2t( "layerEffects" ));
+	reference.putEnumerated( s2t( "layer" ), s2t( "ordinal" ), s2t( "targetEnum" ));
+	descriptor.putReference( c2t( "null" ), reference );
+	var descriptor2 = new ActionDescriptor();
+	descriptor2.putUnitDouble( s2t( "scale" ), s2t( "percentUnit" ), 100.000000 );
+	var descriptor3 = new ActionDescriptor();
+	descriptor3.putBoolean( s2t( "enabled" ), true );
+	descriptor3.putBoolean( s2t( "present" ), true );
+	descriptor3.putBoolean( s2t( "showInDialog" ), true );
+	descriptor3.putEnumerated( s2t( "mode" ), s2t( "blendMode" ), s2t( "multiply" ));
+	var descriptor4 = new ActionDescriptor();
+	descriptor4.putDouble( s2t( "red" ), 0.000000 );
+	descriptor4.putDouble( c2t( "Grn " ), 0.000000 );
+	descriptor4.putDouble( s2t( "blue" ), 0.000000 );
+	descriptor3.putObject( s2t( "color" ), s2t( "RGBColor" ), descriptor4 );
+	descriptor3.putUnitDouble( s2t( "opacity" ), s2t( "percentUnit" ), 35.000000 );
+	descriptor3.putBoolean( s2t( "useGlobalAngle" ), true );
+	descriptor3.putUnitDouble( s2t( "localLightingAngle" ), s2t( "angleUnit" ), 90.000000 );
+	descriptor3.putUnitDouble( s2t( "distance" ), s2t( "pixelsUnit" ), 3.000000 );
+	descriptor3.putUnitDouble( s2t( "chokeMatte" ), s2t( "pixelsUnit" ), 0.000000 );
+	descriptor3.putUnitDouble( s2t( "blur" ), s2t( "pixelsUnit" ), 7.000000 );
+	descriptor3.putUnitDouble( s2t( "noise" ), s2t( "percentUnit" ), 0.000000 );
+	descriptor3.putBoolean( c2t( "AntA" ), false );
+	var descriptor5 = new ActionDescriptor();
+	descriptor5.putString( s2t( "name" ), "Linear" );
+	descriptor3.putObject( c2t( "TrnS" ), c2t( "ShpC" ), descriptor5 );
+	descriptor2.putObject( s2t( "innerShadow" ), s2t( "innerShadow" ), descriptor3 );
+	var descriptor6 = new ActionDescriptor();
+	descriptor6.putBoolean( s2t( "enabled" ), true );
+	descriptor6.putBoolean( s2t( "present" ), true );
+	descriptor6.putBoolean( s2t( "showInDialog" ), true );
+	descriptor6.putEnumerated( s2t( "highlightMode" ), s2t( "blendMode" ), s2t( "screen" ));
+	var descriptor7 = new ActionDescriptor();
+	descriptor7.putDouble( s2t( "red" ), 255.000000 );
+	descriptor7.putDouble( c2t( "Grn " ), 255.000000 );
+	descriptor7.putDouble( s2t( "blue" ), 255.000000 );
+	descriptor6.putObject( s2t( "highlightColor" ), s2t( "RGBColor" ), descriptor7 );
+	descriptor6.putUnitDouble( s2t( "highlightOpacity" ), s2t( "percentUnit" ), 0.000000 );
+	descriptor6.putEnumerated( s2t( "shadowMode" ), s2t( "blendMode" ), s2t( "multiply" ));
+	var descriptor8 = new ActionDescriptor();
+	descriptor8.putDouble( s2t( "red" ), 0.000000 );
+	descriptor8.putDouble( c2t( "Grn " ), 0.000000 );
+	descriptor8.putDouble( s2t( "blue" ), 0.000000 );
+	descriptor6.putObject( s2t( "shadowColor" ), s2t( "RGBColor" ), descriptor8 );
+	descriptor6.putUnitDouble( s2t( "shadowOpacity" ), s2t( "percentUnit" ), 50.000000 );
+	descriptor6.putEnumerated( s2t( "bevelTechnique" ), s2t( "bevelTechnique" ), s2t( "softMatte" ));
+	descriptor6.putEnumerated( s2t( "bevelStyle" ), s2t( "bevelEmbossStyle" ), s2t( "innerBevel" ));
+	descriptor6.putBoolean( s2t( "useGlobalAngle" ), true );
+	descriptor6.putUnitDouble( s2t( "localLightingAngle" ), s2t( "angleUnit" ), 90.000000 );
+	descriptor6.putUnitDouble( s2t( "localLightingAltitude" ), s2t( "angleUnit" ), 30.000000 );
+	descriptor6.putUnitDouble( s2t( "strengthRatio" ), s2t( "percentUnit" ), 100.000000 );
+	descriptor6.putUnitDouble( s2t( "blur" ), s2t( "pixelsUnit" ), 3.000000 );
+	descriptor6.putEnumerated( s2t( "bevelDirection" ), s2t( "bevelEmbossStampStyle" ), c2t( "In  " ));
+	var descriptor9 = new ActionDescriptor();
+	descriptor9.putString( s2t( "name" ), "Linear" );
+	descriptor6.putObject( c2t( "TrnS" ), c2t( "ShpC" ), descriptor9 );
+	descriptor6.putBoolean( s2t( "antialiasGloss" ), false );
+	descriptor6.putUnitDouble( s2t( "softness" ), s2t( "pixelsUnit" ), 3.000000 );
+	descriptor6.putBoolean( s2t( "useShape" ), false );
+	descriptor6.putBoolean( s2t( "useTexture" ), false );
+	descriptor2.putObject( s2t( "bevelEmboss" ), s2t( "bevelEmboss" ), descriptor6 );
+	descriptor2.putUnitDouble( s2t( "globalAltitude" ), s2t( "angleUnit" ), 45.000000 );
+	descriptor.putObject( s2t( "to" ), s2t( "layerEffects" ), descriptor2 );
+	executeAction( s2t( "set" ), descriptor, DialogModes.NO );
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function setGlobalLighting(globalLightingAngle, globalAltitude) {
+
+	var c2t = function (s) {
+		return app.charIDToTypeID(s);
+	};
+
+	var s2t = function (s) {
+		return app.stringIDToTypeID(s);
+	};
+
+	var descriptor = new ActionDescriptor();
+	var reference = new ActionReference();
+	reference.putProperty( s2t( "property" ), s2t( "globalAngle" ));
+	reference.putEnumerated( s2t( "document" ), s2t( "ordinal" ), s2t( "targetEnum" ));
+	descriptor.putReference( c2t( "null" ), reference );
+	var descriptor2 = new ActionDescriptor();
+	descriptor2.putUnitDouble( s2t( "globalLightingAngle" ), s2t( "angleUnit" ), globalLightingAngle );
+	descriptor2.putUnitDouble( s2t( "globalAltitude" ), s2t( "angleUnit" ), globalAltitude );
+	descriptor.putObject( s2t( "to" ), s2t( "globalAngle" ), descriptor2 );
+	executeAction( s2t( "set" ), descriptor, DialogModes.NO );
+
 }

@@ -1,11 +1,7 @@
 #target photoshop
 
-var rawFile = app.activeDocument.fullName;
-
 ExternalObject.AdobeXMPScript = new ExternalObject('lib:AdobeXMPScript');
 var ns = XMPConst.NS_CAMERA_RAW //"http://ns.adobe.com/camera-raw-settings/1.0/"; // Found in xmp header
-
-var xmpMetaInitial = new XMPMeta(app.activeDocument.xmpMetadata.rawData); 
 
 // Basic parameters
 var temperature                   =  new Setting ( "Temperature",          "Temperature",                         +1000,  +10000  , 0);
@@ -103,21 +99,21 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturation",      "Blue
 
 
 // addHistograms(90, 225, 135, 225); // xPosition, yPosition, height, width
-// addSettingsSet("Basic Tone", [exposure, contrast, highlights, shadows, whites, blacks], 90, 295, 225);
-// addSettingsSet("Basic Presence", [texture, clarity, dehaze, vibrance,saturation], 90, 609, 225);
-// addHSLTable( 115, 855, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS, false) // xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization, textLabels
-// // addSettingsSet("Grain", [grainAmount, grainSize, grainFrequency], 90, 850, 225);
+// addSliderSettingSet("Basic Tone", [exposure, contrast, highlights, shadows, whites, blacks], 90, 295, 225);
+// addSliderSettingSet("Basic Presence", [texture, clarity, dehaze, vibrance,saturation], 90, 609, 225);
+// addSliderSettingSet("Calibration", [shadowTintCalibration, redHueCalibration, redSaturationCalibration, greenHueCalibration, greenSaturationCalibration, blueHueCalibration, blueSaturationCalibration], 90, 609, 225);
+// addHSLTable( 100, 855, "topright", 16, "FFFFFF", "WorkSansRoman-Medium", 100, Justification.RIGHT, TextCase.ALLCAPS, false) // xPosition , yPosition, anchorPosition, fontSize, fontHexColor, fontName, fontTracking, fontJustification, fontCapitalization, textLabels
+// // addSliderSettingSet("Grain", [grainAmount, grainSize, grainFrequency], 90, 850, 225);
 // addAllCurves(540, 360, 180) // xPosition, yPosition, edgeLength
-// addColorGrades (135, 90, 90, 2);
+addColorGrades (135, 90, 90, 2);
 // resetSettings([exposure, contrast, highlights, shadows, blacks, whites]);
 // setXmp(xmpFile, [exposure, contrast, highlights, shadows, blacks, whites]);
-// placeFile(rawFile);
-createUneditedCopy(app.activeDocument);
+// createUneditedCopy(app.activeDocument);
 
 
 function Setting(displayName, crsName, min, max, defaultValue) {
 
-    var xmpMeta = xmpMetaInitial;
+    var xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData);
 
     this.displayName = displayName;
     this.crsName = crsName;
@@ -163,16 +159,27 @@ function Setting(displayName, crsName, min, max, defaultValue) {
 
     }
 
+    function arraysEqual (a, b) {
+        if (a===b) return true;
+        if (a == null || b == null) return false;
+        if (a.length !== b.length) return false;
+
+        for (var i = 0; i < a.length; i++) {
+            if ((a[i][0] !== b[i][0])||(a[i][1] !== b[i][1])) return false;
+        }
+        return true;
+    }
+
 }
 
-function addSettingsSet(setName, settingsSet, xPosition, yPosition, lineLength) {
+function addSliderSettingSet(setName, settingsSet, xPosition, yPosition, lineLength) {
 
     var settingsSetGroup = activeDocument.layerSets.add();
     settingsSetGroup.name = setName;
 
     for (i = 0; i < settingsSet.length; i++) {
 
-        var settingGroup = addSetting(settingsSet[i], xPosition, yPosition, lineLength, 4, true);
+        var settingGroup = addSliderSetting(settingsSet[i], xPosition, yPosition, lineLength, 4, true);
         settingGroup.name = settingsSet[i].displayName;
 
         var dummieGroup = settingsSetGroup.layerSets.add();
@@ -185,7 +192,7 @@ function addSettingsSet(setName, settingsSet, xPosition, yPosition, lineLength) 
 
 }
 
-function addSetting (selectedSetting, x, y, lineLength, circleRadius, includeLabels) {
+function addSliderSetting (selectedSetting, x, y, lineLength, circleRadius, includeLabels) {
 
     var strokeWidth = circleRadius / 2;
     var labelSize = circleRadius * 4;
@@ -352,17 +359,6 @@ function addText (text, xPosition, yPosition, anchorPosition, fontSize, fontHexC
 
     }
 
-}
-
-function arraysEqual (a, b) {
-    if (a===b) return true;
-    if (a == null || b == null) return false;
-    if (a.length !== b.length) return false;
-
-    for (var i = 0; i < a.length; i++) {
-        if ((a[i][0] !== b[i][0])||(a[i][1] !== b[i][1])) return false;
-    }
-    return true;
 }
 
 function translateLayerTo(selectedLayer,xPosition,yPosition, anchorPosition) {
@@ -771,7 +767,7 @@ function addHSLTable (xPosition , yPosition, anchorPosition, fontSize, fontHexCo
 
                 }
 
-                xPosition += 60;    
+                xPosition += 65;    
             
             }
 
@@ -1169,7 +1165,7 @@ function addColorGrades (xPosition, yPosition, radius, strokeWidth) {
 
     }
 
-    addSettingsSet("Color Grading Balance", [blending, balance], radius * 1.5, 1195, 180);
+    addSliderSettingSet("Color Grading Balance", [blending, balance], radius * 1.5, 1195, 180);
     
 }
 
@@ -1193,7 +1189,7 @@ function addColorGrade (hue, saturation, luminance, radius, xPosition, yPosition
     settingCircle.move(colorGradeGroup, ElementPlacement.INSIDE);
 
     // Add luminance bar
-    var settingGroup = addSetting (luminance, xPosition, yPosition  + radius * 13 / 6, radius * 2, 4, false);
+    var settingGroup = addSliderSetting (luminance, xPosition, yPosition  + radius * 13 / 6, radius * 2, 4, false);
     settingGroup.name = 'Luminance Bar';
     var dummieGroup = colorGradeGroup.layerSets.add();
     settingGroup.move(dummieGroup, ElementPlacement.PLACEBEFORE);
@@ -1222,7 +1218,6 @@ function createUneditedCopy (docRef) {
 
     var targetFilePath = docRef.fullName.fsName.substr(0, docRef.fullName.fsName.lastIndexOf('.')) + '_unedited.' + sourceFileExtension;
     targetFile = new File(targetFilePath);
-
     sourceFile.copy(targetFile);
 
     if(sourceFileExtension != "dng") {
@@ -1257,7 +1252,12 @@ function createUneditedCopy (docRef) {
 
     resetSettings ( targetFilePath, resetParametersArray );
 
-    placeFile(targetFile);
+    sourceFile.close();
+    targetFile.close();
+
+    var targetDocument = app.open(targetFile, OpenDocumentType.CAMERARAW, false);
+
+    // placeFile(targetFilePath);
 
 }
 
@@ -1339,7 +1339,9 @@ function resetSettings (filePath, settingsArray) {
 
 }
 
-function placeFile (file) {
+function placeFile (filePath) {
+
+    file = new File(filePath);
 
     var desc = new ActionDescriptor();
     desc.putPath(charIDToTypeID('null'), file);

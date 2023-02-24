@@ -151,8 +151,8 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturatmetersion",     
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // Playground
+// addHistograms(100, 100, 256, 256, 2);
 
 // addPrintedPhoto(app.activeDocument.activeLayer);
 // var refLayerName = "Layer 0"
@@ -795,6 +795,8 @@ function resetSettings (filePath, settingsArray) {
     if(filePathExtension == "dng") {
 
         xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData);
+
+        xmpMeta.setProperty(ns, "AlreadyApplied", false);
 
         for (i = 0; i < settingsArray.length; i ++) {
 
@@ -3507,11 +3509,11 @@ function addPhotoContext() {
 
     // Add caption
     var captionContent = getDocumentProperty("Caption");
-    if(captionContent)  {
-        var photoContextCaption =   addText (captionContent, docWidth * 3 / 24, docHeight * 8 / 30, "topleft", fontSize, fontHexColor, fontName, fontTracking, Justification.CENTER, fontCapitalization)
+    var photoContextCaption =   addText (captionContent, docWidth * 3 / 24, docHeight * 8 / 30, "topleft", fontSize, fontHexColor, fontName, fontTracking, Justification.CENTER, fontCapitalization)
+    if(captionContent && captionContent.length>50)  {
         fitTextLayerToBox (photoContextCaption, margins.left, margins.top, margins.right, margins.bottom);
-        moveLayerInsideLayerset(photoContextCaption, photoContextGroup);
     }
+    moveLayerInsideLayerset(photoContextCaption, photoContextGroup);
 
     // Add logo
     var photoContextLogoLayer = placeFile(logosPath + "ChainCircle x Raleway_White - Vertical" + ".ai", 8 / 3 / 30, docWidth / 2, docHeight * 27 / 30, "bottomcenter");
@@ -3901,8 +3903,9 @@ function fitTextLayerToBox (textLayer, leftMargin, topMargin, rightMargin, botto
         do {
             var leading = textLayer.textItem.leading;
             textLayer.textItem.leading = leading * 1.05; // To decrease iterations.
+            if(i>20) break;
         }
-        while((textLayer.textItem.height > getRealTextLayerProperties(textLayer).height) | (i < 20));
+        while(textLayer.textItem.height > getRealTextLayerProperties(textLayer).height);
 
         textLayer.textItem.leading = leading; //To ensure it fits.
 
