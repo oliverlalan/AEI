@@ -7,7 +7,7 @@ function openAsLayer(docRef) {
         if ( doc.layers.length == 1 && doc.activeLayer.isBackgroundLayer ) {
 
             doc.activeLayer.isBackgroundLayer = false;
-            doc.activeLayer.name = doc.name;
+            doc.activeLayer.name = docRefName;
 
         }
 
@@ -76,20 +76,10 @@ function exportCopyAsPNG(selectedDocument, filePath, fileName, filePreffix, file
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function duplicateDocument (selectedDocument, documentSuffix) {
-
-    var fullFileName = selectedDocument.name;
-    var fileName = fullFileName.substr(0, fullFileName.lastIndexOf("."));
-    var fileExtension = fullFileName.substr(fullFileName.lastIndexOf("."), fullFileName.length);
+function duplicateDocument (selectedDocument, documentName) {
     
-    if(documentSuffix) {
-
-        fileName = fileName + "_" + documentSuffix;
-
-    }
-    
-    var duplicatedDocument = selectedDocument.duplicate(fileName);
-    duplicatedDocument.activeLayer.isBackgroundLayer = false;
+    var duplicatedDocument = selectedDocument.duplicate(documentName);
+    openAsLayer(duplicatedDocument);
 
     return duplicatedDocument;
 

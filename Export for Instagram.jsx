@@ -153,6 +153,8 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturatmetersion",     
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Playground
 // addHistograms(100, 100, 256, 256, 2);
+exportDocumentsAsPNG(undefined, docRefPath);
+
 
 // addPrintedPhoto(app.activeDocument.activeLayer);
 // var refLayerName = "Layer 0"
