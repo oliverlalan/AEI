@@ -152,8 +152,9 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturatmetersion",     
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Edited
-openAsLayer(docRef);
-convertColorProfileToSRGB(docRef);
+setReferenceDocumentProperties();
+docRef.activeLayer.name = docRefName;
+// docRef.activeLayer.name = docRefName + "_unresized_after";
 
 // Before
 var fileRef_unedited = createUneditedCopy(docRef, "_unedited");
