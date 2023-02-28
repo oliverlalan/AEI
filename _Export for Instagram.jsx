@@ -962,7 +962,7 @@ function addDarkGlassLayer (selectedLayer, darkGlassDesign) {
     translateLayerTo(darkGlassMask, darkGlassGroupPosition.xPosition, darkGlassGroupPosition.yPosition, darkGlassGroupPosition.anchorPosition);
 
     // Add Glass
-    if(selectedLayer == undefined) { selectedLayer = app.activeDocument.artLayers.getByName(docRefName) }
+    if(selectedLayer == undefined) { selectedLayer = app.activeDocument.artLayers[0] }
     var darkGlassLayer = selectedLayer.duplicate(darkGlassGroup, ElementPlacement.INSIDE);
     darkGlassLayer.name = "Dark Glass";
 
