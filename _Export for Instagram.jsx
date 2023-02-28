@@ -134,6 +134,7 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturatmetersion",     
 // exportDocumentsAsPNG(undefined, docRefPath);
 
 
+
 // addPrintedPhoto(app.activeDocument.activeLayer);
 // var refLayerName = "Layer 0"
 // addBasicPanel();
@@ -170,18 +171,11 @@ docRef_unedited.activeLayer.name = docRefName;
 
 // TODO Convert to function. Arguments (referenceDocument)
 
-// Unresized - Before
-var unresized_before = app.documents.add(docRef.width, docRef.height, targetResolution, docRefName + "_unresized_before");
-var unresized_before = duplicateDocument(docRef_unedited, docRefName + "_unresized_before");
-
-// Unresized - Edited
-var unresized_after = duplicateDocument(docRef, docRefName + "_unresized_after");
-
 // Fitted - Before
 var fitted_before = duplicateDocument(docRef_unedited, docRefName + "_" + targetWidth + "x" + targetHeight + "fitted_before");
 resizeImageToFitCanvas(fitted_before, targetWidth, targetHeight);
 
-// Fitted - Edited
+// Fitted - After
 var fitted_after = duplicateDocument(docRef, docRefName + "_" + targetWidth + "x" + targetHeight + "fitted_after");
 resizeImageToFitCanvas(fitted_after, targetWidth, targetHeight);
 
@@ -189,7 +183,7 @@ resizeImageToFitCanvas(fitted_after, targetWidth, targetHeight);
 var filled_before = duplicateDocument(docRef_unedited, docRefName + "_" + targetWidth + "x" + targetHeight + "filled_before");
 resizeImageToFillCanvas(filled_before, targetWidth, targetHeight);
 
-// Filled - Edited
+// Filled - After
 var filled_after = duplicateDocument(docRef, docRefName + "_" + targetWidth + "x" + targetHeight + "filled_after");
 resizeImageToFillCanvas(filled_after, targetWidth, targetHeight);
 
@@ -253,10 +247,10 @@ addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 // Create beforeAfter_detail_horizontal version
 var docRef_beforeAfter_detail_horizontal = app.documents.add(targetWidth, targetHeight, targetResolution, docRefName + "_beforeAfter_detail_horizontal");
 
-copyActiveLayerFromSourceToTarget(unresized_after, docRef_beforeAfter_detail_horizontal);
+copyActiveLayerFromSourceToTarget(docRef, docRef_beforeAfter_detail_horizontal);
 translateLayerTo(activeDocument.activeLayer, targetWidth / 2, targetHeight * 3 / 4, "middlecenter");
 
-copyActiveLayerFromSourceToTarget(unresized_before, docRef_beforeAfter_detail_horizontal);
+copyActiveLayerFromSourceToTarget(docRef_unedited, docRef_beforeAfter_detail_horizontal);
 translateLayerTo(activeDocument.activeLayer, targetWidth / 2, targetHeight / 4, "middlecenter");
 
 addMask('horizontal');
@@ -997,7 +991,7 @@ function addBasicPanel(panelXPosition, panelYPosition) {
 
     var groupXPosition = panelXPosition;
     var groupYPosition = panelYPosition;
-    
+
     // Add histogram
     var basicPanelHistogramGroup = addHistograms(groupXPosition, groupYPosition, histogramWidth, histogramHeigth, 2);
     moveLayerInsideLayerset(basicPanelHistogramGroup, basicPanelGroup);
@@ -1357,4 +1351,125 @@ function addGradientOverlay( gradientType, gradientOffset, gradientScale, gradie
 	descriptor.putObject( s2t( "to" ), s2t( "layerEffects" ), shapeStyleDesc );
 
 	executeAction( s2t( "set" ), descriptor, DialogModes.NO );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// TODO: Define an object with all panel whose the following properties: panelName,...
+
+// var panelsArray = ["histogram", "toneCurves", ]
+
+// {groupName = ;
+// groupItems = }
+
+// function Panel (panelName) {
+
+//     this.displayName = displayName;
+//     this.crsName = crsName;
+//     this.min = min;
+//     this.max = max;
+//     this.settingValue = [];
+//     this.defaultValue = [];
+//     this.interpolatedValues = [];
+
+function loadPanel(panelName) {
+
+    var panelPath = docRefPath + "/panels/" + panelName + ".psd";
+    var panelFile = new File(panelPath);
+
+    var targetDocument = app.activeDocument;
+
+    // Try to load panel from path
+    if (File(panelPath).exists == true) {
+
+        var panelDocument = app.open(panelFile);
+
+    } else {
+
+        createFolder(docRefPath + "/panels");
+        
+        var panelDocument = createPanel(panelName);
+        
+        savePSD(panelFile);
+
+    }
+
+    // Copy layerset to destination
+    copyActiveLayerFromSourceToTarget(panelDocument, targetDocument);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function createPanel(panelName) {
+
+    var panelDocument = app.documents.add(targetWidth, targetHeight, targetResolution, panelName);
+
+    switch (panelName) {
+
+        // case "histogram":
+        //     addHistograms(0, 0, histogramWidth, histogramHeight, histogramStrokeWidth);
+        // break;
+
+        case "basic":
+            var panelGroup = addBasicPanel();
+        break;
+
+        case "toneCurves":
+            var panelGroup = addToneCurvesPanel();
+        break;
+
+        case "colorGrading":
+            var panelGroup = addColorGradingPanel();
+        break;
+
+        case "colorGrading":
+            var panelGroup = addColorMixerPanel();
+        break;
+
+        case "presetInfo":
+            var panelGroup = addPresetInfo();
+        break;
+
+        case "photoContext":
+            var panelGroup = addPhotoContext();
+        break;
+
+    }
+
+    panelDocument.layers.getByName("Background").remove();
+
+    // Select layerset
+    panelDocument.activeLayer = panelDocument.layerSets[0];
+
+    cropToActiveLayer();
+
+    return panelDocument;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function savePSD(saveFile){   
+
+    psdSaveOptions = new PhotoshopSaveOptions();
+    psdSaveOptions.embedColorProfile = true;
+    psdSaveOptions.alphaChannels = true;
+    psdSaveOptions.layers = true;
+    psdSaveOptions.annotations = true;
+    psdSaveOptions.spotColors = true;
+
+    activeDocument.saveAs(saveFile, psdSaveOptions, true, Extension.LOWERCASE);   
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function createFolder (folderPath) {
+
+    var f = new Folder(folderPath);
+    if ( ! f.exists ) {
+        f.create()
+    }
+
 }

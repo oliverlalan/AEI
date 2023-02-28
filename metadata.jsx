@@ -260,7 +260,7 @@ function findPresetInfoInKeywords () {
 
     for (var i=0; i<docKeywords.length; i++) {
 
-        if(docKeywords[i].match("Preset")) var presetInfo = docKeywords[i] break;
+        if(docKeywords[i].match("Preset")) {var presetInfo = docKeywords[i]; break;}
 
     }
 

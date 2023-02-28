@@ -1,4 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Deprecated
 
 function openAsLayer(docRef) {
 
@@ -16,6 +17,32 @@ function openAsLayer(docRef) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function setReferenceDocumentProperties() {
+
+    // Rename the file with no extension
+    // docRef.duplicate(docRefName, false); 
+    // docRef.close(SaveOptions.DONOTSAVECHANGES); 
+
+    var docRef = app.activeDocument;
+
+    // Convert color profile
+    docRef.convertProfile(targetColorProfile, Intent.RELATIVECOLORIMETRIC, true, false);
+
+    // Change resolution
+    docRef.resizeImage(undefined, undefined, targetResolution, ResampleMethod.NONE);
+
+    if ( docRef.layers.length == 1 && docRef.activeLayer.isBackgroundLayer ) {
+
+        // Convert background layer to normal layer
+        docRef.activeLayer.isBackgroundLayer = false;
+
+    }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Deprecated
 
 function convertColorProfileToSRGB (docRef) {
 
@@ -79,7 +106,7 @@ function exportCopyAsPNG(selectedDocument, filePath, fileName, filePreffix, file
 function duplicateDocument (selectedDocument, documentName) {
     
     var duplicatedDocument = selectedDocument.duplicate(documentName);
-    openAsLayer(duplicatedDocument);
+    setReferenceDocumentProperties(selectedDocument);
 
     return duplicatedDocument;
 
@@ -423,26 +450,22 @@ function findSettingHexColor(colorName) {
 
 function getLayerProperties(layer) {
 
-    var layerProperties = new Object();
-
-    layerProperties['width'] = layer.bounds[2] - layer.bounds[0];
-    layerProperties['width'] = layer.bounds[2] - layer.bounds[0];
-    layerProperties['width'] = layer.bounds[2] - layer.bounds[0];
-    layerProperties['width'] = layer.bounds[2] - layer.bounds[0];
-    layerProperties['width'] = layer.bounds[2] - layer.bounds[0];
-    
+    var top = layer.bounds[1];
+    var bottom = layer.bounds[3];
+    var left = layer.bounds[0];
+    var right = layer.bounds[2];
 
     return { 
-        width : layer.bounds[2] - layer.bounds[0],
-        height : layer.bounds[3] - layer.bounds[1],
-        right: layer.bounds[2],
-        left: layer.bounds[0],
-        top: layer.bounds[1],
-        bottom: layer.bounds[3],
-        topleft: Array(layer.bounds[0], layer.bounds[1]),
-        topright: [layer.bounds[2], layer.bounds[1]],
-        bottomleft: [layer.bounds[0], layer.bounds[3]],
-        bottomright: [layer.bounds[2], layer.bounds[3]]
+        width : right - left,
+        height : bottom - top,
+        right: right,
+        left: left,
+        top: top,
+        bottom: bottom,
+        topleft: Array(left, top),
+        topright: [right, top],
+        bottomleft: [left, bottom],
+        bottomright: [right, bottom]
     };
     
 }
@@ -508,7 +531,10 @@ function showSelectedLayer( layerName, showOnlyThisLayer) {
         actionDescriptor.putBoolean( charIDToTypeID( "TglO" ), true );
     }
     
-    executeAction( charIDToTypeID( "Shw " ), actionDescriptor, DialogModes.NO );
+    try{
+        executeAction( charIDToTypeID( "Shw " ), actionDescriptor, DialogModes.NO );
+    } catch(e) {}
+    
 
 }
 

@@ -28,6 +28,7 @@ var panelBackgroundDesign = "vertical-3/8";
 
 var targetPlatform = "Instagram";
 var targetResolution = 72;
+var targetColorProfile = "sRGB IEC61966-2.1";
 
 if(targetPlatform == "Instagram") {
     var targetWidth = 1080;
@@ -36,6 +37,17 @@ if(targetPlatform == "Instagram") {
     var targetWidth = 1080;
     var targetHeight = 1920;
 }
+
+
+// Sliders
+// Parameters TODO: Define based in document layerProperties
+var sliderSettingsSetSpacing = 60;
+var sliderLineLength = targetWidth * 5 / 24;
+var sliderStyle = "horizontal";
+
+// Histogram
+var histogramWidth = histogramHeigth =  targetWidth * 5 / 24;
+var histogramStrokeWidth = 2;
 
 
 var blurPixelRadius = targetWidth / 216;
