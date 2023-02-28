@@ -159,9 +159,9 @@ docRef.activeLayer.name = docRefName;
 // Before
 var fileRef_unedited = createUneditedCopy(docRef, "_unedited");
 var docRef_unedited = app.open(fileRef_unedited, OpenDocumentType.CAMERARAW, false);
-openAsLayer(docRef_unedited);
-app.activeDocument.activeLayer.name = docRefName;
-convertColorProfileToSRGB(docRef_unedited);
+setReferenceDocumentProperties();
+docRef_unedited.activeLayer.name = docRefName;
+// docRef_unedited.activeLayer.name = docRefName + "_unresized_before";
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
