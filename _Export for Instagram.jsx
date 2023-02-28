@@ -997,12 +997,6 @@ function addBasicPanel(panelXPosition, panelYPosition) {
     var groupXPosition = panelXPosition;
     var groupYPosition = panelYPosition;
     
-
-    // Parameters TODO: Define based in document layerProperties
-    var sliderSettingsSetSpacing = 60;
-    var sliderLineLength = histogramWidth = histogramHeigth =  docWidth * 5 / 24;
-    var sliderStyle = "horizontal";
-
     // Add histogram
     var basicPanelHistogramGroup = addHistograms(groupXPosition, groupYPosition, histogramWidth, histogramHeigth, 2);
     moveLayerInsideLayerset(basicPanelHistogramGroup, basicPanelGroup);
