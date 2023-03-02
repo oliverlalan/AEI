@@ -108,6 +108,8 @@ function duplicateDocument (selectedDocument, documentName) {
     var duplicatedDocument = selectedDocument.duplicate(documentName);
     setReferenceDocumentProperties(selectedDocument);
 
+    runMenuItem(app.charIDToTypeID("FtOn"));
+
     return duplicatedDocument;
 
 }
@@ -141,8 +143,6 @@ function resizeImageToFillCanvas(selectedDocument, targetCanvasWidth, targetCanv
 
     doc.resizeCanvas(targetCanvasWidth, targetCanvasHeight);
 
-    runMenuItem(app.charIDToTypeID("FtOn"));
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,8 +170,6 @@ function resizeImageToFitCanvas(selectedDocument, targetCanvasWidth, targetCanva
     doc.resizeImage(targetWidth, targetHeight, 72, ResampleMethod.AUTOMATIC);
 
     doc.resizeCanvas(targetCanvasWidth, targetCanvasHeight);
-
-    runMenuItem(app.charIDToTypeID("FtOn"));
 
 }
 
@@ -680,6 +678,52 @@ function addFile (filePath) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function placeFileLinked (filePath) {
+
+    file = new File(filePath);
+
+    var idPlc = charIDToTypeID( "Plc " );
+    var desc1318 = new ActionDescriptor();
+    var idIdnt = charIDToTypeID( "Idnt" );
+    desc1318.putInteger( idIdnt, 19 );
+    var idnull = charIDToTypeID( "null" );
+    desc1318.putPath( idnull, new File( filePath ) );
+    var idLnkd = charIDToTypeID( "Lnkd" );
+    desc1318.putBoolean( idLnkd, true );
+    var idFTcs = charIDToTypeID( "FTcs" );
+    var idQCSt = charIDToTypeID( "QCSt" );
+    var idQcsa = charIDToTypeID( "Qcsa" );
+    desc1318.putEnumerated( idFTcs, idQCSt, idQcsa );
+    var idOfst = charIDToTypeID( "Ofst" );
+        var desc1319 = new ActionDescriptor();
+        var idHrzn = charIDToTypeID( "Hrzn" );
+        var idPxl = charIDToTypeID( "#Pxl" );
+        desc1319.putUnitDouble( idHrzn, idPxl, 0.000000 );
+        var idVrtc = charIDToTypeID( "Vrtc" );
+        var idPxl = charIDToTypeID( "#Pxl" );
+        desc1319.putUnitDouble( idVrtc, idPxl, 0.000000 );
+    var idOfst = charIDToTypeID( "Ofst" );
+    desc1318.putObject( idOfst, idOfst, desc1319 );
+    var idreplaceLayer = stringIDToTypeID( "replaceLayer" );
+        var desc1320 = new ActionDescriptor();
+        var idT = charIDToTypeID( "T   " );
+            var ref122 = new ActionReference();
+            var idLyr = charIDToTypeID( "Lyr " );
+            ref122.putIdentifier( idLyr, 19 );
+        desc1320.putReference( idT, ref122 );
+    var idPlc = charIDToTypeID( "Plc " );
+    desc1318.putObject( idreplaceLayer, idPlc, desc1320 );
+    executeAction( idPlc, desc1318, DialogModes.NO );
+
+
+    return app.activeDocument.activeLayer;
+
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // crop to selection
 function cropToActiveLayer(){
     var activeLayerProperties = getLayerProperties(app.activeDocument.activeLayer);
@@ -687,3 +731,14 @@ function cropToActiveLayer(){
     executeAction( charIDToTypeID( "Crop" ), new ActionDescriptor(), DialogModes.NO );
     app.activeDocument.selection.deselect();
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function renderIfRequired() {
+
+    if (renderSteps) {
+        app.refresh();
+    }
+
+}
+ 
