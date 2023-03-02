@@ -887,6 +887,9 @@ function duplicateDocument (selectedDocument, documentSuffix) {
     var duplicatedDocument = selectedDocument.duplicate(fileName);
     duplicatedDocument.activeLayer.isBackgroundLayer = false;
 
+    
+    runMenuItem(app.charIDToTypeID("FtOn"));
+
     return duplicatedDocument;
 
 }
@@ -920,8 +923,6 @@ function resizeImageToFillCanvas(selectedDocument, targetCanvasWidth, targetCanv
 
     doc.resizeCanvas(targetCanvasWidth, targetCanvasHeight);
 
-    runMenuItem(app.charIDToTypeID("FtOn"));
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -949,8 +950,6 @@ function resizeImageToFitCanvas(selectedDocument, targetCanvasWidth, targetCanva
     doc.resizeImage(targetWidth, targetHeight, 72, ResampleMethod.AUTOMATIC);
 
     doc.resizeCanvas(targetCanvasWidth, targetCanvasHeight);
-
-    runMenuItem(app.charIDToTypeID("FtOn"));
 
 }
 
@@ -2082,6 +2081,8 @@ function setShapeSettings (fillEnabled, shapeFillColor, strokeEnabled, shapeStro
         executeAction( charIDToTypeID( "setd" ), desc, DialogModes.NO );
 
     }   catch (e) { throw(e); }
+
+    app.refresh();
 
 }
 
