@@ -125,14 +125,12 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturatmetersion",     
 
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Playground
 // addHistograms(100, 100, 256, 256, 2);
 // exportDocumentsAsPNG(undefined, docRefPath);
-
 
 
 // addPrintedPhoto(app.activeDocument.activeLayer);
@@ -142,7 +140,7 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturatmetersion",     
 // addColorGradingPanel();
 // addToneCurvesPanel();
 // exportDocumentsAsPNG(undefined, docRefPath);
-
+createPanel("toneCurves");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -172,19 +170,19 @@ docRef_unedited.activeLayer.name = docRefName;
 // TODO Convert to function. Arguments (referenceDocument)
 
 // Fitted - Before
-var fitted_before = duplicateDocument(docRef_unedited, docRefName + "_" + targetWidth + "x" + targetHeight + "fitted_before");
+var fitted_before = duplicateDocument(docRef_unedited, docRefName + "_" + targetWidth + "x" + targetHeight + "_fitted_before");
 resizeImageToFitCanvas(fitted_before, targetWidth, targetHeight);
 
 // Fitted - After
-var fitted_after = duplicateDocument(docRef, docRefName + "_" + targetWidth + "x" + targetHeight + "fitted_after");
+var fitted_after = duplicateDocument(docRef, docRefName + "_" + targetWidth + "x" + targetHeight + "_fitted_after");
 resizeImageToFitCanvas(fitted_after, targetWidth, targetHeight);
 
 // Filled - Before
-var filled_before = duplicateDocument(docRef_unedited, docRefName + "_" + targetWidth + "x" + targetHeight + "filled_before");
+var filled_before = duplicateDocument(docRef_unedited, docRefName + "_" + targetWidth + "x" + targetHeight + "_filled_before");
 resizeImageToFillCanvas(filled_before, targetWidth, targetHeight);
 
 // Filled - After
-var filled_after = duplicateDocument(docRef, docRefName + "_" + targetWidth + "x" + targetHeight + "filled_after");
+var filled_after = duplicateDocument(docRef, docRefName + "_" + targetWidth + "x" + targetHeight + "_filled_after");
 resizeImageToFillCanvas(filled_after, targetWidth, targetHeight);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,38 +190,40 @@ resizeImageToFillCanvas(filled_after, targetWidth, targetHeight);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Playground
 
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Unedited - printedPhoto version
-var docRef_printedPhoto = duplicateDocument(filled_after, docRefName + "_printedPhoto");
+var docRef_printedPhoto = duplicateDocument(filled_after, docRefName + "_" + targetWidth + "x" + targetHeight + "_printedPhoto");
 resizeImageToFitCanvas(docRef_printedPhoto, targetWidth, targetHeight);
 addPrintedPhoto(docRef_printedPhoto.activeLayer);
 
 // Create beforeAfter_split_horizontal version
-var docRef_beforeAfter_split_horizontal = duplicateDocument(filled_after, docRefName + "_beforeAfter_split_horizontal");
+var docRef_beforeAfter_split_horizontal = duplicateDocument(filled_after, docRefName + "_" + targetWidth + "x" + targetHeight + "_beforeAfter_split_horizontal");
 copyActiveLayerFromSourceToTarget(filled_before, docRef_beforeAfter_split_horizontal);
 addMask('horizontal');
 addBeforeAfterLabels ('horizontal');
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create beforeAfter_split_vertical version
-var docRef_beforeAfter_split_vertical = duplicateDocument(filled_after, docRefName + "_beforeAfter_split_vertical");
+var docRef_beforeAfter_split_vertical = duplicateDocument(filled_after, docRefName + "_" + targetWidth + "x" + targetHeight + "_beforeAfter_split_vertical");
 copyActiveLayerFromSourceToTarget(filled_before, docRef_beforeAfter_split_vertical);
 addMask('vertical');
 addBeforeAfterLabels ('vertical');
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create beforeAfter_split_diagonal version
-var docRef_beforeAfter_split_diagonal = duplicateDocument(filled_after, docRefName + "_beforeAfter_split_diagonal");
+var docRef_beforeAfter_split_diagonal = duplicateDocument(filled_after, docRefName + "_" + targetWidth + "x" + targetHeight + "_beforeAfter_split_diagonal");
 copyActiveLayerFromSourceToTarget(filled_before, docRef_beforeAfter_split_diagonal);
 addMask('diagonal');
 addBeforeAfterLabels ('diagonal');
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create beforeAfter_sideBySide_horizontal version
-var docRef_beforeAfter_sideBySide_horizontal = duplicateDocument(filled_after, docRefName + "_beforeAfter_sideBySide_horizontal");
+var docRef_beforeAfter_sideBySide_horizontal = duplicateDocument(filled_after, docRefName + "_" + targetWidth + "x" + targetHeight + "_beforeAfter_sideBySide_horizontal");
 resizeLayerToFillDimensions(activeDocument.activeLayer, targetWidth, targetHeight / 2);
 translateLayerTo(activeDocument.activeLayer, targetWidth / 2, targetHeight * 3 / 4, "middlecenter");
 copyActiveLayerFromSourceToTarget(filled_before, docRef_beforeAfter_sideBySide_horizontal);
@@ -234,7 +234,7 @@ addBeforeAfterLabels ('horizontal');
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create beforeAfter_sideBySide_vertical version
-var docRef_beforeAfter_sideBySide_vertical = duplicateDocument(filled_after, docRefName + "_beforeAfter_sideBySide_vertical");
+var docRef_beforeAfter_sideBySide_vertical = duplicateDocument(filled_after, docRefName + "_" + targetWidth + "x" + targetHeight + "_beforeAfter_sideBySide_vertical");
 resizeLayerToFillDimensions(activeDocument.activeLayer, targetWidth / 2, targetHeight);
 translateLayerTo(activeDocument.activeLayer, targetWidth * 3 / 4, targetHeight / 2, "middlecenter");
 copyActiveLayerFromSourceToTarget(filled_before, docRef_beforeAfter_sideBySide_vertical);
@@ -245,7 +245,7 @@ addBeforeAfterLabels ('vertical');
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create beforeAfter_detail_horizontal version
-var docRef_beforeAfter_detail_horizontal = app.documents.add(targetWidth, targetHeight, targetResolution, docRefName + "_beforeAfter_detail_horizontal");
+var docRef_beforeAfter_detail_horizontal = app.documents.add(targetWidth, targetHeight, targetResolution, docRefName + "_" + targetWidth + "x" + targetHeight + "_beforeAfter_detail_horizontal");
 
 copyActiveLayerFromSourceToTarget(docRef, docRef_beforeAfter_detail_horizontal);
 translateLayerTo(activeDocument.activeLayer, targetWidth / 2, targetHeight * 3 / 4, "middlecenter");
@@ -261,52 +261,45 @@ addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var docRef_panel_basic = duplicateDocument(filled_after, docRefName + "_panel_basic");
 addDarkGlassLayer(undefined, "leftsidebar");
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
-var basicPanelGroup = addBasicPanel();
+var basicDocument = loadPanel("basic");
+// var toneCurvesDocument = loadPanel("toneCurves");
+// var colorMixerDocument = loadPanel("colorMixer");
+// var colorGradingDocument = loadPanel("colorGrading");
 
 // Create panel_toneCurve version
 var docRef_panel_toneCurves = duplicateDocument(filled_after, docRefName + "_panel_toneCurves");
 addDarkGlassLayer(undefined, "leftsidebar");
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
-var toneCurvesPanelGroup = addToneCurvesPanel();
+var toneCurvesDocument = loadPanel("toneCurves");
 
 // Create panel_colorMixer version
 var docRef_panel_colorMixer = duplicateDocument(filled_after, docRefName + "_panel_colorMixer");
 addDarkGlassLayer(undefined, "leftsidebar");
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
-var colorMixerPanelGroup = addColorMixerPanel();
+var colorMixerDocument = loadPanel("colorMixer");
 
 // Create panel_colorGrading version
 var docRef_panel_colorGrading = duplicateDocument(filled_after, docRefName + "_panel_colorGrading");
 addDarkGlassLayer(undefined, "leftsidebar");
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
-var colorGradingPanelGroup = addColorGradingPanel();
+var colorGradingDocument = loadPanel("colorGrading");
 
 // Create panel_all version
 var docRef_panel_all = duplicateDocument(filled_after, docRefName + "_panel_all");
 addDarkGlassLayer(undefined, "center");
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
-var allPanelsGroup = addAllPanels();
+var panelAllDocument = loadPanel("allPanels");
 
 // Create preset_info version
 var docRef_preset = duplicateDocument(filled_after, docRefName + "_preset");
 addDarkGlassLayer(undefined, "center");
-var presetInfoGroup = addPresetInfo();
+var presetInfoDocument = loadPanel("presetInfo");
 
 // Create photo_context version
 var docRef_photoContext = duplicateDocument(filled_after, docRefName + "_photoContext");
 addDarkGlassLayer(undefined, "center");
-var photoContextGroup = addPhotoContext();
+var photoContextDocument = loadPanel("photoContext");
 
-// Create camera_settings version
-
-
-
-// Edit metadata
-// var docRef_metadata = duplicateDocument(filled_after, "metadata");
-// makeDarkerNoisierBlurier(docRef_metadata, 10, 2, 128);
-// addMetadataList([272, 42036, 37377, 37378, 34855, 37386, 'location', 'date', 'caption'], fontSize, textColor, fontName, fontTracking);
-// addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
-// exportCopyAsPNG(docRef_metadata, docRefPath, undefined,  "instagram_", undefined)
 
 
 // Export copies
@@ -909,6 +902,8 @@ function addLogo (logoVariation, logoPosition, relativeTargetHeight) {
     logoLayer.name = "Logo";
     moveLayerInsideLayerset(logoLayer, logoGroup);
 
+    app.activeDocument.activeLayer = app.activeDocument.layers[0];
+
     return logoGroup;
 
     //TODO: Name layers and add them to group
@@ -993,7 +988,7 @@ function addBasicPanel(panelXPosition, panelYPosition) {
     var groupYPosition = panelYPosition;
 
     // Add histogram
-    var basicPanelHistogramGroup = addHistograms(groupXPosition, groupYPosition, histogramWidth, histogramHeigth, 2);
+    var basicPanelHistogramGroup = addHistograms(groupXPosition, groupYPosition, histogramWidth, histogramHeigth, histogramStrokeWidth);
     moveLayerInsideLayerset(basicPanelHistogramGroup, basicPanelGroup);
     groupYPosition += 350;
 
@@ -1374,7 +1369,7 @@ function addGradientOverlay( gradientType, gradientOffset, gradientScale, gradie
 
 function loadPanel(panelName) {
 
-    var panelPath = docRefPath + "/panels/" + panelName + ".psd";
+    var panelPath = docRefPath + "/panels/" + docRefName + "_" + panelName + ".psd";
     var panelFile = new File(panelPath);
 
     var targetDocument = app.activeDocument;
@@ -1395,7 +1390,13 @@ function loadPanel(panelName) {
     }
 
     // Copy layerset to destination
-    copyActiveLayerFromSourceToTarget(panelDocument, targetDocument);
+    // copyActiveLayerFromSourceToTarget(panelDocument, targetDocument);
+
+    // Place panel linked
+    app.activeDocument = targetDocument;
+    placeFileLinked(panelPath);
+
+    return panelDocument;
 
 }
 
@@ -1403,7 +1404,9 @@ function loadPanel(panelName) {
 
 function createPanel(panelName) {
 
-    var panelDocument = app.documents.add(targetWidth, targetHeight, targetResolution, panelName);
+    app.backgroundColor.rgb.hexValue = deafultBackgroundColor;
+
+    var panelDocument = app.documents.add(targetWidth, targetHeight, targetResolution, docRefName + "_" + panelName, NewDocumentMode.RGB, DocumentFill.BACKGROUNDCOLOR);
 
     switch (panelName) {
 
@@ -1423,7 +1426,7 @@ function createPanel(panelName) {
             var panelGroup = addColorGradingPanel();
         break;
 
-        case "colorGrading":
+        case "colorMixer":
             var panelGroup = addColorMixerPanel();
         break;
 
@@ -1435,14 +1438,19 @@ function createPanel(panelName) {
             var panelGroup = addPhotoContext();
         break;
 
+        case "allPanels":
+            var panelGroup = addAllPanels();
+        break;
+
     }
 
     panelDocument.layers.getByName("Background").remove();
 
-    // Select layerset
+    // Make the main layerset the active layer
     panelDocument.activeLayer = panelDocument.layerSets[0];
 
-    cropToActiveLayer();
+    // Crop in case of necesity
+    // cropToActiveLayer();
 
     return panelDocument;
 
@@ -1473,3 +1481,21 @@ function createFolder (folderPath) {
     }
 
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function updateSettingValue(settingName) {
+    var currentIndex = settingName.interpolatedValues.indexOf(settingName.currentValue);
+    settingName.currentValue = settingName.interpolatedValues[currentIndex + 1];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function updateXMP(setting, newValue) {
+
+    xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData);
+
+    xmpMeta.setProperty(ns, setting.crsName, newValue);
+
+}
+
