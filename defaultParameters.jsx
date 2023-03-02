@@ -25,6 +25,8 @@ var darkGlassDesign = "full";
 var panelBackgroundOpacity = 65;
 var panelBackgroundDesign = "vertical-3/8";
 
+var deafultBackgroundColor = "#2E2E2E";
+
 
 var targetPlatform = "Instagram";
 var targetResolution = 72;
@@ -38,6 +40,9 @@ if(targetPlatform == "Instagram") {
     var targetHeight = 1920;
 }
 
+
+// Variable to decide if intermediate steps must be rendered.
+var renderSteps = true;
 
 // Sliders
 // Parameters TODO: Define based in document layerProperties

@@ -341,6 +341,8 @@ function Setting (displayName, crsName, min, max, defaultValue) {
 
     }
 
+    this.currentValue = this.defaultValue;
+
     function interpolateValues (initialValue, finalValue, steps, interpolationAlpha) {
 
         var interpolatedValues = [];
