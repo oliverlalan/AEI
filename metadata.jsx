@@ -9,7 +9,6 @@ function updateMetadata (setting, newValue) {
 
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function getDocumentKeywords() {
@@ -286,13 +285,13 @@ function Setting (displayName, crsName, min, max, defaultValue) {
 
     var xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData);
 
-    this.displayName = displayName;
-    this.crsName = crsName;
-    this.min = min;
-    this.max = max;
-    this.settingValue = [];
-    this.defaultValue = [];
-    this.interpolatedValues = [];
+    this.displayName = displayName; // Setting display name, as it appears in Lightroom
+    this.crsName = crsName;         // Setting name, according to Camera Raw settings
+    this.min = min;                 // Setting minimum value
+    this.max = max;                 // Setting maximum value
+    this.settingValue = [];         // Setting value 
+    this.defaultValue = [];         // Setting default value
+    this.interpolatedValues = [];   // Array of 30 values, from the default to the finalValue
 
     if(this.crsName.match("ToneCurvePV2012")) {
 
@@ -307,8 +306,8 @@ function Setting (displayName, crsName, min, max, defaultValue) {
             var defaultOutputValue = defaultInputValue;
             this.defaultValue.push([defaultInputValue, defaultOutputValue]);
 
-            var interpolatedInputValue = interpolateValues(defaultInputValue, inputValue, 30, 2);
-            var interpolatedOutputValue = interpolateValues(defaultOutputValue, outputValue, 30, 2);
+            var interpolatedInputValue = interpolateValues(defaultInputValue, inputValue, interpolationSteps, 2);
+            var interpolatedOutputValue = interpolateValues(defaultOutputValue, outputValue, interpolationSteps, 2);
             this.interpolatedValues.push([interpolatedInputValue, interpolatedOutputValue]);
 
         }
@@ -327,7 +326,7 @@ function Setting (displayName, crsName, min, max, defaultValue) {
         
         this.settingValue = xmpMeta.getProperty(ns, this.crsName);
         this.defaultValue = defaultValue;
-        this.interpolatedValues = interpolateValues(this.defaultValue, this.settingValue, 30, 2);
+        this.interpolatedValues = interpolateValues(this.defaultValue, this.settingValue, interpolationSteps, 2);
 
         if (this.settingValue == this.defaultValue) {
 
@@ -374,3 +373,198 @@ function Setting (displayName, crsName, min, max, defaultValue) {
 
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function resetSettings (filePath, settingsArray) {
+
+    var filePathExtension = filePath.substr(filePath.lastIndexOf(".") + 1, filePath.length);
+
+    if(filePathExtension == "dng") {
+
+        xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData);
+
+        // To force photoshop to use the crop properties of the ACR // TODO Move out as an independent function (?)
+        xmpMeta.setProperty(ns, "AlreadyApplied", false);
+
+        for (i = 0; i < settingsArray.length; i ++) {
+
+            if ( settingsArray[i].crsName.match("ToneCurvePV2012") ){
+                var newSettingValue = settingsArray[i].settingValue[j][0] + ", " + settingsArray[i].settingValue[j][0];
+            }   else    {
+                var newSettingValue = settingsArray[i].defaultValue;
+            }
+
+            updateXMPSetting(xmpMeta, settingsArray[i], newSettingValue);
+
+        }
+
+        var xmpFile = new XMPFile (filePath, XMPConst.FILE_UNKNOWN, XMPConst.OPEN_FOR_UPDATE);
+
+        xmpFile.putXMP(xmpMeta.serialize());
+        xmpFile.closeFile();
+
+    }   else    {
+
+        var xmpFilePath = filePath.substr(0, filePath.lastIndexOf(".")) + '.xmp';
+        xmpFile = new File(xmpFilePath);
+
+        xmpFile.open('r');
+        xmpFile.encoding = 'UTF8';
+        xmpFile.lineFeed = 'unix';
+        xmpFile.open('r', "TEXT", "????");
+
+        var xmpInitial = xmpFile.read();
+        xmpFile.close();
+
+        xmpMeta = new XMPMeta (xmpInitial);
+
+        for (i = 0; i < settingsArray.length; i ++) {
+
+            if ( settingsArray[i].crsName.match("ToneCurvePV2012") ){
+                var newSettingValue = settingsArray[i].settingValue[j][0] + ", " + settingsArray[i].settingValue[j][0];
+            }   else    {
+                var newSettingValue = settingsArray[i].defaultValue;
+            }
+
+            updateXMPSetting(xmpMeta, settingsArray[i], newSettingValue);
+
+        }
+
+        xmpFile.open('w');
+        xmpFile.encoding = 'UTF8';
+        xmpFile.lineFeed = 'unix';
+        xmpFile.write(xmpMeta.serialize());
+        xmpFile.close();
+
+    }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Function to update the value of a given setting of an xmpMetaObject
+
+function updateXMPSetting(xmpMetaObject, settingName, newSettingValue) {
+
+    if ( settingName.crsName.match("ToneCurvePV2012") ){
+
+        for (j=0; j<settingName.settingValue.length; j++) {
+
+            xmpMetaObject.setArrayItem(ns, settingName.crsName, j+1, newSettingValue[0] + ", " + newSettingValue[1]);
+
+        }
+
+    } else {
+
+        xmpMetaObject.setProperty(ns, settingName.crsName, newSettingValue);
+
+    }
+
+    settingName.isCustom = false; // TODO Check if setting value is equal to default to determine
+
+    return xmpMetaObject;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Pending
+
+function updateXMPSettingToNextInterpolatedValue(xmpMetaObject, settingName) {
+
+    var currentIndex = settingName.interpolatedValues.indexOf(settingName.currentValue);
+    settingName.currentValue = settingName.interpolatedValues[currentIndex + 1];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function updateXmpArray (settingsArray) {
+    
+    // Create array if does not exist.
+    var xmpArray = [new XMPMeta(app.activeDocument.xmpMetadata.rawData)]
+
+    for (step = 0; step < interpolationSteps; step ++) {
+
+        var currentArrayItem = xmpArray[xmpArray.length - 1];
+
+        for (setting = 0; setting < settingsArray.length; setting ++){
+            
+            currentArrayItem = updateXMPSetting(currentArrayItem, settingsArray[setting], settingsArray[setting].interpolatedValues[step]);
+        
+        }
+
+        xmpArray.push(currentArrayItem);
+
+    }
+
+    return xmpArray;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Pending
+
+function createXmpArray() {
+
+    // if(selectedLayer == undefined) { selectedLayer = app.activeDocument.activeLayer }
+    // if(xmpArray === undefined) {
+    //     createXmpArray();
+    // }
+
+    var xmpArray = [new XMPMeta(app.activeDocument.xmpMetadata.rawData)]
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Working
+
+function createInterpolatedFiles (settingsArray) {
+
+    for (step = 0; step < interpolationSteps; step ++) {
+
+        // Create a copy of the original file with the corresponding name.
+        sourceFile = new File(docRefFullName);
+        var targetFilePath = docRefPath + "/Animation/" + docRefName + "_" + step + '.' + docRefExtension;
+        targetFile = new File(targetFilePath);
+        sourceFile.copy(targetFile);
+
+        // Create a XMP file 
+        var xmpFile = new XMPFile (File(targetFile).fsName, XMPConst.FILE_UNKNOWN, XMPConst.OPEN_FOR_UPDATE);
+        xmpMeta = xmpFile.getXMP();
+
+        
+        // Update values
+        for (setting = 0; setting < settingsArray.length; setting ++) {
+
+            updateXMPSetting(xmpMeta, settingsArray[setting], settingsArray[setting].interpolatedValues[step])
+
+        }
+
+
+        // Write xmp on file
+        if (xmpFile.canPutXMP( xmpMeta )) {
+            xmpFile.putXMP( xmpMeta );
+        }
+
+        // Close file
+        xmpFile.closeFile()
+
+    }
+
+}
+
+// // Update values
+//         for (setting = 0; setting < settingsArray.length; setting ++) {
+
+//             updateXMPSetting(xmpMeta, settingsArray[setting], settingsArray[setting].interpolatedValues[step])
+
+//             var currentArrayItem = xmpArray[xmpArray.length - 1];
+
+//             for (setting = 0; setting < settingsArray.length; setting ++){
+                
+//                 currentArrayItem = updateXMPSetting(currentArrayItem, settingsArray[setting], settingsArray[setting].interpolatedValues[step]);
+            
+//             }
+
+//             xmpArray.push(currentArrayItem);
+
+//         }

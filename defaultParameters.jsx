@@ -25,7 +25,7 @@ var darkGlassDesign = "full";
 var panelBackgroundOpacity = 65;
 var panelBackgroundDesign = "vertical-3/8";
 
-var deafultBackgroundColor = "#2E2E2E";
+var defaultForegroundColor = "2E2E2E";
 
 
 var targetPlatform = "Instagram";
@@ -58,3 +58,7 @@ var histogramStrokeWidth = 2;
 var blurPixelRadius = targetWidth / 216;
 var noiseAmount = 3;
 var toneCurveMaxOutput = 90;
+
+
+// Animation
+var interpolationSteps = 30;

@@ -91,3 +91,30 @@ function selectCompositionByName(name) {
   // Composition not found
   return false;
 }
+
+function getCompositionByName(name) {
+
+    var composition = selectCompositionByName(name);
+
+    if (sliderComposition) {
+        return composition;
+    }
+
+}
+
+function getFolderByName(name) {
+
+}
+
+function checkIfCustom (object) {
+  var custom = false;
+  for (var key in object) {
+    if (object.hasOwnProperty(key)) {
+      if (object[key].isCustom == true) {
+        custom = true;
+        break;
+      }
+    }
+  }
+  object.isCustom = custom;
+}

@@ -7,6 +7,7 @@ var ns = XMPConst.NS_CAMERA_RAW //"http://ns.adobe.com/camera-raw-settings/1.0/"
 var docRef = app.activeDocument;
 var docRefPath = docRef.path;
 var docRefName = refLayerName = docRef.name.substr(0, docRef.name.lastIndexOf('.'));
+var docRefExtension = docRef.name.substr(docRef.name.lastIndexOf(".") + 1, docRef.name.length);
 docRef.activeLayer.name = docRefName;
 
 // Preset info
@@ -68,6 +69,15 @@ var dehaze                        =  new Setting ( "Dehaze",               "Deha
 var vibrance                      =  new Setting ( "Vibrance",             "Vibrance",                            -100,   +100    , 0);
 var saturation                    =  new Setting ( "Saturation",           "Saturation",                          -100,   +100    , 0);
 
+// Parametric Curves
+var parametricShadows               =  new Setting ( "Parametric Shadows",          "ParametricShadows",            -100,   +100    , 0);
+var parametricDarks                 =  new Setting ( "Parametric Darks",            "ParametricDarks",              -100,   +100    , 0);
+var parametricLights                =  new Setting ( "Parametric Lights",           "ParametricLights",             -100,   +100    , 0);
+var parametricHighlights            =  new Setting ( "Parametric Highlights",       "ParametricHighlights",         -100,   +100    , 0);
+var parametricShadowSplit           =  new Setting ( "Parametric Shadow Split",     "ParametricShadowSplit",        +10,    +70     , +25);
+var parametricMidtoneSplit          =  new Setting ( "Parametric Midtone Split",    "ParametricMidtoneSplit",       +20,    +80     , +50);
+var parametricHighlightSplit        =  new Setting ( "Parametric Highlight Split",  "ParametricHighlightSplit",     +30,    +90     , +75);
+
 // Tone Curve
 var toneCurve                     =  new Setting ( "Lum Tone Curve",       "ToneCurvePV2012",                     0,      +255    , [[0,0], [255,255]]);
 var toneCurveRed                  =  new Setting ( "Red Tone Curve",       "ToneCurvePV2012Red",                  0,      +255    , [[0,0], [255,255]]);
@@ -113,7 +123,7 @@ var highlightLum                  =  new Setting ( "L",                    "Colo
 var globalHue                     =  new Setting ( "H",                    "ColorGradeGlobalHue",                 0,      +359    , 0);
 var globalSat                     =  new Setting ( "S",                    "ColorGradeGlobalSat",                 0,      +100    , 0);
 var globalLum                     =  new Setting ( "L",                    "ColorGradeGlobalLum",                 -100,   +100    , 0);
-var blending                      =  new Setting ( "Blending",             "ColorGradeBlending",                  0,      +100    , 50);
+var blending                      =  new Setting ( "Blending",             "ColorGradeBlending",                  0,      +100    , +50);
 var balance                       =  new Setting ( "Balance",              "SplitToningBalance",                  -100,   +100    , 0);
         
 // Detail
@@ -199,6 +209,7 @@ var docRef_beforeAfter_split_horizontal = duplicateDocument(docRef, "beforeAfter
 copyActiveLayerFromSourceToTarget(docRef_unedited, docRef_beforeAfter_split_horizontal);
 addMask('horizontal');
 addBeforeAfterLabels ('horizontal');
+app.refresh();
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create beforeAfter_split_vertical version
@@ -206,6 +217,7 @@ var docRef_beforeAfter_split_vertical = duplicateDocument(docRef, "beforeAfter_s
 copyActiveLayerFromSourceToTarget(docRef_unedited, docRef_beforeAfter_split_vertical);
 addMask('vertical');
 addBeforeAfterLabels ('vertical');
+app.refresh();
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create beforeAfter_split_diagonal version
@@ -213,6 +225,7 @@ var docRef_beforeAfter_split_diagonal = duplicateDocument(docRef, "beforeAfter_s
 copyActiveLayerFromSourceToTarget(docRef_unedited, docRef_beforeAfter_split_diagonal);
 addMask('diagonal');
 addBeforeAfterLabels ('diagonal');
+app.refresh();
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create beforeAfter_sideBySide_horizontal version
@@ -224,6 +237,7 @@ resizeLayerToFillDimensions(activeDocument.activeLayer, targetWidth, targetHeigh
 translateLayerTo(activeDocument.activeLayer, targetWidth / 2, targetHeight / 4, "middlecenter");
 addMask('horizontal');
 addBeforeAfterLabels ('horizontal');
+app.refresh();
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create beforeAfter_sideBySide_vertical version
@@ -240,36 +254,42 @@ addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 // Create panel_basic version
 var docRef_panel_basic = duplicateDocument(docRef, "panel_basic");
 addDarkGlassLayer(undefined, "leftsidebar");
-addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var basicPanelGroup = addBasicPanel();
+app.refresh();
+addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create panel_toneCurve version
 var docRef_panel_toneCurves = duplicateDocument(docRef, "panel_toneCurves");
 addDarkGlassLayer(undefined, "leftsidebar");
-addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var toneCurvesPanelGroup = addToneCurvesPanel();
+app.refresh();
+addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create panel_colorMixer version
 var docRef_panel_colorMixer = duplicateDocument(docRef, "panel_colorMixer");
 addDarkGlassLayer(undefined, "leftsidebar");
-addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var colorMixerPanelGroup = addColorMixerPanel();
+app.refresh();
+addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create panel_colorGrading version
 var docRef_panel_colorGrading = duplicateDocument(docRef, "panel_colorGrading");
 addDarkGlassLayer(undefined, "leftsidebar");
-addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var colorGradingPanelGroup = addColorGradingPanel();
+app.refresh();
+addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create panel_all version
 var docRef_panel_all = duplicateDocument(docRef, "panel_all");
 addDarkGlassLayer(undefined, "center");
-addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var allPanelsGroup = addAllPanels();
+app.refresh();
+addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create preset_info version
 var docRef_preset = duplicateDocument(docRef, "preset");
 addDarkGlassLayer(undefined, "center");
+app.refresh();
 var presetInfoGroup = addPresetInfo();
 
 // Create photo_context version
@@ -770,6 +790,7 @@ function createUneditedCopy (docRef) {
     var resetParametersArray = [
         exposure,contrast,highlights,shadows,whites,blacks,
         texture,clarity,dehaze,vibrance,saturation,
+        parametricShadows, parametricDarks, parametricLights, parametricHighlights, parametricShadowSplit, parametricMidtoneSplit, parametricHighlightSplit,
         toneCurve, toneCurveRed, toneCurveGreen, toneCurveBlue,
         redHue,orangeHue,yellowHue,greenHue,aquaHue,blueHue,purpleHue,magentaHue,
         redSaturation,orangeSaturation,yellowSaturation,greenSaturation,aquaSaturation,blueSaturation,purpleSaturation,magentaSaturation,
@@ -2081,8 +2102,6 @@ function setShapeSettings (fillEnabled, shapeFillColor, strokeEnabled, shapeStro
         executeAction( charIDToTypeID( "setd" ), desc, DialogModes.NO );
 
     }   catch (e) { throw(e); }
-
-    app.refresh();
 
 }
 

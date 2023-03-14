@@ -21,7 +21,9 @@ var ns = XMPConst.NS_CAMERA_RAW //"http://ns.adobe.com/camera-raw-settings/1.0/"
 // Doc info
 var docRef = app.activeDocument;
 var docRefPath = docRef.path;
+var docRefFullName = docRef.fullName.fullName;
 var docRefName = refLayerName = docRef.name.substr(0, docRef.name.lastIndexOf('.'));
+var docRefExtension = docRef.name.substr(docRef.name.lastIndexOf(".") + 1, docRef.name.length);
 
 // Preset info
 var presetInfo = findPresetInfoInKeywords();
@@ -45,6 +47,15 @@ var clarity                       =  new Setting ( "Clarity",              "Clar
 var dehaze                        =  new Setting ( "Dehaze",               "Dehaze",                              -100,   +100    , 0);
 var vibrance                      =  new Setting ( "Vibrance",             "Vibrance",                            -100,   +100    , 0);
 var saturation                    =  new Setting ( "Saturation",           "Saturation",                          -100,   +100    , 0);
+
+// Parametric Curves
+var parametricShadows               =  new Setting ( "Parametric Shadows",          "ParametricShadows",            -100,   +100    , 0);
+var parametricDarks                 =  new Setting ( "Parametric Darks",            "ParametricDarks",              -100,   +100    , 0);
+var parametricLights                =  new Setting ( "Parametric Lights",           "ParametricLights",             -100,   +100    , 0);
+var parametricHighlights            =  new Setting ( "Parametric Highlights",       "ParametricHighlights",         -100,   +100    , 0);
+var parametricShadowSplit           =  new Setting ( "Parametric Shadow Split",     "ParametricShadowSplit",        +10,    +70     , +25);
+var parametricMidtoneSplit          =  new Setting ( "Parametric Midtone Split",    "ParametricMidtoneSplit",       +20,    +80     , +50);
+var parametricHighlightSplit        =  new Setting ( "Parametric Highlight Split",  "ParametricHighlightSplit",     +30,    +90     , +75);
 
 // Tone Curve
 var toneCurve                     =  new Setting ( "Lum Tone Curve",       "ToneCurvePV2012",                     0,      +255    , [[0,0], [255,255]]);
@@ -96,7 +107,7 @@ var balance                       =  new Setting ( "Balance",              "Spli
         
 // Detail
 // Sharpenning
-var sharpeningAmount              =  new Setting ( "Amount",               "Sharpeness",                          0,      +150    , +40);
+var sharpeningAmount              =  new Setting ( "Amount",               "Sharpness",                          0,      +150    , +40);
 var sharpeningRadius              =  new Setting ( "Radius",               "SharpenRadius",                       +0.5,   +3      , +1);
 var sharpeningDetail              =  new Setting ( "Detail",               "SharpenDetail",                       0,      +100    , +25);
 var sharpeningMasking             =  new Setting ( "Masking",              "SharpenEdgeMasking",                  0,      +100    , 0);
@@ -140,7 +151,8 @@ var blueSaturationCalibration     =  new Setting ( "Blue Saturatmetersion",     
 // addColorGradingPanel();
 // addToneCurvesPanel();
 // exportDocumentsAsPNG(undefined, docRefPath);
-createPanel("toneCurves");
+
+createInterpolatedFiles ([exposure, contrast, highlights, shadows, whites, blacks]);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -258,13 +270,13 @@ addBeforeAfterLabels ('horizontal');
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 
 // Create panel_basic version
-var docRef_panel_basic = duplicateDocument(filled_after, docRefName + "_panel_basic");
+var docRef_panel_basic = duplicateDocument(filled_after, docRefName + "_panels");
 addDarkGlassLayer(undefined, "leftsidebar");
 addLogo("ChainCircle x Raleway_White - Horizontal", "bottomright", 1 / 30);
 var basicDocument = loadPanel("basic");
-// var toneCurvesDocument = loadPanel("toneCurves");
-// var colorMixerDocument = loadPanel("colorMixer");
-// var colorGradingDocument = loadPanel("colorGrading");
+var toneCurvesDocument = loadPanel("toneCurves");
+var colorMixerDocument = loadPanel("colorMixer");
+var colorGradingDocument = loadPanel("colorGrading");
 
 // Create panel_toneCurve version
 var docRef_panel_toneCurves = duplicateDocument(filled_after, docRefName + "_panel_toneCurves");
@@ -342,6 +354,7 @@ function createUneditedCopy (docRef, documentSuffix) {
     var resetParametersArray = [
         exposure,contrast,highlights,shadows,whites,blacks,
         texture,clarity,dehaze,vibrance,saturation,
+        parametricShadows, parametricDarks, parametricLights, parametricHighlights, parametricShadowSplit, parametricMidtoneSplit, parametricHighlightSplit,
         toneCurve, toneCurveRed, toneCurveGreen, toneCurveBlue,
         redHue,orangeHue,yellowHue,greenHue,aquaHue,blueHue,purpleHue,magentaHue,
         redSaturation,orangeSaturation,yellowSaturation,greenSaturation,aquaSaturation,blueSaturation,purpleSaturation,magentaSaturation,
@@ -357,88 +370,6 @@ function createUneditedCopy (docRef, documentSuffix) {
     resetSettings ( targetFilePath, resetParametersArray );
 
     return targetFile;
-
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function resetSettings (filePath, settingsArray) {
-
-    var filePathExtension = filePath.substr(filePath.lastIndexOf(".") + 1, filePath.length);
-
-    if(filePathExtension == "dng") {
-
-        xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData);
-
-        xmpMeta.setProperty(ns, "AlreadyApplied", false);
-
-        for (i = 0; i < settingsArray.length; i ++) {
-
-            if ( settingsArray[i].crsName.match("ToneCurvePV2012") ){
-
-                for (j=0; j<settingsArray[i].settingValue.length; j++) {
-
-                    xmpMeta.setArrayItem(ns, settingsArray[i].crsName, j+1, settingsArray[i].settingValue[j][0] + ", " + settingsArray[i].settingValue[j][0]);
-
-                }
-
-            } else {
-
-                xmpMeta.setProperty(ns, settingsArray[i].crsName, settingsArray[i].defaultValue);
-
-            }
-
-            settingsArray[i].isCustom = false;
-
-        }
-
-        var xmpFile = new XMPFile (filePath, XMPConst.FILE_UNKNOWN, XMPConst.OPEN_FOR_UPDATE);
-
-        xmpFile.putXMP(xmpMeta.serialize());
-        xmpFile.closeFile();
-
-    }   else    {
-
-        var xmpFilePath = filePath.substr(0, filePath.lastIndexOf(".")) + '.xmp';
-        xmpFile = new File(xmpFilePath);
-
-        xmpFile.open('r');
-        xmpFile.encoding = 'UTF8';
-        xmpFile.lineFeed = 'unix';
-        xmpFile.open('r', "TEXT", "????");
-
-        var xmpInitial = xmpFile.read();
-        xmpFile.close();
-
-        xmpMeta = new XMPMeta (xmpInitial);
-
-        for (i = 0; i < settingsArray.length; i ++) {
-
-            if ( settingsArray[i].crsName.match("ToneCurvePV2012") ){
-
-                for (j=0; j<settingsArray[i].settingValue.length; j++) {
-
-                    xmpMeta.setArrayItem(ns, settingsArray[i].crsName, j+1, settingsArray[i].settingValue[j][0] + ", " + settingsArray[i].settingValue[j][0]);
-
-                }
-
-            } else {
-
-                xmpMeta.setProperty(ns, settingsArray[i].crsName, settingsArray[i].defaultValue);
-
-            }
-
-            settingsArray[i].isCustom = false;
-
-        }
-
-        xmpFile.open('w');
-        xmpFile.encoding = 'UTF8';
-        xmpFile.lineFeed = 'unix';
-        xmpFile.write(xmpMeta.serialize());
-        xmpFile.close();
-
-    }
 
 }
 
@@ -981,16 +912,11 @@ function addBasicPanel(panelXPosition, panelYPosition) {
     // Initial position
     if(panelXPosition == undefined && panelYPosition == undefined) {
         var panelXPosition = docWidth * 2 / 24;
-        var panelYPosition = docHeight / 2 - 585;
+        var panelYPosition = docHeight / 2 - 235;
     }
 
     var groupXPosition = panelXPosition;
     var groupYPosition = panelYPosition;
-
-    // Add histogram
-    var basicPanelHistogramGroup = addHistograms(groupXPosition, groupYPosition, histogramWidth, histogramHeigth, histogramStrokeWidth);
-    moveLayerInsideLayerset(basicPanelHistogramGroup, basicPanelGroup);
-    groupYPosition += 350;
 
     // Add basic tone settings
     var basicPanelToneGroup = addSliderSettingSet("Tone", [exposure, contrast, highlights, shadows, whites, blacks], groupXPosition, groupYPosition, sliderSettingsSetSpacing, sliderLineLength, sliderStyle);
@@ -1404,47 +1330,49 @@ function loadPanel(panelName) {
 
 function createPanel(panelName) {
 
-    app.backgroundColor.rgb.hexValue = deafultBackgroundColor;
+    var panelDocument = duplicateDocument(filled_after, docRefName + "_" + targetWidth + "x" + targetHeight + "_" + panelName);
 
-    var panelDocument = app.documents.add(targetWidth, targetHeight, targetResolution, docRefName + "_" + panelName, NewDocumentMode.RGB, DocumentFill.BACKGROUNDCOLOR);
+    // app.foregroundColor.rgb.hexValue = defaultForegroundColor;
+    // var panelDocument = app.documents.add(targetWidth, targetHeight, targetResolution, docRefName + "_" + panelName, NewDocumentMode.RGB, DocumentFill.BACKGROUNDCOLOR);
 
     switch (panelName) {
 
-        // case "histogram":
-        //     addHistograms(0, 0, histogramWidth, histogramHeight, histogramStrokeWidth);
-        // break;
+        case "histogram":
+            addHistograms();
+        break;
 
         case "basic":
-            var panelGroup = addBasicPanel();
+            addHistograms();
+            addBasicPanel();
         break;
 
         case "toneCurves":
-            var panelGroup = addToneCurvesPanel();
+            addToneCurvesPanel();
         break;
 
         case "colorGrading":
-            var panelGroup = addColorGradingPanel();
+            addColorGradingPanel();
         break;
 
         case "colorMixer":
-            var panelGroup = addColorMixerPanel();
+            addColorMixerPanel();
         break;
 
         case "presetInfo":
-            var panelGroup = addPresetInfo();
+            addPresetInfo();
         break;
 
         case "photoContext":
-            var panelGroup = addPhotoContext();
+            addPhotoContext();
         break;
 
         case "allPanels":
-            var panelGroup = addAllPanels();
+            addAllPanels();
         break;
 
     }
 
-    panelDocument.layers.getByName("Background").remove();
+    panelDocument.layers.getByName(docRefName).remove();
 
     // Make the main layerset the active layer
     panelDocument.activeLayer = panelDocument.layerSets[0];
@@ -1484,18 +1412,4 @@ function createFolder (folderPath) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function updateSettingValue(settingName) {
-    var currentIndex = settingName.interpolatedValues.indexOf(settingName.currentValue);
-    settingName.currentValue = settingName.interpolatedValues[currentIndex + 1];
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function updateXMP(setting, newValue) {
-
-    xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData);
-
-    xmpMeta.setProperty(ns, setting.crsName, newValue);
-
-}
 

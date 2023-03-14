@@ -1,16 +1,34 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function addHistograms(xPosition, yPosition, width, height, strokeWidth) {
+function addHistograms(xPosition, yPosition, width, height) {
 
-    var redHistogram    = addHistogram("Red",     xPosition,      yPosition,      height,     width);
+    // Initial position
+    if(xPosition == undefined) {
+        var xPosition = targetWidth * 2 / 24;
+    }
+
+    if(yPosition == undefined) {
+        var yPosition = targetHeight / 2 - 585;
+    }
+
+    // Dimensions
+    if(width == undefined) {
+        width = histogramWidth;
+    }
+
+    if(height == undefined) {
+        height = histogramHeight;
+    }
+
+    var redHistogram    = addHistogram("Red",     xPosition,      yPosition,      width,     height);
     setShapeSettings(true,   "c9430a",   false,  strokeColor, strokeWidth);
     activeDocument.activeLayer.blendMode = BlendMode.SCREEN;
     activeDocument.activeLayer.name = "Red Histogram";
-    var greenHistogram  = addHistogram("Green",   xPosition,      yPosition,      height,     width);
+    var greenHistogram  = addHistogram("Green",   xPosition,      yPosition,      width,     height);
     setShapeSettings(true,   "19804c",   false,  strokeColor, strokeWidth);
     activeDocument.activeLayer.blendMode = BlendMode.SCREEN;
     activeDocument.activeLayer.name = "Green Histogram";
-    var blueHistogram   = addHistogram("Blue",    xPosition,      yPosition,      height,     width);
+    var blueHistogram   = addHistogram("Blue",    xPosition,      yPosition,      width,     height);
     setShapeSettings(true,   "0097c2",   false,  strokeColor, strokeWidth);
     activeDocument.activeLayer.blendMode = BlendMode.SCREEN;
     activeDocument.activeLayer.name = "Blue Histogram";
@@ -31,10 +49,6 @@ function addHistograms(xPosition, yPosition, width, height, strokeWidth) {
 
 function addHistogram(histogramType, xPosition, yPosition, histogramWidth, histogramHeight) {
 
-    showSelectedLayer(refLayerName, true);
-
-    var layerName = histogramType + " histogram"
-
     // it works only on RGB images
     if (activeDocument.mode == DocumentMode.RGB) {
 
@@ -43,6 +57,8 @@ function addHistogram(histogramType, xPosition, yPosition, histogramWidth, histo
         app.preferences.rulerUnits = Units.PIXELS; // importante
         activeDocument.quickMaskMode = false;
         activeDocument.selection.deselect();
+
+        showSelectedLayer(refLayerName, true);
 
         // read histogram:
         var hL = activeDocument.histogram;
@@ -58,13 +74,13 @@ function addHistogram(histogramType, xPosition, yPosition, histogramWidth, histo
 
         }
 
+        showAllLayers();
+
         // add layer
         // activeDocument.artLayers.add();
         // activeDocument.activeLayer.name = layerName;
         // activeDocument.activeLayer.move( activeDocument, ElementPlacement.PLACEATBEGINNING );
         // activeDocument.activeLayer.opacity = 100; // opacity 100%
-
-        //
 
         var myHist = [];
         var histogramPoints = [];
@@ -106,6 +122,7 @@ function addHistogram(histogramType, xPosition, yPosition, histogramWidth, histo
 
         }
 
+        // Compute histogram shape points coordinates
         for ( i = 2; i <= 253; i++ ) {
 
             if (histogramType == "MaxRGB") {
@@ -124,8 +141,6 @@ function addHistogram(histogramType, xPosition, yPosition, histogramWidth, histo
             histogramPoints.push([i * histogramWidth / 252, YYY]);
 
         }
-
-        showAllLayers();
 
         drawSmoothHistogram(histogramPoints, xPosition, yPosition + histogramHeight);
 
