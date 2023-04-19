@@ -23,42 +23,230 @@
 //     shadowTintCalibration,redHueCalibration,redSaturationCalibration,greenHueCalibration,greenSaturationCalibration,blueHueCalibration,blueSaturationCalibration
 // ]
 
-var interpolationSteps = 30;
+// Animation
+var projectFPS = interpolationSteps =  30;
+var tempo = 111;
+var framesPerBeat = 30;
+var referenceAnimationKeyFramesIncrement = framesPerBeat / projectFPS;
+var framesPerEase = 8;
+var referenceKeyTime = 0;
+var referenceKeyTimeIncrement = framesPerBeat / projectFPS;
+var nextKeyTime = referenceKeyTime + framesPerBeat;
 
-var panelCompositionParameters = {
-    width: 405,
-    height: 1350,
+
+var projectDuration = 30; //TODO Compute based on image data
+
+// Dashboard Composition
+var dashboardCompositionParameters = {
+    width: 1080,
+    height: 570,
+    position: [0,0],
     pixelAspect: 1,
     duration: 12,
-    frameRate: 30,
+    frameRate: projectFPS,
     padding: {
-        top: 90,
-        right: 72,
-        bottom: 90,
-        left: 72
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+    }
+}
+
+// Panel Composition
+var panelCompositionParameters = {
+    width: 1080,
+    height: 570,
+    position: [0,0],
+    pixelAspect: 1,
+    duration: 12,
+    frameRate: projectFPS,
+    padding: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
     }
 };
 
-
-var toneCurveCompositionParameters = {
-    width: 225,
-    height: 225,
-    anchorPoint: "topLeft",
-    pixelAspect: 1,
-    duration: 6,
-    frameRate: 30,
+var panelTitleParameters = {
+    width: 1080,
+    height: 570,
+    position: [panelCompositionParameters.width / 2, panelCompositionParameters.height / 2],
     padding: {
-        top: 45,
+        top: 0,
         right: 0,
         bottom: 0,
         left: 0
     },
+    anchorPoint: "middleCenter",
+    fontSize: 30, 
+    fontColor: hexToRgb("FFFFFF"),
+    fontName: "WorkSansRoman-Medium",
+    fontTracking: 200,
+    fontCapitalization: true,
+    justification: ParagraphJustification.CENTER_JUSTIFY
+};
+
+// Group Composition
+var groupCompositionParameters = {
+    width: 1080,
+    height: 570,
+    position: [0,0],
+    pixelAspect: 1,
+    duration: 12,
+    frameRate: projectFPS,
+    padding: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+    }
+}
+
+
+var groupTitleParameters = {
+    width: 1080,
+    height: 3 * 45,
+    padding: {
+        top: 45,
+        right: 0,
+        bottom: 45,
+        left: 0
+    },
+    position: [groupCompositionParameters.width / 2, 2 * 45],
+    anchorPoint: "bottomCenter",
+    fontSize: 24, 
+    fontColor: hexToRgb("FFFFFF"),
+    fontName: "WorkSansRoman-Medium",
+    fontTracking: 200,
+    fontCapitalization: true,
+    justification: ParagraphJustification.CENTER_JUSTIFY
+};
+
+
+// Slider
+var sliderCompositionParameters = {
+    anchorPoint: "topLeft",
+    pixelAspect: 1,
+    duration: 12,
+    frameRate: projectFPS,
+    padding: {
+        top: 0,
+        right: 6 * 45,
+        bottom: 0,
+        left: 2 * 45
+    }
+};
+
+var sliderTextParameters = {
+    width: 5 * 45,
+    position: [0,0],
+    fontSize: 21, 
+    fontColor: hexToRgb("FFFFFF"),
+    fontName: "WorkSansRoman-Medium",
+    fontTracking: 200,
+    fontCapitalization: true,
+    animation: {
+        start: 2,
+        end: 4
+    }
+};
+
+var sliderCircleParameters = {
+    diameter : 27,
+    fill : {
+        color: hexToRgb(circleSelectorFillColor)
+    },
+    stroke : {
+        color: hexToRgb(circleSelectorStrokeColor),
+        width: 1,
+        opacity: 50
+    },
+    shadow: {
+        opacity: 0.35 * 255,
+        direction: 180,
+        distance: 2,
+        softness: 8,
+    }
+};
+
+var sliderBarParameters = {
+    position : [0, 0],
+    fill: {
+        color: hexToRgb(sliderBarSolidFillColor)
+    },
+    gradientOverlay: {
+        angle: 0,
+        style: 1
+    },
+    bevelAndEmboss: {
+        style: 2,
+        depth: 100,
+        direction: 2,
+        size: 8,
+        angle: 90,
+        altitude: 30,
+        highlightOpacity: 50,
+        shadowOpacity: 35
+    },
+    effects: {
+        stroke: {
+            color: hexToRgb(sliderBarStrokeColor),
+            size: 1,
+            opacity: 100,
+            position: 1 // Outside
+        }
+    },
+    stroke: {
+        color: hexToRgb(sliderBarSolidFillColor),
+        width: 9,
+        cap: 2 // Rounded
+    },
+    padding: {
+        top: 0,
+        right: 15,
+        bottom: 0,
+        left: 15
+    }
+};
+
+
+
+var toneCurveCompositionParameters = {
+    width: 405,
+    height: 261,
+    anchorPoint: "topLeft",
+    pixelAspect: 1,
+    duration: 6,
+    frameRate: projectFPS,
+    padding: {
+        top: 18,
+        right: 90,
+        bottom: 18,
+        left: 90
+    },
+}
+
+var toneCurveBackgroundParameters = {
+    width: toneCurveCompositionParameters.width - toneCurveCompositionParameters.padding.left - toneCurveCompositionParameters.padding.right,
+    height: toneCurveCompositionParameters.height - toneCurveCompositionParameters.padding.top - toneCurveCompositionParameters.padding.bottom,
+    fill: hexToRgb(toneCurveSolidBackgroundcolor),
+    opacity: 0.65 * 255
+}
+
+var toneCurveGridParameters = {
+    width: toneCurveBackgroundParameters.width,
+    height: toneCurveBackgroundParameters.height,
+    anchor: [(toneCurveBackgroundParameters.width - 1) / 4, (toneCurveBackgroundParameters.width - 1) / 4], 
+    corner: [0, 0], 
+    border: 2
 }
 
 var toneCurvePathParameters = {
     stroke: {
         size: 4,
-        color: hexToRgb(toneCurvePathStrokecolor)
+        color: hexToRgb(toneCurvePathStrokecolor),
+        cap: 2
     },
     shadow: {
         opacity: 0.35 * 255,
@@ -67,24 +255,6 @@ var toneCurvePathParameters = {
         softness: 18,
     }
 }
-
-var toneCurveBackgroundParameters = {
-    width: 225,
-    height: 225,
-    fill: hexToRgb(toneCurveSolidBackgroundcolor)
-}
-
-var toneCurveGridParameters = {
-    width: 180,
-    height: 180,
-    anchor: [44.75, 44.75], 
-    corner: [0, 0], 
-    border: 2
-}
-
-// border = choose
-// anchor point = - (border / 2 )
-// corner = width / splits
 
 var toneCurveAnchorPointParameters = {
     diameter : 12, 
@@ -106,6 +276,10 @@ var toneCurveAnchorPointParameters = {
         end: 2
     }
 }
+
+// border = choose
+// anchor point = - (border / 2 )
+// corner = width / splits
 
 var defaultAnimationParameters = {
     easeIn: new KeyframeEase(0.5, 33.3333),
