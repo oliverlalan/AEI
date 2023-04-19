@@ -387,7 +387,7 @@ var lightroomPanels = {
                 groupType: "Color Mixer",
                 settings: {
                     redHue: {
-                        displayName:    "Red Hue",    
+                        displayName:    "Red",    
                         crsName:        "HueAdjustmentRed",
                         min:            -100,
                         max:            +100,
@@ -399,7 +399,7 @@ var lightroomPanels = {
                         gradientColors: ["ed145b", "f26522"]
                     },
                     orangeHue: {
-                        displayName:    "Orange Hue",    
+                        displayName:    "Orange",    
                         crsName:        "HueAdjustmentOrange",
                         min:            -100,
                         max:            +100,
@@ -411,7 +411,7 @@ var lightroomPanels = {
                         gradientColors: ["f26522", "fff200"]
                     },
                     yellowHue: {
-                        displayName:    "Yellow Hue" ,    
+                        displayName:    "Yellow" ,    
                         crsName:        "HueAdjustmentYellow",
                         min:            -100,
                         max:            +100,
@@ -423,7 +423,7 @@ var lightroomPanels = {
                         gradientColors: ["fff200", "39b54a"]
                     },
                     greenHue: {
-                        displayName:    "Green Hue",    
+                        displayName:    "Green",    
                         crsName:        "HueAdjustmentGreen",
                         min:            -100,
                         max:            +100,
@@ -435,7 +435,7 @@ var lightroomPanels = {
                         gradientColors: ["39b54a", "00a99d"]
                     },
                     aquaHue: {
-                        displayName:    "Aqua Hue",    
+                        displayName:    "Aqua",    
                         crsName:        "HueAdjustmentAqua",
                         min:            -100,
                         max:            +100,
@@ -447,7 +447,7 @@ var lightroomPanels = {
                         gradientColors: ["00a99d", "0072bc"]
                     },
                     blueHue: {
-                        displayName:    "Blue Hue",    
+                        displayName:    "Blue",    
                         crsName:        "HueAdjustmentBlue",
                         min:            -100,
                         max:            +100,
@@ -459,7 +459,7 @@ var lightroomPanels = {
                         gradientColors: ["0072bc", "2e3192"]
                     },
                     purpleHue: {
-                        displayName:    "Purple Hue",    
+                        displayName:    "Purple",    
                         crsName:        "HueAdjustmentPurple",
                         min:            -100,
                         max:            +100,
@@ -471,7 +471,7 @@ var lightroomPanels = {
                         gradientColors: ["2e3192", "92278f"]
                     },
                     magentaHue: {
-                        displayName:    "Magenta Hue",    
+                        displayName:    "Magenta",    
                         crsName:        "HueAdjustmentMagenta",
                         min:            -100,
                         max:            +100,
@@ -489,7 +489,7 @@ var lightroomPanels = {
                 groupType: "Color Mixer",
                 settings: {
                     redSaturation: {
-                        displayName:    "Red Saturation",    
+                        displayName:    "Red",    
                         crsName:        "SaturationAdjustmentRed",
                         min:            -100,
                         max:            +100,
@@ -501,7 +501,7 @@ var lightroomPanels = {
                         gradientColors: ["A6A6A6", "ed145b"]
                     },
                     orangeSaturation: {
-                        displayName:    "Orange Saturation",    
+                        displayName:    "Orange",    
                         crsName:        "SaturationAdjustmentOrange",
                         min:            -100,
                         max:            +100,
@@ -513,7 +513,7 @@ var lightroomPanels = {
                         gradientColors: ["A6A6A6", "f26522"]
                     },
                     yellowSaturation: {
-                        displayName:    "Yellow Saturation" ,    
+                        displayName:    "Yellow" ,    
                         crsName:        "SaturationAdjustmentYellow",
                         min:            -100,
                         max:            +100,
@@ -525,7 +525,7 @@ var lightroomPanels = {
                         gradientColors: ["A6A6A6", "fff200"]
                     },
                     greenSaturation: {
-                        displayName:    "Green Saturation",    
+                        displayName:    "Green",    
                         crsName:        "SaturationAdjustmentGreen",
                         min:            -100,
                         max:            +100,
@@ -537,7 +537,7 @@ var lightroomPanels = {
                         gradientColors: ["A6A6A6", "39b54a"]
                     },
                     aquaSaturation: {
-                        displayName:    "Aqua Saturation",    
+                        displayName:    "Aqua",    
                         crsName:        "SaturationAdjustmentAqua",
                         min:            -100,
                         max:            +100,
@@ -549,7 +549,7 @@ var lightroomPanels = {
                         gradientColors: ["A6A6A6", "00a99d"]
                     },
                     blueSaturation: {
-                        displayName:    "Blue Saturation",    
+                        displayName:    "Blue",    
                         crsName:        "SaturationAdjustmentBlue",
                         min:            -100,
                         max:            +100,
@@ -561,7 +561,7 @@ var lightroomPanels = {
                         gradientColors: ["A6A6A6", "0072bc"]
                     },
                     purpleSaturation: {
-                        displayName:    "Purple Saturation",    
+                        displayName:    "Purple",    
                         crsName:        "SaturationAdjustmentPurple",
                         min:            -100,
                         max:            +100,
@@ -573,7 +573,7 @@ var lightroomPanels = {
                         gradientColors: ["A6A6A6", "2e3192"]
                     },
                     magentaSaturation: {
-                        displayName:    "Magenta Saturation",    
+                        displayName:    "Magenta",    
                         crsName:        "SaturationAdjustmentMagenta",
                         min:            -100,
                         max:            +100,
@@ -591,7 +591,7 @@ var lightroomPanels = {
                 groupType: "Color Mixer",
                 settings: {
                     redLuminance: {
-                        displayName:    "Red Luminance",    
+                        displayName:    "Red",    
                         crsName:        "LuminanceAdjustmentRed",
                         min:            -100,
                         max:            +100,
@@ -603,7 +603,7 @@ var lightroomPanels = {
                         gradientColors: ["7a0026", "f5989d"] // ["7a0026", "ed145b", "f5989d"]
                     },
                     orangeLuminance: {
-                        displayName:    "Orange Luminance",    
+                        displayName:    "Orange",    
                         crsName:        "LuminanceAdjustmentOrange",
                         min:            -100,
                         max:            +100,
@@ -615,7 +615,7 @@ var lightroomPanels = {
                         gradientColors: ["7b2e00", "f9ad81"] // ["7b2e00", "f26522", "f9ad81"]
                     },
                     yellowLuminance: {
-                        displayName:    "Yellow Luminance" ,    
+                        displayName:    "Yellow" ,    
                         crsName:        "LuminanceAdjustmentYellow",
                         min:            -100,
                         max:            +100,
@@ -627,7 +627,7 @@ var lightroomPanels = {
                         gradientColors: ["827b00", "fff799"] // ["827b00", "fff200", "fff799"]
                     },
                     greenLuminance: {
-                        displayName:    "Green Luminance",    
+                        displayName:    "Green",    
                         crsName:        "LuminanceAdjustmentGreen",
                         min:            -100,
                         max:            +100,
@@ -639,7 +639,7 @@ var lightroomPanels = {
                         gradientColors: ["005e20", "a3d39c"] // ["005e20", "39b54a", "a3d39c"]
                     },
                     aquaLuminance: {
-                        displayName:    "Aqua Luminance",    
+                        displayName:    "Aqua",    
                         crsName:        "LuminanceAdjustmentAqua",
                         min:            -100,
                         max:            +100,
@@ -651,7 +651,7 @@ var lightroomPanels = {
                         gradientColors: ["005952", "7accc8"] // ["005952", "00a99d", "7accc8"]
                     },
                     blueLuminance: {
-                        displayName:    "Blue Luminance",    
+                        displayName:    "Blue",    
                         crsName:        "LuminanceAdjustmentBlue",
                         min:            -100,
                         max:            +100,
@@ -663,7 +663,7 @@ var lightroomPanels = {
                         gradientColors: ["003663", "7da7d9"] // ["003663", "0072bc", "7da7d9"]
                     },
                     purpleLuminance: {
-                        displayName:    "Purple Luminance",    
+                        displayName:    "Purple",    
                         crsName:        "LuminanceAdjustmentPurple",
                         min:            -100,
                         max:            +100,
@@ -675,7 +675,7 @@ var lightroomPanels = {
                         gradientColors: ["0d004c", "8781bd"] // ["0d004c", "2e3192", "8781bd"]
                     },
                     magentaLuminance: {
-                        displayName:    "Magenta Luminance",    
+                        displayName:    "Magenta",    
                         crsName:        "LuminanceAdjustmentMagenta",
                         min:            -100,
                         max:            +100,
