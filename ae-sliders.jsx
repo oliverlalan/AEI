@@ -1,3 +1,45 @@
+function createSlidersPanelComposition (panel, style) {
+
+    var panelName = panel.displayName;
+    var groups = panel.groups;
+
+    // Reset reference position
+    panelCompositionParameters.position[1] = 0;
+
+    // Create folder to store each slider
+    var panelCompositionsFolder = project.items.addFolder(panelName + " Pre-Compositions");
+
+    // Create group composition 
+    // TODO Compute dimensions based on entries
+    var panelComposition = project.items.addComp(panelName, panelCompositionParameters.width, panelCompositionParameters.height, panelCompositionParameters.pixelAspect, panelCompositionParameters.duration, panelCompositionParameters.frameRate);
+
+    // Create title
+    var panelTitleLayer = createPanelTitleLayer (panelComposition, panelName);
+
+    for (groupKey in groups) {
+
+        // Create each precomposition
+        var groupComposition = createSlidersGroupComposition (groups[groupKey], style);
+
+        // Store the precomposition in the corresponding foldre
+        groupComposition.parentFolder = panelCompositionsFolder;
+
+        // Include the precomposition created in the group composition
+        var groupComposition = panelComposition.layers.add(groupComposition);
+
+        // Position the precomposition in the group composition
+        setAnchorPoint(groupComposition, "topLeft");
+        groupComposition.position.setValue(panelCompositionParameters.position);
+
+        // Update Y position of the next precomposition
+        panelCompositionParameters.position[1] += groupComposition.height;
+
+    }
+
+    return panelComposition;
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
 // TODO Compute setSpacing based on ammount of slider settings
