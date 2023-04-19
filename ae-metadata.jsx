@@ -8,70 +8,134 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: Creates an object with all the settings of the xmpMetaObject, as they are organized in Lightroom.
+// Call: var imageSettings = loadSettingsFromPath("/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram Photos/Scripts/Test/2022-11-23_13-19-00.xmp");
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function ImageSettings (xmpMeta) {
 
-    this.name = "Test";
+    // Initialize
+    this.name = "Dashboard";
     this.xmpMeta = xmpMeta;
 
-    // Add panels property TODO Count panels
+    this.isCustom = false;
+    this.customPanels = 0;
+    this.keyTimes = [];
+
+    // Animation: Dashboard swipe in
+    this.keyTimes.push(referenceKeyTime, referenceKeyTime + referenceKeyTimeIncrement);
+    referenceKeyTime += referenceKeyTimeIncrement;
+    
+
+    // Set dashboard
     if (!this.hasOwnProperty("panels")) {
         this["panels"] = {};
     }
 
-    // Add panels group
+    // Add panels to dashboard
     for (var panelKey in lightroomPanels) {
 
+        // Set panel
         var panel = lightroomPanels[panelKey];
 
-        // Add a specific panel if it does not exist
+        // Set panel properties
         if (!this.panels.hasOwnProperty(panelKey)) {
+            
+            // Initialize
             this.panels[panelKey] = {};
-            this.panels[panelKey].displayName = panel.displayName;
             this.panels[panelKey].groups = {};
+            this.panels[panelKey].keyTimes = [];
+
+            // Asign group parameters
+            this.panels[panelKey].displayName = panel.displayName;
             this.panels[panelKey].isCustom = false;
-            this.panels
+            this.panels[panelKey].customGroups = 0;
+
+            // Animation Panel Title Swipe In
+            this.panels[panelKey].keyTimes.push(referenceKeyTime, referenceKeyTime + referenceKeyTimeIncrement);
+            referenceKeyTime += referenceKeyTimeIncrement;
+
         }
 
         // Add groups
         for (var groupKey in panel.groups) {
 
+            // Set group
             var group = panel.groups[groupKey];
 
-            // Add a specific group if it does not exist
+            // Set group properties
             if (!this.panels[panelKey].groups.hasOwnProperty(groupKey)) {
+                
+                // Initialize
                 this.panels[panelKey].groups[groupKey] = {};
+                this.panels[panelKey].groups[groupKey].settings = {};
+                this.panels[panelKey].groups[groupKey].keyTimes = [];
+                
+                // Asign group properties
                 this.panels[panelKey].groups[groupKey].displayName = group.displayName;
                 this.panels[panelKey].groups[groupKey].groupType = group.groupType;
-                this.panels[panelKey].groups[groupKey].settings = {};
                 this.panels[panelKey].groups[groupKey].isCustom = false;
+                this.panels[panelKey].groups[groupKey].customSettings = 0;
 
+                // Animation Group Title Swipe In
+                this.panels[panelKey].groups[groupKey].keyTimes.push(referenceKeyTime, referenceKeyTime + referenceKeyTimeIncrement);
+                referenceKeyTime += referenceKeyTimeIncrement;
             }
 
             // Add settings
             for (var settingKey in group.settings) {
                 
+                // Set settings
                 var setting = group.settings[settingKey];
 
                 try {
-                    var settingValues = new Setting (xmpMeta, setting.displayName, setting.crsName, setting.min, setting.max, setting.defaultValue, setting.panel, setting.group, setting.fillType, setting.solidColor, setting.gradientColors);
-
-                    this.panels[panelKey].groups[groupKey].settings[settingKey] = settingValues;
                     
-                    if(this.panels[panelKey].groups[groupKey].settings[settingKey].isCustom == true) {
+                    // Add setting
+                    this.panels[panelKey].groups[groupKey].settings[settingKey] = new Setting (xmpMeta, setting.displayName, setting.crsName, setting.min, setting.max, setting.defaultValue, setting.panel, setting.group, setting.fillType, setting.solidColor, setting.gradientColors);
+                    this.panels[panelKey].groups[groupKey].settings[settingKey].keyTimes = [];
 
+                    // Animation
+                    this.panels[panelKey].groups[groupKey].settings[settingKey].keyTimes.push(referenceKeyTime, referenceKeyTime + referenceKeyTimeIncrement);
+
+                    if(this.panels[panelKey].groups[groupKey].settings[settingKey].isCustom == true) {
+                        
+                        // Update group properties
                         this.panels[panelKey].groups[groupKey].isCustom = true;
-                        this.panels[panelKey].isCustom = true;
+                        this.panels[panelKey].groups[groupKey].customSettings += 1;
 
                     }
 
                 } catch(e) {}
 
+            }
 
-                //
+            // Update group properties
+            if(this.panels[panelKey].groups[groupKey].isCustom == true) {
+
+                this.panels[panelKey].isCustom = true;
+                this.panels[panelKey].customGroups += 1;
+
+                // Animation Settings Animation
+                referenceKeyTime += referenceKeyTimeIncrement;
+
+            } else {
+                
+                // Reset referenceKeyTime if no custom
+                referenceKeyTime -= referenceKeyTimeIncrement;
 
             }
+
+        }
+
+        // Update panel properties
+        if(this.panels[panelKey].isCustom == true) {
+
+            this.isCustom = true;
+            this.customPanels += 1;
+
+        } else {
+
+            // Reset referenceKeyTime
+            referenceKeyTime -= referenceKeyTimeIncrement;
 
         }
         
