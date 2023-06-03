@@ -7,10 +7,12 @@ var settingTest = {
                             defaultValue:   +4500,
                             panel:          "Basic",
                             group:          "White Balance",
-                            fillType:       slidersFillType,
+                            fillType:       "gradient",
+                            gradientFill:   "saturation",
                             solidColor:     sliderBarSolidFillColor,
                             gradientColors: ["006cff", "ffc800"],
-                            settingValue:   +7500
+                            settingValue:   +7500,
+                            keyTimes:       [1,4]
                         },
                         tint: {
                             displayName:    "Tint",    
