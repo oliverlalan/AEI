@@ -55,7 +55,8 @@ var lightroomPanels = {
                         defaultValue:   +4500,
                         panel:          "Basic",
                         group:          "White Balance",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "whiteBalance",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["006cff", "ffc800"]
                     },
@@ -67,7 +68,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Basic",
                         group:          "White Balance",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "tint",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["00d904", "ff0099"]
                     }
@@ -85,7 +87,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Basic",
                         group:          "Tone",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -97,7 +100,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Basic",
                         group:          "Tone",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "HMS",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarLightFillColor, sliderBarDarkFillColor]
                     },
@@ -109,7 +113,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Basic",
                         group:          "Tone",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -120,7 +125,8 @@ var lightroomPanels = {
                         max:            +100,
                         defaultValue:   0,
                         group:          "Tone",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -132,7 +138,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Basic",
                         group:          "Tone",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -144,7 +151,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Basic",
                         group:          "Tone",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     }
@@ -162,7 +170,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Basic",
                         group:          "Presence",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -174,7 +183,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Basic",
                         group:          "Presence",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -186,9 +196,10 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Basic",
                         group:          "Presence",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "saturation",
                         solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [""]
+                        gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor] // TODO
                     },
                     saturation: {
                         displayName:    "Saturation",    
@@ -198,9 +209,10 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Basic",
                         group:          "Presence",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "saturation",
                         solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [""]
+                        gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor] // TODO
                     }
                 }
             }
@@ -209,102 +221,109 @@ var lightroomPanels = {
     toneCurve: {
         displayName: "Tone Curve",
         groups: {
-            parametricCurve: {
-                displayName: "Parametric Curve",
-                groupType: "Tone Curve",
-                settings: {
-                    parametricShadows: {
-                        displayName:    "Parametric Shadows",    
-                        crsName:        "ParametricShadows",
-                        min:            -100,
-                        max:            +100,
-                        defaultValue:   0,
-                        panel:          "Tone Curve",
-                        group:          "Parametric Curve",
-                        fillType:       slidersFillType,
-                        solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
-                    },
-                    parametricDarks: {
-                        displayName:    "Parametric Darks",    
-                        crsName:        "ParametricDarks",
-                        min:            -100,
-                        max:            +100,
-                        defaultValue:   0,
-                        panel:          "Tone Curve",
-                        group:          "Parametric Curve",
-                        fillType:       slidersFillType,
-                        solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
-                    },
-                    parametricLights: {
-                        displayName:    "Parametric Lights",    
-                        crsName:        "ParametricLights",
-                        min:            -100,
-                        max:            +100,
-                        defaultValue:   0,
-                        panel:          "Tone Curve",
-                        group:          "Parametric Curve",
-                        fillType:       slidersFillType,
-                        solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
-                    },
-                    parametricHighlights: {
-                        displayName:    "Parametric Highlights",    
-                        crsName:        "ParametricHighlights",
-                        min:            -100,
-                        max:            +100,
-                        defaultValue:   0,
-                        panel:          "Tone Curve",
-                        group:          "Parametric Curve",
-                        fillType:       slidersFillType,
-                        solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
-                    }
-                }
-            },
-            parametricRegion: {
-                displayName: "Parametric Region",
-                groupType: "Slider",
-                settings: {
-                    parametricShadowSplit: {
-                        displayName:    "Parametric Shadow Split",    
-                        crsName:        "ParametricShadowSplit",
-                        min:            +10,
-                        max:            +70,
-                        defaultValue:   +25,
-                        panel:          "Tone Curve",
-                        group:          "Parametric Region",
-                        fillType:       slidersFillType,
-                        solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
-                    },
-                    parametricMidtoneSplit: {
-                        displayName:    "Parametric Midtone Split",    
-                        crsName:        "ParametricMidtoneSplit",
-                        min:            +20,
-                        max:            +80,
-                        defaultValue:   +50,
-                        panel:          "Tone Curve",
-                        group:          "Parametric Region",
-                        fillType:       slidersFillType,
-                        solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
-                    },
-                    parametricHighlightSplit: {
-                        displayName:    "Parametric Highlight Split",    
-                        crsName:        "ParametricHighlightSplit",
-                        min:            +30,
-                        max:            +90,
-                        defaultValue:   +75,
-                        panel:          "Tone Curve",
-                        group:          "Parametric Region",
-                        fillType:       slidersFillType,
-                        solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
-                    }
-                }
-            },
+            // parametricCurve: {
+            //     displayName: "Parametric Curve",
+            //     groupType: "Tone Curve",
+            //     settings: {
+            //         parametricShadows: {
+            //             displayName:    "Parametric Shadows",    
+            //             crsName:        "ParametricShadows",
+            //             min:            -100,
+            //             max:            +100,
+            //             defaultValue:   0,
+            //             panel:          "Tone Curve",
+            //             group:          "Parametric Curve",
+            //             fillType:       "gradient",
+            //             gradientFill:   "",
+            //             solidColor:     sliderBarSolidFillColor,
+            //             gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
+            //         },
+            //         parametricDarks: {
+            //             displayName:    "Parametric Darks",    
+            //             crsName:        "ParametricDarks",
+            //             min:            -100,
+            //             max:            +100,
+            //             defaultValue:   0,
+            //             panel:          "Tone Curve",
+            //             group:          "Parametric Curve",
+            //             fillType:       "gradient",
+            //             gradientFill:   "",
+            //             solidColor:     sliderBarSolidFillColor,
+            //             gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
+            //         },
+            //         parametricLights: {
+            //             displayName:    "Parametric Lights",    
+            //             crsName:        "ParametricLights",
+            //             min:            -100,
+            //             max:            +100,
+            //             defaultValue:   0,
+            //             panel:          "Tone Curve",
+            //             group:          "Parametric Curve",
+            //             fillType:       "gradient",
+            //             gradientFill:   "",
+            //             solidColor:     sliderBarSolidFillColor,
+            //             gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
+            //         },
+            //         parametricHighlights: {
+            //             displayName:    "Parametric Highlights",    
+            //             crsName:        "ParametricHighlights",
+            //             min:            -100,
+            //             max:            +100,
+            //             defaultValue:   0,
+            //             panel:          "Tone Curve",
+            //             group:          "Parametric Curve",
+            //             fillType:       "gradient",
+            //             gradientFill:   "",
+            //             solidColor:     sliderBarSolidFillColor,
+            //             gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
+            //         }
+            //     }
+            // },
+            // parametricRegion: {
+            //     displayName: "Parametric Region",
+            //     groupType: "Slider",
+            //     settings: {
+            //         parametricShadowSplit: {
+            //             displayName:    "Parametric Shadow Split",    
+            //             crsName:        "ParametricShadowSplit",
+            //             min:            +10,
+            //             max:            +70,
+            //             defaultValue:   +25,
+            //             panel:          "Tone Curve",
+            //             group:          "Parametric Region",
+            //             fillType:       "gradient",
+            //             gradientFill:   "",
+            //             solidColor:     sliderBarSolidFillColor,
+            //             gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
+            //         },
+            //         parametricMidtoneSplit: {
+            //             displayName:    "Parametric Midtone Split",    
+            //             crsName:        "ParametricMidtoneSplit",
+            //             min:            +20,
+            //             max:            +80,
+            //             defaultValue:   +50,
+            //             panel:          "Tone Curve",
+            //             group:          "Parametric Region",
+            //             fillType:       "gradient",
+            //             gradientFill:   "",
+            //             solidColor:     sliderBarSolidFillColor,
+            //             gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
+            //         },
+            //         parametricHighlightSplit: {
+            //             displayName:    "Parametric Highlight Split",    
+            //             crsName:        "ParametricHighlightSplit",
+            //             min:            +30,
+            //             max:            +90,
+            //             defaultValue:   +75,
+            //             panel:          "Tone Curve",
+            //             group:          "Parametric Region",
+            //             fillType:       "gradient",
+            //             gradientFill:   "",
+            //             solidColor:     sliderBarSolidFillColor,
+            //             gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
+            //         }
+            //     }
+            // },
             pointCurve: {
                 displayName: "Point Curve",
                 groupType: "Tone Curve",
@@ -317,7 +336,8 @@ var lightroomPanels = {
                         defaultValue:   [[0,0], [+255,+255]],
                         panel:          "Tone Curve",
                         group:          "Point Curve",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "lumToneCurve",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["e5e5e5", "2e2e2e"]
                     }
@@ -335,7 +355,8 @@ var lightroomPanels = {
                         defaultValue:   [[0,0], [+255,+255]],
                         panel:          "Tone Curve",
                         group:          "Red Channel",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "redToneCurve",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["ff4800", "00ffed"]
                     }
@@ -353,7 +374,8 @@ var lightroomPanels = {
                         defaultValue:   [[0,0], [+255,+255]],
                         panel:          "Tone Curve",
                         group:          "Green Channel",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "greenToneCurve",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["00d904", "ff0099"]
                     }
@@ -371,7 +393,8 @@ var lightroomPanels = {
                         defaultValue:   [[0,0], [+255,+255]],
                         panel:          "Tone Curve",
                         group:          "Blue Channel",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "blueToneCurve",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["006cff", "ffc800"]
                     }
@@ -394,7 +417,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Hue",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "redHue",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["ed145b", "f26522"]
                     },
@@ -406,7 +430,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Hue",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "orangeHue",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["f26522", "fff200"]
                     },
@@ -418,7 +443,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Hue",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "yellowHue",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["fff200", "39b54a"]
                     },
@@ -430,7 +456,8 @@ var lightroomPanels = {
                         defaultValue:   0 ,
                         panel:          "Color Mixer",
                         group:          "Hue",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "greenHue",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["39b54a", "00a99d"]
                     },
@@ -442,7 +469,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Hue",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "aquaHue",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["00a99d", "0072bc"]
                     },
@@ -454,7 +482,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Hue",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "blueHue",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["0072bc", "2e3192"]
                     },
@@ -466,7 +495,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Hue",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["2e3192", "92278f"]
                     },
@@ -478,7 +508,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer", 
                         group:          "Hue",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "magentaHue",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["92278f", "ed145b"]
                     }
@@ -496,7 +527,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Saturation",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "redSaturation",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["A6A6A6", "ed145b"]
                     },
@@ -508,7 +540,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Saturation",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "orangeSaturation",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["A6A6A6", "f26522"]
                     },
@@ -520,7 +553,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Saturation",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "yellowSaturation",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["A6A6A6", "fff200"]
                     },
@@ -532,7 +566,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Saturation",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "greenSaturation",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["A6A6A6", "39b54a"]
                     },
@@ -544,7 +579,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Saturation",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "aquaSaturation",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["A6A6A6", "00a99d"]
                     },
@@ -556,7 +592,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Saturation",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "blueSaturation",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["A6A6A6", "0072bc"]
                     },
@@ -568,7 +605,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Saturation",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "purpleSaturation",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["A6A6A6", "2e3192"]
                     },
@@ -580,7 +618,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Saturation",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "magentaSaturation",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["A6A6A6", "92278f"]
                     }
@@ -598,7 +637,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Luminance",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "redLuminance",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["7a0026", "f5989d"] // ["7a0026", "ed145b", "f5989d"]
                     },
@@ -610,7 +650,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Luminance",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "orangeLuminance",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["7b2e00", "f9ad81"] // ["7b2e00", "f26522", "f9ad81"]
                     },
@@ -622,7 +663,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Luminance",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "yellowLuminance",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["827b00", "fff799"] // ["827b00", "fff200", "fff799"]
                     },
@@ -634,7 +676,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Luminance",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "greenLuminance",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["005e20", "a3d39c"] // ["005e20", "39b54a", "a3d39c"]
                     },
@@ -646,7 +689,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Luminance",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "aquaLuminance",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["005952", "7accc8"] // ["005952", "00a99d", "7accc8"]
                     },
@@ -658,7 +702,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Luminance",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "blueLuminance",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["003663", "7da7d9"] // ["003663", "0072bc", "7da7d9"]
                     },
@@ -670,7 +715,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Luminance",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "purpleLuminance",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["0d004c", "8781bd"] // ["0d004c", "2e3192", "8781bd"]
                     },
@@ -682,7 +728,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Color Mixer",
                         group:          "Luminance",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "magentaLuminance",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["4b0049", "bd8cbf"] // ["4b0049", "92278f", "bd8cbf"]
                     }
@@ -694,126 +741,135 @@ var lightroomPanels = {
         displayName: "Color Grading",
         groups: {
             midtone: {
-                displayName: "Midtone",
+                displayName: "Midtones",
                 groupType: "Color Grading",
                 settings: {
-                    midtoneHue: {
-                        displayName:    "H",    
+                    hue: {
+                        displayName:    "Hue",    
                         crsName:        "ColorGradeMidtoneHue",
                         min:            0,
                         max:            +359,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Midtone",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "rainbow",
                         solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+                        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
                     },
-                    midtoneSat: {
-                        displayName:    "S",    
+                    saturation: {
+                        displayName:    "Saturation",    
                         crsName:        "ColorGradeMidtoneSat",
                         min:            0,
                         max:            +100,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Midtone",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "saturation",
                         solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+                        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
                     },
-                    midtoneLum: {
-                        displayName:    "L",    
+                    luminance: {
+                        displayName:    "Luminance",    
                         crsName:        "ColorGradeMidtoneLum",
                         min:            -100,
                         max:            +100,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Midtone",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     }
                 }
             },
             shadow: {
-                displayName: "Shadow",
+                displayName: "Shadows",
                 groupType: "Color Grading",
                 settings: {
-                    shadowHue: {
-                        displayName:    "H",    
+                    hue: {
+                        displayName:    "Hue",    
                         crsName:        "SplitToningShadowHue",
                         min:            0,
                         max:            +359,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Shadow",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "rainbow",
                         solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+                        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
                     },
-                    shadowSat: {
-                        displayName:    "S",    
+                    saturation: {
+                        displayName:    "Saturation",    
                         crsName:        "SplitToningShadowSaturation",
                         min:            0,
                         max:            +100,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Shadow",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "saturation",
                         solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+                        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
                     },
-                    shadowLum: {
-                        displayName:    "L",    
+                    luminance: {
+                        displayName:    "Luminance",    
                         crsName:        "ColorGradeShadowLum",
                         min:            -100,
                         max:            +100,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Shadow",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     }
                 },
             },
             highlight: {
-                displayName: "Highlight",
+                displayName: "Highlights",
                 groupType: "Color Grading",
                 settings: {
-                    highlightHue: {
-                        displayName:    "H",    
+                    hue: {
+                        displayName:    "Hue",    
                         crsName:        "SplitToningHighlightHue",
                         min:            0,
                         max:            +359,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Highlight",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "rainbow",
                         solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+                        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
                     },
-                    highlightSat: {
-                        displayName:    "S",    
+                    saturation: {
+                        displayName:    "Saturation",    
                         crsName:        "SplitToningHighlightSaturation",
                         min:            0,
                         max:            +100,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Highlight",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "saturation",
                         solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+                        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
                     },
-                    highlightLum: {
-                        displayName:    "L",    
+                    luminance: {
+                        displayName:    "Luminance",    
                         crsName:        "ColorGradeHighlightLum",
                         min:            -100,
                         max:            +100,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Highlight",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     }
@@ -823,74 +879,79 @@ var lightroomPanels = {
                 displayName: "Global",
                 groupType: "Color Grading",
                 settings: {
-                    globalHue: {
-                        displayName:    "H",    
+                    hue: {
+                        displayName:    "Hue",    
                         crsName:        "ColorGradeGlobalHue",
                         min:            0,
                         max:            +359,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Global",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "rainbow",
                         solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+                        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
                     },
-                    globalSat: {
-                        displayName:    "S",    
+                    saturation: {
+                        displayName:    "Saturation",    
                         crsName:        "ColorGradeGlobalSat",
                         min:            0,
                         max:            +100,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Global",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "saturation",
                         solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+                        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
                     },
-                    globalLum: {
-                        displayName:    "L",    
+                    luminance: {
+                        displayName:    "Luminance",    
                         crsName:        "ColorGradeGlobalLum",
                         min:            -100,
                         max:            +100,
                         defaultValue:   0,
                         panel:          "Color Grading",
                         group:          "Global",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     }
                 }
-            },
-            blendingAndBalance: {
-                displayName: "Blending And Balance",
-                groupType: "Slider",
-                settings: {
-                    blending: {
-                        displayName:    "Blending",    
-                        crsName:        "ColorGradeBlending",
-                        min:            0,
-                        max:            +100,
-                        defaultValue:   50,
-                        panel:          "Color Grading",
-                        group:          "Blending And Balance",
-                        fillType:       slidersFillType,
-                        solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
-                    },
-                    balance: {
-                        displayName:    "Balance",    
-                        crsName:        "SplitToningBalance",
-                        min:            -100,
-                        max:            +100,
-                        defaultValue:   0,
-                        panel:          "Color Grading",
-                        group:          "Blending And Balance",
-                        fillType:       slidersFillType,
-                        solidColor:     sliderBarSolidFillColor,
-                        gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
-                    }
-                }
-            }
+            } //,
+            // blendingAndBalance: {
+            //     displayName: "Blending And Balance",
+            //     groupType: "Slider",
+            //     settings: {
+            //         blending: {
+            //             displayName:    "Blending",    
+            //             crsName:        "ColorGradeBlending",
+            //             min:            0,
+            //             max:            +100,
+            //             defaultValue:   50,
+            //             panel:          "Color Grading",
+            //             group:          "Blending And Balance",
+            //             fillType:       "gradient",
+            //             gradientFill:   "",
+            //             solidColor:     sliderBarSolidFillColor,
+            //             gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
+            //         },
+            //         balance: {
+            //             displayName:    "Balance",    
+            //             crsName:        "SplitToningBalance",
+            //             min:            -100,
+            //             max:            +100,
+            //             defaultValue:   0,
+            //             panel:          "Color Grading",
+            //             group:          "Blending And Balance",
+            //             fillType:       "gradient",
+            //             gradientFill:   "",
+            //             solidColor:     sliderBarSolidFillColor,
+            //             gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
+            //         }
+            //     }
+            // }
         }
     },
     detail: {
@@ -908,7 +969,8 @@ var lightroomPanels = {
                         defaultValue:   +40,
                         panel:          "Detail",
                         group:          "Sharpening",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -920,7 +982,8 @@ var lightroomPanels = {
                         defaultValue:   +1,
                         panel:          "Detail",
                         group:          "Sharpening",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -932,7 +995,8 @@ var lightroomPanels = {
                         defaultValue:   +25,
                         panel:          "Detail",
                         group:          "Sharpening",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -944,7 +1008,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Detail",
                         group:          "Sharpening",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "HMS",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarLightFillColor, sliderBarDarkFillColor]
                     }
@@ -962,7 +1027,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Detail",
                         group:          "Luminance Noise Reduction",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -975,7 +1041,8 @@ var lightroomPanels = {
                         defaultValue:   +50,
                         panel:          "Detail",
                         group:          "Luminance Noise Reduction",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -988,7 +1055,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Detail",
                         group:          "Luminance Noise Reduction",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     }
@@ -1006,7 +1074,8 @@ var lightroomPanels = {
                         defaultValue:   +25,
                         panel:          "Detail",
                         group:          "Color Noise Reduction",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -1018,7 +1087,8 @@ var lightroomPanels = {
                         defaultValue:   +50,
                         panel:          "Detail",
                         group:          "Color Noise Reduction",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -1030,7 +1100,8 @@ var lightroomPanels = {
                         defaultValue:   +50,
                         panel:          "Detail",
                         group:          "Color Noise Reduction",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     }
@@ -1053,7 +1124,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Effects",
                         group:          "Post Crop",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SHS",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor, sliderBarDarkFillColor]
                     },
@@ -1065,7 +1137,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Effects",
                         group:          "Post Crop",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -1077,7 +1150,8 @@ var lightroomPanels = {
                         defaultValue:   +50,
                         panel:          "Effects",
                         group:          "Post Crop",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SHS",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -1089,7 +1163,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Effects",
                         group:          "Post Crop",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor, sliderBarDarkFillColor]
                     },
@@ -1101,7 +1176,8 @@ var lightroomPanels = {
                         defaultValue:   +50,
                         panel:          "Effects",
                         group:          "Post Crop",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -1113,7 +1189,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Effects",
                         group:          "Post Crop",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     }
@@ -1131,7 +1208,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Effects",
                         group:          "Grain",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -1143,7 +1221,8 @@ var lightroomPanels = {
                         defaultValue:   +25,
                         panel:          "Effects",
                         group:          "Grain",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     },
@@ -1155,7 +1234,8 @@ var lightroomPanels = {
                         defaultValue:   +50,
                         panel:          "Effects",
                         group:          "Grain",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "SMH",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
                     }
@@ -1178,7 +1258,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Calibration",
                         group:          "Shadows",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "tint",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["00d904", "ff0099"]
                     }
@@ -1196,7 +1277,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Calibration",
                         group:          "Red Primary",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "redHue",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["ed145b", "f26522"]
                     },
@@ -1208,7 +1290,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Calibration",
                         group:          "Red Primary",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "redSaturation",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["e6e6e6", "ed145b"]
                     }
@@ -1226,7 +1309,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Calibration",
                         group:          "Green Primary",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "greenHue",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["fff200", "39b54a"]
                     },
@@ -1238,7 +1322,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Calibration",
                         group:          "Green Primary",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "greenSaturation",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["e6e6e6", "39b54a"]
                     }
@@ -1256,7 +1341,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Calibration",
                         group:          "Blue Primary",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "blueHue",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["e6e6e6", "0072bc"]
                     },
@@ -1268,7 +1354,8 @@ var lightroomPanels = {
                         defaultValue:   0,
                         panel:          "Calibration",
                         group:          "Blue Primary",
-                        fillType:       slidersFillType,
+                        fillType:       "gradient",
+                        gradientFill:   "blueSaturation",
                         solidColor:     sliderBarSolidFillColor,
                         gradientColors: ["e6e6e6", "0072bc"]
                     }
