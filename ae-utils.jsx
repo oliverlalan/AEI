@@ -20,11 +20,11 @@ function hexToRgb(hex, opacity) {
 // Description: 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function setAnchorPoint(layer, position) {
+function setAnchorPosition(layer, anchorPosition) {
     var layerBounds = layer.sourceRectAtTime(0, false);
     var anchorX, anchorY;
 
-    switch (position) {
+    switch (anchorPosition) {
         case "topLeft":
             anchorX = layerBounds.left;
             anchorY = layerBounds.top;
@@ -62,7 +62,7 @@ function setAnchorPoint(layer, position) {
             anchorY = layerBounds.top + layerBounds.height;
             break;
         default:
-            alert("Invalid anchor point position: " + position);
+            alert("Invalid anchor position: " + anchorPosition);
             return;
     }
 
@@ -74,22 +74,57 @@ function setAnchorPoint(layer, position) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function selectCompositionByName(name) {
+
   var proj = app.project;
   var items = proj.items;
   
   // Loop through all items in project
   for (var i = 1; i <= items.length; i++) {
+
     var item = items[i];
     
     // Check if item is a composition with a matching name
     if (item instanceof CompItem && item.name === name) {
+
       item.selected = true;
+
       return item;
+    
     }
   }
   
   // Composition not found
   return false;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function selectFootageByName(name) {
+
+  var proj = app.project;
+  var items = proj.items;
+  
+  // Loop through all items in project
+  for (var i = 1; i <= items.length; i++) {
+
+    var item = items[i];
+    
+    // Check if item is a composition with a matching name
+    if (item instanceof FootageItem && item.name === name) {
+
+      item.selected = true;
+
+      return item;
+    
+    }
+  }
+  
+  // Composition not found
+  return false;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,4 +164,24 @@ function checkIfCustom (object) {
     }
   }
   object.isCustom = custom;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function placeFile (filePath, targetComposition) {
+
+    // Import the PNG file
+    var file = new File(filePath);
+    var importedFile = app.project.importFile(new ImportOptions(file));
+
+    // Create a new layer using the imported footage
+    var fileLayer = targetComposition.layers.add(importedFile);
+
+    // Center the layer in the composition
+    fileLayer.property("Position").setValue([targetComposition.width / 2, targetComposition.height / 2]);
+
+    return fileLayer;
+
 }
