@@ -1,53 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
-// Call: 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function createSlidersPanelComposition (panel, style) {
-
-    var panelName = panel.displayName;
-    var groups = panel.groups;
-
-    // Reset reference position
-    panelCompositionParameters.position[1] = 0;
-
-    // Create folder to store each slider
-    var panelCompositionsFolder = project.items.addFolder(panelName + " Pre-Compositions");
-
-    // Create group composition 
-    // TODO Compute dimensions based on entries
-    var panelComposition = project.items.addComp(panelName, panelCompositionParameters.width, panelCompositionParameters.height, panelCompositionParameters.pixelAspect, panelCompositionParameters.duration, panelCompositionParameters.frameRate);
-
-    // Create title
-    var panelTitleLayer = createPanelTitleLayer (panelComposition, panelName);
-
-    for (groupKey in groups) {
-
-        // Create each precomposition
-        var groupComposition = createSlidersGroupComposition (groups[groupKey], style);
-
-        // Store the precomposition in the corresponding foldre
-        groupComposition.parentFolder = panelCompositionsFolder;
-
-        // Include the precomposition created in the group composition
-        var groupComposition = panelComposition.layers.add(groupComposition);
-
-        // Position the precomposition in the group composition
-        setAnchorPoint(groupComposition, "topLeft");
-        groupComposition.position.setValue(panelCompositionParameters.position);
-
-        // Update Y position of the next precomposition
-        panelCompositionParameters.position[1] += groupComposition.height;
-
-    }
-
-    return panelComposition;
-
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Description: 
-// TODO Compute setSpacing based on ammount of slider settings
+// Call: createSlidersGroupComposition (groups[groupKey], style);
+// TODO: Compute setSpacing based on ammount of slider settings
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function createSlidersGroupComposition (settingsGroup, style) {
@@ -56,17 +10,26 @@ function createSlidersGroupComposition (settingsGroup, style) {
     var settings = settingsGroup.settings;
 
     // Reset reference position
-    groupCompositionParameters.position[1] = 0;
+    var groupReferencePosition = [0,0];
 
     // Create folder to store each slider
     var groupCompositionsFolder = project.items.addFolder(groupName + " Pre-Compositions");
 
     // Create group composition 
-    // TODO Compute dimensions based on entries
     var groupComposition = project.items.addComp(groupName, groupCompositionParameters.width, groupCompositionParameters.height, groupCompositionParameters.pixelAspect, groupCompositionParameters.duration, groupCompositionParameters.frameRate);
 
     // Create title
-    var groupTitle = createGroupTitleLayer (groupComposition, groupName);
+    var groupTitleComposition = createGroupTitleComposition (groupName);
+
+    // Include the precomposition created in the group composition
+    var groupTitleCompositionLayer = groupComposition.layers.add(groupTitleComposition);
+
+    // Position the precomposition in the group composition
+    setAnchorPosition(groupTitleCompositionLayer, "topLeft");
+    groupTitleCompositionLayer.position.setValue(groupReferencePosition);
+
+    // Update Y position of the next precomposition
+    groupReferencePosition[1] += groupTitleCompositionParameters.height;
 
     for (settingKey in settings) {
 
@@ -80,11 +43,11 @@ function createSlidersGroupComposition (settingsGroup, style) {
         var settingComposition = groupComposition.layers.add(settingComposition);
 
         // Position the precomposition in the group composition
-        setAnchorPoint(settingComposition, "topLeft");
-        settingComposition.position.setValue(groupCompositionParameters.position);
+        setAnchorPosition(settingComposition, "topLeft");
+        settingComposition.position.setValue(groupReferencePosition);
 
         // Update Y position of the next precomposition
-        groupCompositionParameters.position[1] += settingComposition.height;
+        groupReferencePosition[1] += settingComposition.height;
 
     }
 
@@ -95,11 +58,13 @@ function createSlidersGroupComposition (settingsGroup, style) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
+// Call: var settingComposition = createSliderComposition (settings[settingKey], style);
+// TODO: 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function createSliderComposition (setting, style) {
 
-    var compositionName = setting.displayName + " " + setting.group + " Composition";
+    var compositionName = setting.displayName + " " + setting.group;
 
     var sliderComposition = selectCompositionByName(compositionName);
 
@@ -131,20 +96,20 @@ function createSliderComposition (setting, style) {
             sliderCircleParameters.position = sliderBarParameters.anchorPoint;
             sliderCircleParameters.animation = {
                 position: {
-                keyTimes: [2,4],
+                keyTimes: setting.keyTimes,
                 keyValues:[sliderBarParameters.anchorPoint, [sliderBarParameters.vertices[0][0] + (setting.settingValue - setting.min) / (setting.max - setting.min) * sliderBarParameters.stroke.length, sliderBarParameters.vertices[0][1]]]
                 }
             };
 
             var sliderTextLabelParameters = {
                 position: [sliderCompositionParameters.padding.left + sliderTextParameters.width, sliderBarParameters.height / 2],
-                anchorPoint: "middleRight",
+                anchorPosition: "middleRight",
                 justification: ParagraphJustification.RIGHT_JUSTIFY,
             };
 
             var sliderTextValueParameters = {
                 position: [sliderCompositionParameters.width - sliderCompositionParameters.padding.right, sliderBarParameters.height / 2],
-                anchorPoint: "middleRight",
+                anchorPosition: "middleRight",
                 justification:  ParagraphJustification.RIGHT_JUSTIFY,
             };
 
@@ -152,10 +117,10 @@ function createSliderComposition (setting, style) {
             var sliderComposition = project.items.addComp(compositionName, sliderCompositionParameters.width, sliderCompositionParameters.height, sliderCompositionParameters.pixelAspect, sliderCompositionParameters.duration, sliderCompositionParameters.frameRate);
 
             // Create Text Label layer
-            var sliderTextLabelLayer = createSliderTextLabelLayer (sliderComposition, setting, sliderTextLabelParameters.position, sliderTextLabelParameters.anchorPoint, sliderTextLabelParameters.justification);
+            var sliderTextLabelLayer = createSliderTextLabelLayer (sliderComposition, setting, sliderTextLabelParameters.position, sliderTextLabelParameters.anchorPosition, sliderTextLabelParameters.justification);
             
             // Create Text Value Layer
-            var sliderTextValueLayer = createSliderTextValueLayer (sliderComposition, [setting.defaultValue, setting.settingValue], [sliderTextParameters.animation.start, sliderTextParameters.animation.end], sliderTextValueParameters.position, sliderTextValueParameters.anchorPoint, sliderTextValueParameters.justification);
+            var sliderTextValueLayer = createSliderTextValueLayer (sliderComposition, [setting.defaultValue, setting.settingValue], setting.keyTimes, sliderTextValueParameters.position, sliderTextValueParameters.anchorPosition, sliderTextValueParameters.justification);
 
             // Create Slider Bar Layer
             var sliderBarLayer = createSliderBarLayer (sliderComposition, setting, sliderBarParameters.vertices, sliderBarParameters.anchorPoint, sliderBarParameters.stroke.width)
@@ -167,272 +132,18 @@ function createSliderComposition (setting, style) {
             // animateLayer (sliderBarLayer, "Scale")
 
             // Animate slider circle
-            sliderCircleLayer.property("ADBE Root Vectors Group").property("ADBE Vector Group").property("ADBE Vector Transform Group").property("Position").setValuesAtTimes(sliderCircleParameters.animation.position.keyTimes, sliderCircleParameters.animation.position.keyValues);
+            animateShape (sliderCircleLayer, "Position", sliderCircleParameters.animation.position.keyTimes, sliderCircleParameters.animation.position.keyValues);
+            // sliderCircleLayer.property("ADBE Root Vectors Group").property("ADBE Vector Group").property("ADBE Vector Transform Group").property("Position").setValuesAtTimes(sliderCircleParameters.animation.position.keyTimes, sliderCircleParameters.animation.position.keyValues);
 
         break;
 
-        // case "horizontalSliderWithLabelOnTop":
+        case "horizontalSliderWithLabelOnTop":
 
-        //     // Define Composition Parameters
-        //     var sliderCompositionParameters = {
-        //         width: 261,
-        //         height: 75,
-        //         anchorPoint: "topLeft",
-        //         pixelAspect: 1,
-        //         duration: 6,
-        //         frameRate: projectFPS,
-        //         padding: {
-        //             top: 5,
-        //             right: 18,
-        //             bottom: 10,
-        //             left: 18
-        //         }
-        //     };
+        break;
 
-        //     var sliderBarParameters = {
-        //         position : [0, 0],
-        //         fill: {
-        //             color: hexToRgb(sliderBarSolidFillColor)
-        //         },
-        //         gradientOverlay: {
-        //             angle: 0,
-        //             style: 1
-        //         },
-        //         bevelAndEmboss: {
-        //             style: 2,
-        //             depth: 100,
-        //             direction: 2,
-        //             size: 8,
-        //             angle: 90,
-        //             altitude: 30,
-        //             highlightOpacity: 50,
-        //             shadowOpacity: 35
-        //         },
-        //         effects: {
-        //             stroke: {
-        //                 color: hexToRgb(sliderBarStrokeColor),
-        //                 size: 1,
-        //                 opacity: 100,
-        //                 position: 1 // Outside
-        //             }
-        //         },
-        //         stroke: {
-        //             color: hexToRgb(sliderBarStrokeColor),
-        //             width: 4,
-        //             cap: 2 // Rounded
-        //         }
-        //     };
+        case "horizontalSliderWithNoLabel":
 
-        //     sliderBarParameters.width = sliderCompositionParameters.width - sliderCompositionParameters.padding.right - sliderCompositionParameters.padding.left;
-        //     sliderBarParameters.height = sliderCompositionParameters.height - sliderCompositionParameters.padding.top - sliderCompositionParameters.padding.bottom;
-        //     sliderBarParameters.stroke.length = sliderBarParameters.width - sliderBarParameters.stroke.width;
-        //     sliderBarParameters.vertices = [];
-        //     sliderBarParameters.vertices[0] = [sliderCompositionParameters.padding.left + sliderBarParameters.stroke.width / 2, sliderCompositionParameters.padding.top + sliderBarParameters.height * 6 / 10];
-        //     sliderBarParameters.vertices[1] = [sliderCompositionParameters.padding.left + sliderBarParameters.stroke.width / 2 + sliderBarParameters.stroke.length, sliderCompositionParameters.padding.top + sliderBarParameters.height * 6 / 10];
-        //     sliderBarParameters.anchorPoint = [sliderBarParameters.vertices[0][0] + (setting.defaultValue - setting.min) / (setting.max - setting.min) * sliderBarParameters.stroke.length, sliderBarParameters.vertices[0][1]];
-
-        //     var sliderCircleParameters = {
-        //         position: sliderBarParameters.anchorPoint,
-        //         diameter : 18,
-        //         fill : {
-        //             color: hexToRgb(circleSelectorFillColor)
-        //         },
-        //         stroke : {
-        //             color: hexToRgb(circleSelectorStrokeColor),
-        //             width: 1,
-        //             opacity: 50
-        //         },
-        //         shadow: {
-        //             opacity: 0.35 * 255,
-        //             direction: 180,
-        //             distance: 3,
-        //             softness: 18,
-        //         },
-        //         animation: {
-        //             position: {
-        //                 keyTimes: [2,4],
-        //                 keyValues:[sliderBarParameters.anchorPoint, [sliderBarParameters.vertices[0][0] + (setting.settingValue - setting.min) / (setting.max - setting.min) * sliderBarParameters.stroke.length, sliderBarParameters.vertices[0][1]]]
-        //             }
-        //         }
-        //     };
-
-        //     var sliderTextParameters = {
-        //         position: [0,0],
-        //         fontSize: 18,
-        //         fontColor: hexToRgb("FFFFFF"),
-        //         fontName: "WorkSansRoman-Medium",
-        //         fontTracking: 100,
-        //         fontCapitalization: true,
-        //         animation: {
-        //             start: 2,
-        //             end: 4
-        //         }
-        //     };
-
-        //     var sliderTextLabelParameters = {
-        //         position: [sliderCompositionParameters.padding.left, sliderCompositionParameters.padding.top],
-        //         anchorPoint: "topLeft",
-        //         justification: ParagraphJustification.LEFT_JUSTIFY,
-        //     };
-
-        //     var sliderTextValueParameters = {
-        //         position: [sliderCompositionParameters.width - sliderCompositionParameters.padding.right, sliderCompositionParameters.padding.top],
-        //         anchorPoint: "topRight",
-        //         justification:  ParagraphJustification.RIGHT_JUSTIFY,
-        //     };
-
-        //     // Crate Slider Composition
-        //     var sliderComposition = project.items.addComp(compositionName, sliderCompositionParameters.width, sliderCompositionParameters.height, sliderCompositionParameters.pixelAspect, sliderCompositionParameters.duration, sliderCompositionParameters.frameRate);
-
-        //     // Create Text Label layer
-        //     var sliderTextLabelLayer = createSliderTextLabelLayer (sliderComposition, setting, sliderTextLabelParameters.position, sliderTextLabelParameters.anchorPoint, sliderTextLabelParameters.justification);
-            
-        //     // Create Text Value Layer
-        //     var sliderTextValueLayer = createSliderTextValueLayer (sliderComposition, [setting.defaultValue, setting.settingValue], [sliderTextParameters.animation.start, sliderTextParameters.animation.end], sliderTextValueParameters.position, sliderTextValueParameters.anchorPoint, sliderTextValueParameters.justification);
-
-        //     // Create Slider Bar Layer
-        //     var sliderBarLayer = createSliderBarLayer (sliderComposition, setting, sliderBarParameters.vertices, sliderBarParameters.anchorPoint, sliderBarParameters.stroke.width)
-
-        //     // Create Slider Circle Layer
-        //     var sliderCircleLayer = createSliderCircleLayer (sliderComposition, setting, sliderCircleParameters.diameter, sliderCircleParameters.position);
-
-        //     // Animate slider bar
-        //     // animateLayer (sliderBarLayer, "Scale")
-
-        //     // Animate slider circle
-        //     sliderCircleLayer.property("ADBE Root Vectors Group").property("ADBE Vector Group").property("ADBE Vector Transform Group").property("Position").setValuesAtTimes(sliderCircleParameters.animation.position.keyTimes, sliderCircleParameters.animation.position.keyValues);
-
-        // break;
-
-        // case "horizontalSliderWithNoLabel":
-
-        //     // Define Composition Parameters
-        //     var sliderCompositionParameters = {
-        //         width: 261,
-        //         height: 36,
-        //         anchorPoint: "topLeft",
-        //         pixelAspect: 1,
-        //         duration: 6,
-        //         frameRate: projectFPS,
-        //         padding: {
-        //             top: 0,
-        //             right: 18,
-        //             bottom: 0,
-        //             left: 18
-        //         }
-        //     };
-
-        //     var sliderBarParameters = {
-        //         position : [0, 0],
-        //         fill: {
-        //             color: hexToRgb(sliderBarSolidFillColor)
-        //         },
-        //         gradientOverlay: {
-        //             angle: 0,
-        //             style: 1
-        //         },
-        //         bevelAndEmboss: {
-        //             style: 2,
-        //             depth: 100,
-        //             direction: 2,
-        //             size: 8,
-        //             angle: 90,
-        //             altitude: 30,
-        //             highlightOpacity: 50,
-        //             shadowOpacity: 35
-        //         },
-        //         effects: {
-        //             stroke: {
-        //                 color: hexToRgb(sliderBarStrokeColor),
-        //                 size: 1,
-        //                 opacity: 100,
-        //                 position: 1 // Outside
-        //             }
-        //         },
-        //         stroke: {
-        //             color: hexToRgb(sliderBarStrokeColor),
-        //             width: 4,
-        //             cap: 2 // Rounded
-        //         }
-        //     };
-
-        //     sliderBarParameters.width = (sliderCompositionParameters.width - sliderCompositionParameters.padding.right - sliderCompositionParameters.padding.left) * 8 /10;
-        //     sliderBarParameters.height = sliderCompositionParameters.height - sliderCompositionParameters.padding.top - sliderCompositionParameters.padding.bottom;
-        //     sliderBarParameters.stroke.length = sliderBarParameters.width - sliderBarParameters.stroke.width;
-        //     sliderBarParameters.vertices = [];
-        //     sliderBarParameters.vertices[0] = [sliderCompositionParameters.padding.left + sliderBarParameters.stroke.width / 2, sliderCompositionParameters.padding.top + sliderBarParameters.height / 2];
-        //     sliderBarParameters.vertices[1] = [sliderCompositionParameters.padding.left + sliderBarParameters.stroke.width / 2 + sliderBarParameters.stroke.length, sliderCompositionParameters.padding.top + sliderBarParameters.height / 2];
-        //     sliderBarParameters.anchorPoint = [sliderBarParameters.vertices[0][0] + (setting.defaultValue - setting.min) / (setting.max - setting.min) * sliderBarParameters.stroke.length, sliderBarParameters.vertices[0][1]];
-
-        //     var sliderCircleParameters = {
-        //         position: sliderBarParameters.anchorPoint,
-        //         diameter : 18,
-        //         fill : {
-        //             color: hexToRgb(circleSelectorFillColor)
-        //         },
-        //         stroke : {
-        //             color: hexToRgb(circleSelectorStrokeColor),
-        //             width: 1,
-        //             opacity: 50
-        //         },
-        //         shadow: {
-        //             opacity: 0.35 * 255,
-        //             direction: 180,
-        //             distance: 3,
-        //             softness: 18,
-        //         },
-        //         animation: {
-        //             position: {
-        //                 keyTimes: [2,4],
-        //                 keyValues:[sliderBarParameters.anchorPoint, [sliderBarParameters.vertices[0][0] + (setting.settingValue - setting.min) / (setting.max - setting.min) * sliderBarParameters.stroke.length, sliderBarParameters.vertices[0][1]]]
-        //             }
-        //         }
-        //     };
-
-        //     var sliderTextParameters = {
-        //         position: [0,0],
-        //         fontSize: 18,
-        //         fontColor: hexToRgb("FFFFFF"),
-        //         fontName: "WorkSansRoman-Medium",
-        //         fontTracking: 100,
-        //         fontCapitalization: true,
-        //         animation: {
-        //             start: 2,
-        //             end: 4
-        //         }
-        //     };
-
-        //     var sliderTextLabelParameters = {
-        //         position: [sliderCompositionParameters.padding.left, sliderCompositionParameters.padding.top],
-        //         anchorPoint: "topLeft",
-        //         justification: ParagraphJustification.LEFT_JUSTIFY,
-        //     };
-
-        //     var sliderTextValueParameters = {
-        //         position: [sliderCompositionParameters.width - sliderCompositionParameters.padding.right, sliderCompositionParameters.height / 2],
-        //         anchorPoint: "middleRight",
-        //         justification:  ParagraphJustification.RIGHT_JUSTIFY,
-        //     };
-
-        //     // Create Slider Composition
-        //     var sliderComposition = project.items.addComp(compositionName, sliderCompositionParameters.width, sliderCompositionParameters.height, sliderCompositionParameters.pixelAspect, sliderCompositionParameters.duration, sliderCompositionParameters.frameRate);
-
-        //     // Create Text Value Layer
-        //     var sliderTextValueLayer = createSliderTextValueLayer (sliderComposition, [setting.defaultValue, setting.settingValue], [sliderTextParameters.animation.start, sliderTextParameters.animation.end], sliderTextValueParameters.position, sliderTextValueParameters.anchorPoint, sliderTextValueParameters.justification);
-
-        //     // Create Slider Bar Layer
-        //     var sliderBarLayer = createSliderBarLayer (sliderComposition, setting, sliderBarParameters.vertices, sliderBarParameters.anchorPoint, sliderBarParameters.stroke.width)
-
-        //     // Create Slider Circle Layer
-        //     var sliderCircleLayer = createSliderCircleLayer (sliderComposition, setting, sliderCircleParameters.diameter, sliderCircleParameters.position);
-
-        //     // Animate slider bar
-        //     // animateLayer (sliderBarLayer, "Scale")
-
-        //     // Animate slider circle
-        //     sliderCircleLayer.property("ADBE Root Vectors Group").property("ADBE Vector Group").property("ADBE Vector Transform Group").property("Position").setValuesAtTimes(sliderCircleParameters.animation.position.keyTimes, sliderCircleParameters.animation.position.keyValues);
-
-        // break;
+        break;
 
         case "verticalSliderWithLabel":
 
@@ -446,6 +157,8 @@ function createSliderComposition (setting, style) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
+// Call: 
+// TODO: Replace by addShape
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function createSliderCircleLayer (targetComposition, setting, sliderCircleDiameter, sliderCirclePosition) {
@@ -517,6 +230,7 @@ function createSliderCircleLayer (targetComposition, setting, sliderCircleDiamet
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
+// TODO: if(setting.fillType == "gradient")
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function createSliderBarLayer (targetComposition, setting, sliderBarVertices, sliderBarAnchorPoint, sliderBarWidth) {
@@ -550,7 +264,7 @@ function createSliderBarLayer (targetComposition, setting, sliderBarVertices, sl
     // Reset layer reference point
     sliderBarLayer.position.setValue([0,0]);
 
-    // // Set the position and anchor point
+    // Set the position and anchor point
     sliderBarShape.property("ADBE Vector Transform Group").property("Position").setValue(sliderBarAnchorPoint);
     sliderBarShape.property("ADBE Vector Transform Group").property("Anchor Point").setValue(sliderBarAnchorPoint);
 
@@ -558,7 +272,7 @@ function createSliderBarLayer (targetComposition, setting, sliderBarVertices, sl
     targetComposition.openInViewer();
 
     // Gradient
-    if(setting.fillType == "Gradient") {
+    if(setting.fillType == "gradient") {
 
         // Apply the Gradient Overlay effect to the layer
         var sliderBarGradientRamp = sliderBarLayer.effect.addProperty("ADBE Ramp");
@@ -576,17 +290,17 @@ function createSliderBarLayer (targetComposition, setting, sliderBarVertices, sl
     // Bevel and Emboss
     // app.executeCommand(app.findMenuCommandId("Bevel and Emboss"));
     // var sliderBarBevelAndEmboss = sliderBarLayer.property("Layer Styles").property("Bevel and Emboss");
-    // sliderBarBevelAndEmboss.property("Style").setValue(sliderBarParameters.bevelAndEmboss.style);
-    // sliderBarBevelAndEmboss.property("Depth").setValue(sliderBarParameters.bevelAndEmboss.depth);
-    // sliderBarBevelAndEmboss.property("Direction").setValue(sliderBarParameters.bevelAndEmboss.direction);
-    // sliderBarBevelAndEmboss.property("Size").setValue(sliderBarParameters.bevelAndEmboss.size);
-    // sliderBarBevelAndEmboss.property("Angle").setValue(sliderBarParameters.bevelAndEmboss.angle);
-    // sliderBarBevelAndEmboss.property("Altitude").setValue(sliderBarParameters.bevelAndEmboss.altitude);
-    // sliderBarBevelAndEmboss.property("Highlight Opacity").setValue(sliderBarParameters.bevelAndEmboss.highlightOpacity);
-    // sliderBarBevelAndEmboss.property("Shadow Opacity").setValue(sliderBarParameters.bevelAndEmboss.shadowOpacity);
+    // sliderBarBevelAndEmboss.property("Style").setValue(sliderBarParameters.layerStyle.bevelAndEmboss.style);
+    // sliderBarBevelAndEmboss.property("Depth").setValue(sliderBarParameters.layerStyle.bevelAndEmboss.depth);
+    // sliderBarBevelAndEmboss.property("Direction").setValue(sliderBarParameters.layerStyle.bevelAndEmboss.direction);
+    // sliderBarBevelAndEmboss.property("Size").setValue(sliderBarParameters.layerStyle.bevelAndEmboss.size);
+    // sliderBarBevelAndEmboss.property("Angle").setValue(sliderBarParameters.layerStyle.bevelAndEmboss.angle);
+    // sliderBarBevelAndEmboss.property("Altitude").setValue(sliderBarParameters.layerStyle.bevelAndEmboss.altitude);
+    // sliderBarBevelAndEmboss.property("Highlight Opacity").setValue(sliderBarParameters.layerStyle.bevelAndEmboss.highlightOpacity);
+    // sliderBarBevelAndEmboss.property("Shadow Opacity").setValue(sliderBarParameters.layerStyle.bevelAndEmboss.shadowOpacity);
 
     // Stroke
-    // app.executeCommand(app.findMenuCommandId("Stroke"));
+    app.executeCommand(app.findMenuCommandId("Stroke"));
     app.executeCommand(9008);
     var sliderBarStroke = sliderBarLayer.property("Layer Styles").property("Stroke");
     sliderBarStroke.property("Color").setValue(sliderBarParameters.effects.stroke.color);
