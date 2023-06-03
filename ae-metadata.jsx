@@ -7,6 +7,56 @@
 // var imageSettings = loadSettingsFromPath("/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram Photos/Scripts/Test/2022-11-23_13-19-00.xmp");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: Creates a dictionary with all the settings from the file stored in the path provided.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function loadImageFromPath (filePath) {
+
+    var image = {};
+
+    image.path = filePath;
+    image.directory = filePath.substr(0, filePath.lastIndexOf('/') + 1);
+    image.fullName = filePath.substr(filePath.lastIndexOf("/") + 1, filePath.length);
+    image.name = image.fullName.substr(0, image.fullName.lastIndexOf("."));
+    image.extension = filePath.substr(filePath.lastIndexOf(".") + 1, filePath.length);
+
+    var xmpMeta = loadXMPMeta (filePath);
+    image.settings = new ImageSettings(xmpMeta);
+
+    return image;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: Creates an xmpMetaObject out of the file stored in the path provided.
+// Call: var xmpMeta = loadXMPMeta ("/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram Photos/Scripts/Test/2022-11-23_13-19-00.xmp");
+// TODO: Include a case for dng files
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function loadXMPMeta (filePath) {
+
+    // load library
+    if ( ExternalObject.AdobeXMPScript == undefined ) {
+        ExternalObject.AdobeXMPScript = new ExternalObject( "lib:AdobeXMPScript");
+    }
+
+    // Load metadata
+    var xmpFilePath = filePath;
+    xmpFile = new File(xmpFilePath);
+    xmpFile.open('r');
+    xmpFile.encoding = 'UTF8';
+    xmpFile.lineFeed = 'unix';
+    xmpFile.open('r', "TEXT", "????");
+    var xmpMetaSerialized = xmpFile.read();
+    xmpFile.close();
+    var xmpMeta = new XMPMeta (xmpMetaSerialized);
+
+    return xmpMeta;
+
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: Creates an object with all the settings of the xmpMetaObject, as they are organized in Lightroom.
 // Call: var imageSettings = loadSettingsFromPath("/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram Photos/Scripts/Test/2022-11-23_13-19-00.xmp");
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,13 +68,13 @@ function ImageSettings (xmpMeta) {
     this.xmpMeta = xmpMeta;
 
     this.isCustom = false;
-    this.customPanels = 0;
-    this.keyTimes = [];
+    this.customPanels = 1;
+    // this.title = {};
+    // this.title.keyTimes = [];
 
-    // Animation: Dashboard swipe in
-    this.keyTimes.push(referenceKeyTime, referenceKeyTime + referenceKeyTimeIncrement);
+    // Animation: Time dashboard stays in place
+    // this.title.keyTimes.push(referenceKeyTime, referenceKeyTime + referenceSwipeTime);
     referenceKeyTime += referenceKeyTimeIncrement;
-    
 
     // Set dashboard
     if (!this.hasOwnProperty("panels")) {
@@ -44,15 +94,21 @@ function ImageSettings (xmpMeta) {
             this.panels[panelKey] = {};
             this.panels[panelKey].groups = {};
             this.panels[panelKey].keyTimes = [];
+            this.panels[panelKey].keyFrames = [];
+
 
             // Asign group parameters
             this.panels[panelKey].displayName = panel.displayName;
             this.panels[panelKey].isCustom = false;
-            this.panels[panelKey].customGroups = 0;
+            this.panels[panelKey].customGroups = 1;
 
-            // Animation Panel Title Swipe In
-            this.panels[panelKey].keyTimes.push(referenceKeyTime, referenceKeyTime + referenceKeyTimeIncrement);
-            referenceKeyTime += referenceKeyTimeIncrement;
+            // Animation: Panel Swipe In Time
+            this.panels[panelKey].keyTimes.push(referenceKeyTime, referenceKeyTime + panelSwipeInTime);
+            this.panels[panelKey].keyFrames.push(referenceKeyTime * projectFPS, (referenceKeyTime + panelSwipeInTime) * projectFPS);
+
+
+            // Time from panel swipe in until the title starts moving
+            referenceKeyTime += panelSwipeInTime + panelTitleHoldTime;
 
         }
 
@@ -69,6 +125,7 @@ function ImageSettings (xmpMeta) {
                 this.panels[panelKey].groups[groupKey] = {};
                 this.panels[panelKey].groups[groupKey].settings = {};
                 this.panels[panelKey].groups[groupKey].keyTimes = [];
+                this.panels[panelKey].groups[groupKey].keyFrames = [];
                 
                 // Asign group properties
                 this.panels[panelKey].groups[groupKey].displayName = group.displayName;
@@ -76,9 +133,13 @@ function ImageSettings (xmpMeta) {
                 this.panels[panelKey].groups[groupKey].isCustom = false;
                 this.panels[panelKey].groups[groupKey].customSettings = 0;
 
-                // Animation Group Title Swipe In
-                this.panels[panelKey].groups[groupKey].keyTimes.push(referenceKeyTime, referenceKeyTime + referenceKeyTimeIncrement);
-                referenceKeyTime += referenceKeyTimeIncrement;
+                // Animation: Group Swipe In Time
+                this.panels[panelKey].groups[groupKey].keyTimes.push(referenceKeyTime, referenceKeyTime + groupSwipeInTime);
+                this.panels[panelKey].groups[groupKey].keyFrames.push(referenceKeyTime * projectFPS, (referenceKeyTime + groupSwipeInTime) * projectFPS);
+
+                // Time from group swipe in until the settings start animating
+                referenceKeyTime += groupSwipeInTime + groupHoldTime;
+
             }
 
             // Add settings
@@ -90,11 +151,13 @@ function ImageSettings (xmpMeta) {
                 try {
                     
                     // Add setting
-                    this.panels[panelKey].groups[groupKey].settings[settingKey] = new Setting (xmpMeta, setting.displayName, setting.crsName, setting.min, setting.max, setting.defaultValue, setting.panel, setting.group, setting.fillType, setting.solidColor, setting.gradientColors);
+                    this.panels[panelKey].groups[groupKey].settings[settingKey] = new Setting (xmpMeta, setting.displayName, setting.crsName, setting.min, setting.max, setting.defaultValue, setting.panel, setting.group, setting.fillType, setting.gradientFill, setting.solidColor, setting.gradientColors);
                     this.panels[panelKey].groups[groupKey].settings[settingKey].keyTimes = [];
+                    this.panels[panelKey].groups[groupKey].settings[settingKey].keyFrames = [];
 
                     // Animation
-                    this.panels[panelKey].groups[groupKey].settings[settingKey].keyTimes.push(referenceKeyTime, referenceKeyTime + referenceKeyTimeIncrement);
+                    this.panels[panelKey].groups[groupKey].settings[settingKey].keyTimes.push(referenceKeyTime, referenceKeyTime + settingAnimationTime);
+                    this.panels[panelKey].groups[groupKey].settings[settingKey].keyFrames.push(referenceKeyTime * projectFPS, (referenceKeyTime + settingAnimationTime) * projectFPS);
 
                     if(this.panels[panelKey].groups[groupKey].settings[settingKey].isCustom == true) {
                         
@@ -115,12 +178,12 @@ function ImageSettings (xmpMeta) {
                 this.panels[panelKey].customGroups += 1;
 
                 // Animation Settings Animation
-                referenceKeyTime += referenceKeyTimeIncrement;
+                referenceKeyTime += settingAnimationTime + settingHoldTime;
 
             } else {
                 
                 // Reset referenceKeyTime if no custom
-                referenceKeyTime -= referenceKeyTimeIncrement;
+                referenceKeyTime -= groupSwipeInTime + groupHoldTime;
 
             }
 
@@ -135,7 +198,7 @@ function ImageSettings (xmpMeta) {
         } else {
 
             // Reset referenceKeyTime
-            referenceKeyTime -= referenceKeyTimeIncrement;
+            referenceKeyTime -= panelSwipeInTime + panelTitleHoldTime;
 
         }
         
@@ -147,7 +210,7 @@ function ImageSettings (xmpMeta) {
 // Description: Creates a dictionary with all the settings from the file stored in the path provided.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, group, fillType, solidColor, gradientColors) {
+function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, group, fillType, gradientFill, solidColor, gradientColors) {
 
     this.displayName = displayName; // Setting display name, as it appears in Lightroom
     this.crsName = crsName;         // Setting name, according to Camera Raw settings
@@ -159,6 +222,7 @@ function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, 
     this.panel = panel;
     this.group = group;
     this.fillType = fillType;
+    this.gradientFill = gradientFill;
     this.solidColor = hexToRgb(solidColor);
 
     this.isCustom = false;
@@ -176,10 +240,10 @@ function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, 
     if(this.crsName.match("ToneCurvePV2012")) {
 
 
-        for (var i = 0; i < xmpMeta.countArrayItems(XMPConst.NS_CAMERA_RAW,this.crsName); i++) { 
+        for (var i = 0; i < xmpMeta.countArrayItems(ns,this.crsName); i++) { 
 
-            var inputValue  = parseInt(xmpMeta.getArrayItem(XMPConst.NS_CAMERA_RAW, this.crsName, i + 1).value.split(", ")[0]);
-            var outputValue = parseInt(xmpMeta.getArrayItem(XMPConst.NS_CAMERA_RAW, this.crsName, i + 1).value.split(", ")[1]);
+            var inputValue  = parseInt(xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[0]);
+            var outputValue = parseInt(xmpMeta.getArrayItem(ns, this.crsName, i + 1).value.split(", ")[1]);
             this.settingValue.push([inputValue, outputValue]);
             
 
@@ -190,7 +254,6 @@ function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, 
             var interpolatedInputValue = interpolateValues(defaultInputValue, inputValue, interpolationSteps, 2);
             var interpolatedOutputValue = interpolateValues(defaultOutputValue, outputValue, interpolationSteps, 2);
             this.interpolatedValues.push([interpolatedInputValue, interpolatedOutputValue]);
-
 
             // var inputValueRelativePosition = interpolateValues(defaultInputValue, inputValue, interpolationSteps, 2);
             // var outputValueRelativePosition = interpolateValues(defaultOutputValue, outputValue, interpolationSteps, 2);
@@ -210,7 +273,7 @@ function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, 
 
     } else {
         
-        this.settingValue = xmpMeta.getProperty(XMPConst.NS_CAMERA_RAW, this.crsName).value;
+        this.settingValue = xmpMeta.getProperty(ns, this.crsName).value;
         this.defaultValue = defaultValue;
         this.interpolatedValues = interpolateValues(this.defaultValue, this.settingValue, interpolationSteps, 2);
         this.relativePosition = (this.settingValue - this.min) / (this.max - this.min); // Relative settingValue using min and max. From 0 to 1.
@@ -262,40 +325,126 @@ function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: Creates a dictionary with all the settings from the file stored in the path provided.
+// TODO: Update to take an xmpMeta object as argument and return that object.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function loadImageSettingsFromPath (filePath) {
-    
-    var xmpMeta = loadXMPMeta (filePath);
-    var imageSettings = new ImageSettings(xmpMeta);
+function resetSettings (image) {
 
-    return imageSettings;
+    // Load 
+    var settings = image.settings;
 
-}
+    if(image.extension == "dng") {
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Description: Creates an xmpMetaObject out of the file stored in the path provided.
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        xmpMeta = new XMPMeta(app.activeDocument.xmpMetadata.rawData);
 
-function loadXMPMeta (filePath) {
+        xmpMeta.setProperty(ns, "AlreadyApplied", false);
 
-    // load library
-    if ( ExternalObject.AdobeXMPScript == undefined ) {
-        ExternalObject.AdobeXMPScript = new ExternalObject( "lib:AdobeXMPScript");
+        // For each panel
+        for (var panelKey in settings.panels) {
+
+            var panel = settings.panels[panelKey];
+
+            // For each group
+            for (var groupKey in panel.groups) {
+
+                var group = panel.groups[groupKey];
+
+                // For each setting
+                for (var settingKey in group.settings) {
+
+                    var setting = group.settings[settingKey];
+
+                    if ( setting.crsName.match("ToneCurvePV2012") ){
+
+                        for (j=0; j<setting.settingValue.length; j++) {
+
+                            xmpMetaDefault.setArrayItem(ns, setting.crsName, j+1, setting.settingValue[j][0] + ", " + setting.settingValue[j][0]);
+
+                        }
+
+                    } else {
+
+                        xmpMetaDefault.setProperty(ns, setting.crsName, setting.defaultValue);
+
+                    }
+
+                    setting.isCustom = false;
+
+                }
+
+            }
+
+        }
+
+        var xmpFile = new XMPFile (image.path, XMPConst.FILE_UNKNOWN, XMPConst.OPEN_FOR_UPDATE);
+
+        xmpFile.putXMP(xmpMeta.serialize());
+        xmpFile.closeFile();
+
+    }   else    {
+
+        var xmpFilePath = image.directory + image.name + '.xmp';
+        xmpFile = new File(xmpFilePath);
+
+        xmpFile.open('r');
+        xmpFile.encoding = 'UTF8';
+        xmpFile.lineFeed = 'unix';
+        xmpFile.open('r', "TEXT", "????");
+
+        var xmpInitial = xmpFile.read();
+        xmpFile.close();
+
+        xmpMetaDefault = new XMPMeta (xmpInitial);
+
+        // For each panel
+        for (var panelKey in settings.panels) {
+
+            var panel = settings.panels[panelKey];
+
+            // For each group
+            for (var groupKey in panel.groups) {
+
+                var group = panel.groups[groupKey];
+
+                // For each setting
+                for (var settingKey in group.settings) {
+
+                    var setting = group.settings[settingKey];
+
+                    if ( setting.crsName.match("ToneCurvePV2012") ){
+
+                        for (j=0; j<setting.settingValue.length; j++) {
+
+                            xmpMetaDefault.setArrayItem(ns, setting.crsName, j+1, setting.settingValue[j][0] + ", " + setting.settingValue[j][0]);
+
+                        }
+
+                    } else {
+
+                        xmpMetaDefault.setProperty(ns, setting.crsName, setting.defaultValue);
+
+                    }
+
+                    setting.isCustom = false;
+
+                }
+
+            }
+
+        }
+
+        var xmpDefaultFilePath = image.directory + image.name + "_reference" + '.xmp';
+        xmpDefaultFile = new File(xmpDefaultFilePath);
+
+        xmpDefaultFile.open('w');
+        xmpDefaultFile.encoding = 'UTF8';
+        xmpDefaultFile.lineFeed = 'unix';
+        xmpDefaultFile.write(xmpMetaDefault.serialize());
+        xmpDefaultFile.close();
+
+        return xmpMetaDefault;
+
     }
-
-    // Load metadata
-    var xmpFilePath = filePath;
-    xmpFile = new File(xmpFilePath);
-    xmpFile.open('r');
-    xmpFile.encoding = 'UTF8';
-    xmpFile.lineFeed = 'unix';
-    xmpFile.open('r', "TEXT", "????");
-    var xmpMetaSerialized = xmpFile.read();
-    xmpFile.close();
-    var xmpMeta = new XMPMeta (xmpMetaSerialized);
-
-    return xmpMeta;
 
 }
 
@@ -319,7 +468,7 @@ function loadSettings (xmpMeta) {
                 if (setting.hasOwnProperty(innerKey)) {
 
                     try {
-                        var settingValues = new Setting (xmpMeta, setting.displayName, setting.crsName, setting.min, setting.max, setting.defaultValue, setting.panel, setting.group, setting.fillType, setting.solidColor, setting.gradientColors);
+                        var settingValues = new Setting (xmpMeta, setting.displayName, setting.crsName, setting.min, setting.max, setting.defaultValue, setting.panel, setting.group, setting.fillType, setting.gradientFill, setting.solidColor, setting.gradientColors);
 
                         imageSettings[key] = settingValues;
 
