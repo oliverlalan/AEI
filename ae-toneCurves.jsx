@@ -1,16 +1,35 @@
 // Calls
+// #include ae-utils.jsx
+// #include ae-style.jsx
+// #include ae-defaultParameters.jsx
+// #include ae-xmpNamespace.jsx
+// #include ae-animation.jsx
+// #include ae-texts.jsx
+// #include ae-shapes.jsx
+// #include ae-sliders.jsx
+// #include ae-metadata.jsx
+// #include ae-toneCurves.jsx
+
+// var imageSettings = loadImageFromPath("/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram Photos/Scripts/Test/2022-11-23_13-19-00.xmp");
+// createToneCurveGroupComposition(imageSettings.panels.toneCurve.groups.redChannel);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // TODO create a function for the parametric Curves
 // TODO Take the parametric curves out of the tone curves in the xmpNamespace
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function createToneCurveGroupComposition (settingsGroup, setSpacing) {
+function createToneCurveGroupComposition (settingsGroup, style) {
 
     var groupName = settingsGroup.displayName;
     var settings = settingsGroup.settings;
+
+    // Reset reference position
+    var groupReferencePosition = [0,0];
+
+    // Initialize of the precomposition position in the group composition
+    // var settingCompositionXPosition = panelCompositionParameters.padding.left;
+    // var settingCompositionYPosition = panelCompositionParameters.padding.top;
 
     // Create folder to store each slider
     var groupCompositionsFolder = project.items.addFolder(groupName + " Pre-Compositions");
@@ -18,27 +37,46 @@ function createToneCurveGroupComposition (settingsGroup, setSpacing) {
     // Create group composition
     var groupComposition = project.items.addComp(groupName, panelCompositionParameters.width, panelCompositionParameters.height, panelCompositionParameters.pixelAspect, panelCompositionParameters.duration, panelCompositionParameters.frameRate);
 
-    // Initialize of the precomposition position in the group composition
-    var settingCompositionXPosition = panelCompositionParameters.padding.left;
-    var settingCompositionYPosition = panelCompositionParameters.padding.top;
+    // Create title
+    var groupTitleComposition = createGroupTitleComposition (groupName);
+
+    // Include the precomposition created in the group composition
+    var groupTitleCompositionLayer = groupComposition.layers.add(groupTitleComposition);
+
+    // Position the precomposition in the group composition
+    setAnchorPosition(groupTitleCompositionLayer, "topLeft");
+    groupTitleCompositionLayer.position.setValue(groupReferencePosition);
+
+    // Update Y position of the next precomposition
+    groupReferencePosition[0] += 225;
+    groupReferencePosition[1] += groupTitleCompositionParameters.height;
 
     for (settingKey in settings) {
 
         // Create each precomposition
-        var settingComposition = createToneCurveComposition (settings[settingKey]);
+        var toneCurveGraphComposition = createToneCurveGraphComposition (settings[settingKey]);
+        var toneCurveValuesComposition = createToneCurveValuesComposition (settings[settingKey]);
 
-        // Store the precomposition in the corresponding foldre
-        settingComposition.parentFolder = groupCompositionsFolder;
+        // Store the precomposition in the corresponding folder
+        toneCurveGraphComposition.parentFolder = groupCompositionsFolder;
+        toneCurveValuesComposition.parentFolder = groupCompositionsFolder;
 
         // Include the precomposition created in the group composition
-        var settingComposition = groupComposition.layers.add(settingComposition);
+        var toneCurveGraphCompositionLayer = groupComposition.layers.add(toneCurveGraphComposition);
+        var toneCurveValuesCompositionLayer = groupComposition.layers.add(toneCurveValuesComposition);
 
         // Position the precomposition in the group composition
-        setAnchorPoint(settingComposition, sliderCompositionParameters.anchorPoint);
-        settingComposition.position.setValue([settingCompositionXPosition, settingCompositionYPosition]);
+        setAnchorPosition(toneCurveGraphCompositionLayer, toneCurveGraphCompositionParameters.anchorPosition);
+        toneCurveGraphCompositionLayer.position.setValue(groupReferencePosition);
+        
+        groupReferencePosition[0] += toneCurveGraphComposition.width;
+
+        setAnchorPosition(toneCurveValuesCompositionLayer, toneCurveGraphCompositionParameters.anchorPosition);
+        toneCurveValuesCompositionLayer.position.setValue(groupReferencePosition);
+        
 
         // Update Y position of the next precomposition
-        settingCompositionYPosition = settingCompositionYPosition + settingComposition.height + setSpacing;
+        // groupReferencePosition[1] += toneCurveGraphComposition.height;
 
     }
 
@@ -50,9 +88,9 @@ function createToneCurveGroupComposition (settingsGroup, setSpacing) {
 // Description: 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function createToneCurveComposition (setting) {
+function createToneCurveGraphComposition (setting) {
 
-    var compositionName = setting.displayName + " Composition";
+    var compositionName = setting.displayName + " Graph Composition";
 
     // Check if composition already exist. If not, create the composition.
     if (selectCompositionByName(compositionName)) {
@@ -60,7 +98,7 @@ function createToneCurveComposition (setting) {
     }
     
     // Create Tone Curve Composition
-    var toneCurveComposition = project.items.addComp(compositionName, toneCurveCompositionParameters.width, toneCurveCompositionParameters.height, toneCurveCompositionParameters.pixelAspect, toneCurveCompositionParameters.duration, toneCurveCompositionParameters.frameRate);
+    var toneCurveComposition = project.items.addComp(compositionName, toneCurveGraphCompositionParameters.width, toneCurveGraphCompositionParameters.height, toneCurveGraphCompositionParameters.pixelAspect, toneCurveGraphCompositionParameters.duration, toneCurveGraphCompositionParameters.frameRate);
     
     // Create Tone Curve Background
     var toneCurveBackground = createToneCurveBackground(toneCurveComposition, setting);
@@ -80,6 +118,8 @@ function createToneCurveComposition (setting) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
+// Call: createSlidersGroupComposition (groups[groupKey], style);
+// TODO: Compute setSpacing based on ammount of slider settings
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function createToneCurvePath(targetComposition, setting) {
@@ -113,12 +153,14 @@ function createToneCurvePath(targetComposition, setting) {
     toneCurvePath.property("Path").setValue(initialShape);
 
     // Animate
-    animateLayer(toneCurvePath, "Path", [1,2], [initialShape, finalShape])
+    animateLayer (toneCurvePath, "Path", setting.keyTimes, [initialShape, finalShape]);
+    // animateLayer(toneCurvePath, "Path", [1,2], [initialShape, finalShape]) // This works
 
     // Stroke
     var toneCurvePathStroke = toneCurvePathShape.property("ADBE Vectors Group").addProperty("ADBE Vector Graphic - Stroke");
     toneCurvePathStroke.property("ADBE Vector Stroke Color").setValue(toneCurvePathParameters.stroke.color);
-    toneCurvePathStroke.property("ADBE Vector Stroke Width").setValue(toneCurvePathParameters.stroke.size);
+    toneCurvePathStroke.property("ADBE Vector Stroke Width").setValue(toneCurvePathParameters.stroke.width);
+    toneCurvePathStroke.property("ADBE Vector Stroke Line Cap").setValue(toneCurvePathParameters.stroke.cap);
 
     // Add the Drop Shadow effect to the layer
     var toneCurvePathLayerShadow = toneCurvePathLayer.property("ADBE Effect Parade").addProperty("ADBE Drop Shadow");
@@ -129,7 +171,7 @@ function createToneCurvePath(targetComposition, setting) {
 
     // Position
     var toneCurvePathPosition = toneCurvePathLayer.property("Position");
-    toneCurvePathPosition.setValue([0, 0]);
+    toneCurvePathPosition.setValue([toneCurveGraphCompositionParameters.padding.left, toneCurveGraphCompositionParameters.padding.top]);
 
     return toneCurvePathLayer;
 
@@ -267,6 +309,12 @@ function createToneCurvePath(targetComposition, setting) {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+// Call: createSlidersGroupComposition (groups[groupKey], style);
+// TODO: Compute setSpacing based on ammount of slider settings
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function createToneCurveBackground (targetComposition, setting) {
 
     // create a new shape layer
@@ -285,21 +333,27 @@ function createToneCurveBackground (targetComposition, setting) {
     var toneCurveBackgroundFill = toneCurveBackgroundShape.property("ADBE Vectors Group").addProperty("ADBE Vector Graphic - Fill");
     toneCurveBackgroundFill.property("ADBE Vector Fill Color").setValue(toneCurveBackgroundParameters.fill);
 
+    // reduce opacity
+    // toneCurveBackgroundLayer.opacity.setValue(newOpacity);
+    toneCurveBackgroundLayer.opacity.setValue(85);
+    var toneCurveBackgroundFill = toneCurveBackgroundShape.property("ADBE Vectors Group").addProperty("ADBE Vector Graphic - Fill");
+    toneCurveBackgroundFill.property("ADBE Vector Fill Color").setValue(toneCurveBackgroundParameters.fill);
+
     // Position
-    var toneCurveBackgroundPosition = toneCurveBackgroundLayer.property("Position");
-    toneCurveBackgroundPosition.setValue([toneCurveBackgroundParameters.width / 2, toneCurveBackgroundParameters.height / 2]);
+    // var toneCurveBackgroundPosition = toneCurveBackgroundLayer.property("Position");
+    // toneCurveBackgroundPosition.setValue([toneCurveBackgroundParameters.width / 2, toneCurveBackgroundParameters.height / 2]);
 
     // Effects
     targetComposition.openInViewer();
 
     // Gradient
-    if(setting.fillType == "Gradient") {
+    if(setting.fillType == "gradient") {
 
         // Apply the Gradient Overlay effect to the layer
         var toneCurveBackgroundGradientRamp = toneCurveBackgroundLayer.effect.addProperty("ADBE Ramp");
-        toneCurveBackgroundGradientRamp.property("Start of Ramp").setValue([0,0]);
+        toneCurveBackgroundGradientRamp.property("Start of Ramp").setValue([toneCurveGraphCompositionParameters.padding.left, toneCurveGraphCompositionParameters.padding.top]);
         toneCurveBackgroundGradientRamp.property("Start Color").setValue(setting.gradientColors[0]);
-        toneCurveBackgroundGradientRamp.property("End of Ramp").setValue([225,225]);
+        toneCurveBackgroundGradientRamp.property("End of Ramp").setValue([toneCurveGraphCompositionParameters.width - toneCurveGraphCompositionParameters.padding.right, toneCurveGraphCompositionParameters.height - toneCurveGraphCompositionParameters.padding.bottom]);
         toneCurveBackgroundGradientRamp.property("End Color").setValue(setting.gradientColors[1]);
         toneCurveBackgroundGradientRamp.property("Ramp Shape").setValue(1);
     
@@ -307,17 +361,29 @@ function createToneCurveBackground (targetComposition, setting) {
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+// Call: createToneCurveGrid (targetComposition);
+// TODO: Compute setSpacing based on ammount of slider settings
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function createToneCurveGrid (targetComposition) {
 
+    // Create group composition
+    var toneCurveGridComposition = project.items.addComp("Tone Curve Grid", toneCurveBackgroundParameters.width, toneCurveBackgroundParameters.height, toneCurveGraphCompositionParameters.pixelAspect, toneCurveGraphCompositionParameters.duration, toneCurveGraphCompositionParameters.frameRate);
+
+    // Store the precomposition in the corresponding folder
+    // toneCurveGridComposition.parentFolder = groupCompositionsFolder;
+    
     // Add layer
-    var toneCurveGridLayer = targetComposition.layers.addShape();
-    toneCurveGridLayer.name = "My Shape Layer";
+    var toneCurveGridLayer = toneCurveGridComposition.layers.addShape();
+    toneCurveGridLayer.name = "Tone Curve Grid";
 
     // Add tone curve grid shape
     var toneCurveGridShape = toneCurveGridLayer.property("ADBE Root Vectors Group").addProperty("ADBE Vector Group"); // add a new rectangle shape
-    toneCurveGridShape.name = "Grid Shape"; // set the shape name
+    toneCurveGridShape.name = "Tone Curve Grid Shape"; // set the shape name
 
-    // Add tone curve grid shape
+    // Add tone curve grid path
     var toneCurveGridPath = toneCurveGridShape.property("ADBE Vectors Group").addProperty("ADBE Vector Shape - Rect");
     toneCurveGridPath.property("ADBE Vector Rect Size").setValue([toneCurveGridParameters.width, toneCurveGridParameters.height]);
 
@@ -327,7 +393,67 @@ function createToneCurveGrid (targetComposition) {
     toneCurveGridEffect.property("Corner").setValue(toneCurveGridParameters.corner);
     toneCurveGridEffect.property("Border").setValue(toneCurveGridParameters.border);
 
+    // Add the Drop Shadow effect to the layer
+    var toneCurveGridLayerShadow = toneCurveGridLayer.property("ADBE Effect Parade").addProperty("ADBE Drop Shadow");
+    toneCurveGridLayerShadow.property("Opacity").setValue(toneCurveGridParameters.shadow.opacity);
+    toneCurveGridLayerShadow.property("Direction").setValue(toneCurveGridParameters.shadow.direction);
+    toneCurveGridLayerShadow.property("Distance").setValue(toneCurveGridParameters.shadow.distance);
+    toneCurveGridLayerShadow.property("Softness").setValue(toneCurveGridParameters.shadow.softness);
+
+    // Add frame
+    var toneCurveFrameLayer = createToneCurveFrame(toneCurveGridComposition);
+
+    // Include the precomposition created in the group composition
+    var toneCurveGridCompositionLayer = targetComposition.layers.add(toneCurveGridComposition);
+
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+// Call: createToneCurveGrid (targetComposition);
+// TODO: Compute setSpacing based on ammount of slider settings
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function createToneCurveFrame (targetComposition) {
+    
+    // Add layer
+    var toneCurveFrameLayer = targetComposition.layers.addShape();
+    toneCurveFrameLayer.name = "Tone Curve Grid Frame";
+
+    // Add tone curve frame shape
+    var toneCurveFrameShape = toneCurveFrameLayer.property("ADBE Root Vectors Group").addProperty("ADBE Vector Group"); // add a new rectangle shape
+    toneCurveFrameShape.name = "Tone Curve Grid Frame Shape"; // set the shape name
+
+    // Add tone curve frame path
+    var toneCurveFramePath = toneCurveFrameShape.property("ADBE Vectors Group").addProperty("ADBE Vector Shape - Rect");
+    toneCurveFramePath.property("ADBE Vector Rect Size").setValue([toneCurveFrameParameters.width, toneCurveFrameParameters.height]);
+
+    // Stroke
+    var toneCurveFrameStroke = toneCurveFrameShape.property("ADBE Vectors Group").addProperty("ADBE Vector Graphic - Stroke");
+    toneCurveFrameStroke.property("ADBE Vector Stroke Color").setValue(toneCurveFrameParameters.stroke.color);
+    toneCurveFrameStroke.property("ADBE Vector Stroke Width").setValue(toneCurveFrameParameters.stroke.width);
+    toneCurveFrameStroke.property("ADBE Vector Stroke Line Cap").setValue(toneCurveFrameParameters.stroke.cap);
+
+    // Add offset effects
+    var toneCurveFrameOffset = toneCurveFrameShape.property("ADBE Vectors Group").addProperty("ADBE Vector Filter - Offset");
+    toneCurveFrameOffset.property("ADBE Vector Offset Amount").setValue(toneCurveFrameParameters.offset.amount);
+
+    // Add the Drop Shadow effect to the layer
+    var toneCurveFrameLayerShadow = toneCurveFrameLayer.property("ADBE Effect Parade").addProperty("ADBE Drop Shadow");
+    toneCurveFrameLayerShadow.property("Opacity").setValue(toneCurveFrameParameters.shadow.opacity);
+    toneCurveFrameLayerShadow.property("Direction").setValue(toneCurveFrameParameters.shadow.direction);
+    toneCurveFrameLayerShadow.property("Distance").setValue(toneCurveFrameParameters.shadow.distance);
+    toneCurveFrameLayerShadow.property("Softness").setValue(toneCurveFrameParameters.shadow.softness);
+
+    return toneCurveFrameLayer;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+// Call: createSlidersGroupComposition (groups[groupKey], style);
+// TODO: Compute setSpacing based on ammount of slider settings
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function createToneCurveAnchorPoints (targetComposition, setting) {
 
@@ -365,17 +491,60 @@ function createToneCurveAnchorPoints (targetComposition, setting) {
         // toneCurveAnchorPointAnchor.setValue([0, 0]); // set the anchor point to 0,0
 
         // Normalize and invert Y
-        var anchorPointInitialPosition = [setting.defaultValue[a][0] / 256 * toneCurveBackgroundParameters.width, - setting.defaultValue[a][1] / 256 * toneCurveBackgroundParameters.height + toneCurveBackgroundParameters.height];
-        var anchorPointFinalPosition = [setting.settingValue[a][0] / 256 * toneCurveBackgroundParameters.width, - setting.settingValue[a][1] / 256 * toneCurveBackgroundParameters.height + toneCurveBackgroundParameters.height] ;
+        var anchorPointInitialPosition = [setting.defaultValue[a][0] / 256 * toneCurveBackgroundParameters.width + toneCurveGraphCompositionParameters.padding.left, - setting.defaultValue[a][1] / 256 * toneCurveBackgroundParameters.height + toneCurveBackgroundParameters.height + toneCurveGraphCompositionParameters.padding.top];
+        var anchorPointFinalPosition = [setting.settingValue[a][0] / 256 * toneCurveBackgroundParameters.width + toneCurveGraphCompositionParameters.padding.left, - setting.settingValue[a][1] / 256 * toneCurveBackgroundParameters.height + toneCurveBackgroundParameters.height + toneCurveGraphCompositionParameters.padding.top] ;
 
         var toneCurveAnchorPointPosition = toneCurveAnchorPointLayer.property("Position"); // add the X position property to the layer
-        toneCurveAnchorPointPosition.setValue([anchorPointInitialPosition[0], anchorPointInitialPosition[1]]); // set the position to [100,100]
+        toneCurveAnchorPointPosition.setValue([anchorPointInitialPosition[0] + toneCurveGraphCompositionParameters.padding.left, anchorPointInitialPosition[1] + toneCurveGraphCompositionParameters.padding.top]); // set the position to [100,100]
 
         // Animate slider circle
-        animateLayer (toneCurveAnchorPointLayer, "Position", [toneCurveAnchorPointParameters.animation.start, toneCurveAnchorPointParameters.animation.end], [anchorPointInitialPosition, anchorPointFinalPosition]);
+        animateLayer (toneCurveAnchorPointLayer, "Position", setting.keyTimes, [anchorPointInitialPosition, anchorPointFinalPosition]);
 
     }
 
     return toneCurveAnchorPointLayer;
     
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+// Call: createToneCurveValuesComposition (setting);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function createToneCurveValuesComposition (setting) {
+
+    var compositionName = setting.displayName + " Values Composition";
+
+    // Check if composition already exist. If not, create the composition.
+    if (selectCompositionByName(compositionName)) {
+        return selectCompositionByName(compositionName);
+    }
+    
+    // Initialize reference position
+    var toneCurveValueReferencePosition = [toneCurveValuesCompositionParameters.padding.left, toneCurveValuesCompositionParameters.padding.top];
+
+    // Compute spacing
+    var toneCurveValuesSpacing = (toneCurveValuesCompositionParameters.height - toneCurveValuesCompositionParameters.padding.top - toneCurveValuesCompositionParameters.padding.bottom) / (setting.settingValue.length - 1);
+
+    // Create folder to store each slider
+    // var toneCurveValuesCompositionsFolder = project.items.addFolder(groupName + " Pre-Compositions");
+
+    // Create group composition
+    var toneCurveValuesComposition = project.items.addComp(compositionName, toneCurveValuesCompositionParameters.width, toneCurveValuesCompositionParameters.height, toneCurveValuesCompositionParameters.pixelAspect, toneCurveValuesCompositionParameters.duration, toneCurveValuesCompositionParameters.frameRate);
+
+    // Create layers for each value
+    for (var a = setting.settingValue.length - 1; a >= 0; a --) {
+
+        // Create Tone Curve Value Layer
+        var toneCurveValueLayer = createToneCurveValueLayer (toneCurveValuesComposition, [setting.settingValue[a][0], setting.settingValue[a][1]], setting.keyTimes, toneCurveValueReferencePosition, toneCurveValuesCompositionParameters.text.anchorPosition, toneCurveValuesCompositionParameters.text.justification);
+
+        // var toneCurveValueLayer = createToneCurveValueLayer (toneCurveValuesComposition, [setting.defaultValue, setting.settingValue], setting.keyTimes, toneCurveValueReferencePosition, toneCurveValuesCompositionParameters.text.anchorPosition, toneCurveValuesCompositionParameters.text.justification);
+
+        // Increase Y reference position
+        toneCurveValueReferencePosition[1] += toneCurveValuesSpacing;
+
+    }
+
+    return toneCurveValuesComposition;
+
 }
