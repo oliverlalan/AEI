@@ -1,27 +1,237 @@
-function createGroup (imageObj.) {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+// Call: createDashboardComposition (dashboardData, "horizontalSliderWithLabelOnLeft")
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    switch(settingsGroup.groupType) {
+function createDashboardComposition (dashboardData, style) {
 
-        case "Slider":
-            var settingsGroupComposition = createSliderSetComposition(settingsGroup.settings, settingsGroup.displayName, 15);
-            settingsGroupComposition.name = settingsGroup.displayName + " Group";
-        break;
+    var dashboardName = "Dashboard";
+    var panels = dashboardData.panels;
+    
+    // Reset reference position
+    var panelsReferencePosition = [0,0];
 
-        // case "Tone Curve":
-        //     createToneCurveComposition();
-        // break;
+    // Create dashboard composition 
+    var dashboardComposition = project.items.addComp(dashboardName, dashboardCompositionParameters.width, dashboardCompositionParameters.height, dashboardCompositionParameters.pixelAspect, dashboardCompositionParameters.duration, dashboardCompositionParameters.frameRate);
 
-        // case "Color Mix":
-        //     createColorMixComposition();
-        // break;
+    // Create panels Composition
+    var panelsComposition = createPanelsComposition (dashboardData, style);
 
-        // case "Color Grading":
-        //     createColorGradingComposition();
-        // break;
+    // Add background
+    var dashboardBackgroundLayer = dashboardComposition.layers.addSolid([46/255, 46/255, 46/255], "Dashboard Background", dashboardCompositionParameters.width, dashboardCompositionParameters.height, dashboardCompositionParameters.pixelAspect);
+
+    // Include the precomposition created in the group composition
+    var panelsCompositionLayer = dashboardComposition.layers.add(panelsComposition);
+
+    // Position the precomposition in the group composition
+    setAnchorPosition(panelsCompositionLayer, "topLeft");
+    panelsCompositionLayer.position.setValue(panelsReferencePosition);
+
+    // Animate Panels Composition Horizontally
+    for (panelKey in panels) {
+
+        var panel = panels[panelKey];
+
+        if (panel.isCustom == true) {
+
+            // Animate panel
+            var keyValues = [panelsReferencePosition, [panelsReferencePosition[0] - dashboardCompositionParameters.width, panelsReferencePosition[1]]]
+            panelsCompositionLayer.position.setValuesAtTimes(panel.keyTimes, keyValues);
+
+            // Update X position of the next precomposition
+            panelsReferencePosition[0] -= dashboardCompositionParameters.width;
+
+        }
 
     }
 
+    return dashboardComposition;
+
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+// Call: createPanelsComposition (dashboardData, "horizontalSliderWithLabelOnLeft")
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function createPanelsComposition (dashboardData, style) {
+
+    var panelsName = "Panels";
+    var panels = dashboardData.panels;
+
+    // Reset reference position
+    var dashboardReferencePosition = [0,0];
+
+    // Create folder to store panel precompositions
+    var panelsCompositionsFolder = project.items.addFolder(panelsName + " Pre-Compositions");
+
+    // Create panels composition 
+    var panelsComposition = project.items.addComp(panelsName, panelsCompositionParameters.width * dashboardData.customPanels, panelsCompositionParameters.height, panelsCompositionParameters.pixelAspect, panelsCompositionParameters.duration, panelsCompositionParameters.frameRate);
+
+    // Create title
+    var panelsTitleComposition = createDashboardTitleComposition ("Settings");
+
+    // Include the precomposition created in the group composition
+    var panelsTitleCompositionLayer = panelsComposition.layers.add(panelsTitleComposition);
+
+    // Position the precomposition in the group composition
+    setAnchorPosition(panelsTitleCompositionLayer, "topLeft");
+    panelsTitleCompositionLayer.position.setValue(dashboardReferencePosition);
+
+    // Update X position of the next precomposition
+    dashboardReferencePosition[0] += panelCompositionParameters.width;
+
+    for (panelKey in panels) {
+
+        var panel = panels[panelKey];
+
+        if (panel.isCustom == true) {
+
+            // Create each panel precomposition
+            var panelComposition = createPanelComposition (panel, style);
+
+            // Store the panel precomposition in the corresponding folder
+            panelComposition.parentFolder = panelsCompositionsFolder;
+
+            // Include the panel precomposition created in the dashboard composition
+            var panelCompositionLayer = panelsComposition.layers.add(panelComposition);
+
+            // Position the panel precomposition in the dashboard composition
+            setAnchorPosition(panelCompositionLayer, "topLeft");
+            panelCompositionLayer.position.setValue(dashboardReferencePosition);
+
+            // Animate each panel composition vertically taking into account the amount of groups per panel
+            for (groupKey in panel.groups) {
+
+                var group = panel.groups[groupKey];
+
+                if (group.isCustom == true) {
+
+                    // Animate panel
+                    var keyValues = [dashboardReferencePosition, [dashboardReferencePosition[0], dashboardReferencePosition[1] - panelCompositionParameters.height]]
+                    panelCompositionLayer.position.setValuesAtTimes(group.keyTimes, keyValues);
+
+                    // Update Y position of the next precomposition
+                    dashboardReferencePosition[1] -= panelCompositionParameters.height;
+
+                }
+
+            }
+
+            // Animate panel horizontally: This goes out in the dashboard placeholder
+            // panelCompositionLayer.position.setValuesAtTimes([referenceKeyFrame, referenceKeyFrame + referenceAnimationKeyFramesIncrement], [[panelsCompositionParameters.position[0], panelsCompositionParameters.position[1]], [panelsCompositionParameters.position[0], panelsCompositionParameters.position[1] - dashboardTitleParameters.height]]);
+            // panelCompositionLayer.position.setTemporalEaseAtKey(1, [defaultAnimationParameters.easeIn], [defaultAnimationParameters.easeOut]);
+            // panelCompositionLayer.position.setTemporalEaseAtKey(2, [defaultAnimationParameters.easeIn], [defaultAnimationParameters.easeOut]);
+
+            // Update X position of the next panel precomposition
+            dashboardReferencePosition[0] += panelComposition.width;
+            dashboardReferencePosition[1] = 0;
+
+        }
+
+    }
+
+    return panelsComposition;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+// Call: createPanelComposition (imageSettings.panels.colorMixer, "horizontalSliderWithLabelOnLeft")
+// TODO: Define styles
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function createPanelComposition (panel, style) {
+
+    var panelName = panel.displayName;
+    var groups = panel.groups;
+
+    // Reset reference position
+    var panelReferencePosition = [0,0];
+
+    // Create folder to store each slider
+    var panelCompositionsFolder = project.items.addFolder(panelName + " Pre-Compositions");
+
+    // Create group composition 
+    var panelComposition = project.items.addComp(panelName, panelCompositionParameters.width, panelCompositionParameters.height * panel.customGroups, panelCompositionParameters.pixelAspect, panelCompositionParameters.duration, panelCompositionParameters.frameRate);
+
+    // Create title
+    var panelTitleComposition = createDashboardTitleComposition (panelName);
+    
+    // Include the precomposition created in the group composition as layer
+    var panelTitleCompositionLayer = panelComposition.layers.add(panelTitleComposition);
+
+    // Position the precomposition in the group composition
+    setAnchorPosition(panelTitleCompositionLayer, "topLeft");
+    panelTitleCompositionLayer.position.setValue(panelReferencePosition);
+
+    // Update Y position of the next precomposition
+    panelReferencePosition[1] += panelCompositionParameters.height;
+
+    for (groupKey in groups) {
+
+        var group = groups[groupKey];
+
+        if (group.isCustom == true) {
+
+            // Create each precomposition
+            switch(group.groupType) {
+            
+                case "Slider":
+                    var groupComposition = createSlidersGroupComposition (group, style);
+                break;
+
+                case "Tone Curve":
+                    var groupComposition = createToneCurveGroupComposition(group, style);
+                break;
+
+                case "Color Mixer":
+                    var groupComposition = createSlidersGroupComposition (group, style);
+                break;
+
+                case "Color Grading":
+                    var groupComposition = createColorGradeGroupComposition (group, style);
+                break;
+
+            }
+
+            // Store the precomposition in the corresponding folder
+            groupComposition.parentFolder = panelCompositionsFolder;
+
+            // Include the precomposition created in the group composition
+            var groupCompositionLayer = panelComposition.layers.add(groupComposition);
+
+            // Position the precomposition in the group composition
+            setAnchorPosition(groupCompositionLayer, "topLeft");
+            groupCompositionLayer.position.setValue(panelReferencePosition);
+
+            // Animate group
+            // TODO: Move animation to dashboard, is the whole panel layer what has to move
+            // var keyValues = [panelReferencePosition, [0, panelReferencePosition[1] + panelCompositionParameters.height]]
+            // groupCompositionLayer.position.setValuesAtTimes(group.keyTimes, keyValues);
+            // groupCompositionLayer.position.setValuesAtTimes(keyTimes, keyValues);
+            // groupCompositionLayer.property("ADBE Root Vectors Group").property("ADBE Vector Group").property("ADBE Vector Transform Group").property("Position").setValuesAtTimes(sliderCircleParameters.animation.position.keyTimes, sliderCircleParameters.animation.position.keyValues);
+
+
+            // Update Y position of the next precomposition
+            panelReferencePosition[1] += panelCompositionParameters.height;
+
+        }
+
+    }
+
+    return panelComposition;
+
+}
+
+
+
+    
+    // // Incrase dashboard reference position
+    // panelsCompositionParameters.position[1] += dashboardTitleParameters.height;
+
+    // // Update referenceKeyFrame
+    // referenceKeyFrame += referenceAnimationKeyFramesIncrement;
 
 
 
