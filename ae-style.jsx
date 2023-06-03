@@ -9,7 +9,7 @@ var adobeGrays = {
 
 // General
 
-var arcoiris = {
+var rainbow = {
     red: "ff0000",
     orange: "ff6a00",
     yellow: "ffff00",
@@ -27,6 +27,8 @@ var style = "dark";
 // sliders width to 5px
 // sliders with no embossand bevel
 
+var gridSections = 4;
+
 switch (style) {
     case "dark":
 
@@ -35,9 +37,9 @@ switch (style) {
     var sliderBarLightFillColor = "F2F2F2";     //95
     var sliderBarDarkFillColor = "2E2E2E";     //18
     var sliderBarSolidFillColor  = "474747";   //28
-    var sliderBarStrokeColor = "A6A6A6";
+    var sliderBarStrokeColor = "FFFFFF";
 
-    var toneCurvePathStrokecolor = "F2F2F2";
+    var toneCurvePathStrokecolor = "FFFFFF";
     var toneCurveSolidBackgroundcolor = "474747";
     var toneCurveAnchorPointStrokeColor = "FFFFFF";
     var toneCurveAnchorPointFillColor = "FFFFFF";
@@ -45,6 +47,6 @@ switch (style) {
 
 
     var circleSelectorFillColor = "FFFFFF";     //100
-    var circleSelectorStrokeColor = "A6A6A6";       //65
+    var circleSelectorStrokeColor = "FFFFFF";       //65
 
 }
