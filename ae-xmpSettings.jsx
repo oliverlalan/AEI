@@ -1,3 +1,5 @@
+// TODO: Update fillType to constant: solidColor, simpleGradient, complexGradient
+
 var imageSettingsDict = {
 
     temperature: {
@@ -586,7 +588,7 @@ var imageSettingsDict = {
         group:          "Midtone",
         fillType:       slidersFillType,
         solidColor:     sliderBarSolidFillColor,
-        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
     },
     midtoneSat: {
         displayName:    "S",    
@@ -598,7 +600,7 @@ var imageSettingsDict = {
         group:          "Midtone",
         fillType:       slidersFillType,
         solidColor:     sliderBarSolidFillColor,
-        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
     },
     midtoneLum: {
         displayName:    "L",    
@@ -622,7 +624,7 @@ var imageSettingsDict = {
         group:          "Shadow",
         fillType:       slidersFillType,
         solidColor:     sliderBarSolidFillColor,
-        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
     },
     shadowSat: {
         displayName:    "S",    
@@ -634,7 +636,7 @@ var imageSettingsDict = {
         group:          "Shadow",
         fillType:       slidersFillType,
         solidColor:     sliderBarSolidFillColor,
-        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
     },
     shadowLum: {
         displayName:    "L",    
@@ -658,7 +660,7 @@ var imageSettingsDict = {
         group:          "Highlight",
         fillType:       slidersFillType,
         solidColor:     sliderBarSolidFillColor,
-        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
     },
     highlightSat: {
         displayName:    "S",    
@@ -670,7 +672,7 @@ var imageSettingsDict = {
         group:          "Highlight",
         fillType:       slidersFillType,
         solidColor:     sliderBarSolidFillColor,
-        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
     },
     highlightLum: {
         displayName:    "L",    
@@ -694,7 +696,7 @@ var imageSettingsDict = {
         group:          "Global",
         fillType:       slidersFillType,
         solidColor:     sliderBarSolidFillColor,
-        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
     },
     globalSat: {
         displayName:    "S",    
@@ -706,7 +708,7 @@ var imageSettingsDict = {
         group:          "Global",
         fillType:       slidersFillType,
         solidColor:     sliderBarSolidFillColor,
-        gradientColors: [arcoiris.red, arcoiris.orange, arcoiris.yellow, arcoiris.green, arcoiris.aqua, arcoiris.blue, arcoiris.purple, arcoiris.magenta]
+        gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
     },
     globalLum: {
         displayName:    "L",    
