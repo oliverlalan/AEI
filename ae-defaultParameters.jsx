@@ -23,6 +23,11 @@
 //     shadowTintCalibration,redHueCalibration,redSaturationCalibration,greenHueCalibration,greenSaturationCalibration,blueHueCalibration,blueSaturationCalibration
 // ]
 
+// load library
+if ( ExternalObject.AdobeXMPScript == undefined ) {
+    ExternalObject.AdobeXMPScript = new ExternalObject( "lib:AdobeXMPScript");
+}
+
 var ns = XMPConst.NS_CAMERA_RAW //"http://ns.adobe.com/camera-raw-settings/1.0/";
 
 // Animation
@@ -31,14 +36,14 @@ var tempo = 111;
 var framesPerBeat = 30;
 var referenceAnimationKeyFramesIncrement = framesPerBeat / projectFPS;
 var framesPerEase = 8;
-var referenceKeyTime = 0;
-var referenceKeyTimeIncrement = framesPerBeat / projectFPS;
-var panelSwipeInTime = 12 / 30;
-var panelTitleHoldTime = 22 / 30;
-var groupSwipeInTime = 12 / 30;
-var groupHoldTime = 12 / 30;
-var settingAnimationTime = 24 / 30;
-var settingHoldTime = 6 / 30;
+var referenceKeyFrame = 0;
+var referenceKeyFramesIncrement = framesPerBeat;
+var panelSwipeInFrames = 12;
+var panelTitleHoldFrames = 22;
+var groupSwipeInFrames = 12;
+var groupHoldFrames = 12;
+var settingAnimationFrames = 24; // Frames for animation
+var settingHoldFrames = 6; // Frames to wait after setting animation
 // var referenceSwipeTime = 9 / 30;
 // var referenceHoldTime = 3 / 30;
 // var referenceAnimationTime = 18 / 30;
@@ -750,7 +755,7 @@ function HorizontalStackedSlider(compositionWidth, compositionHeight, setting) {
         position: {
             reference: [compositionWidth / 2, sliderVerticalPosition],
             animation: {
-                keyTimes: setting.keyTimes,
+                keyTimes: setting.animation.setting.keyTimes,
                 keyValues: [sliderBarAnchorPoint, [sliderBarVertices[0][0] + (setting.settingValue - setting.min) / (setting.max - setting.min) * sliderBarLength, sliderVerticalPosition]]
             }
         },

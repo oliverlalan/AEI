@@ -153,7 +153,7 @@ function createToneCurvePath(targetComposition, setting) {
     toneCurvePath.property("Path").setValue(initialShape);
 
     // Animate
-    animateLayer (toneCurvePath, "Path", setting.keyTimes, [initialShape, finalShape]);
+    animateLayer (toneCurvePath, "Path", setting.animation.setting.keyTimes, [initialShape, finalShape]);
     // animateLayer(toneCurvePath, "Path", [1,2], [initialShape, finalShape]) // This works
 
     // Stroke
@@ -498,7 +498,7 @@ function createToneCurveAnchorPoints (targetComposition, setting) {
         toneCurveAnchorPointPosition.setValue([anchorPointInitialPosition[0] + toneCurveGraphCompositionParameters.padding.left, anchorPointInitialPosition[1] + toneCurveGraphCompositionParameters.padding.top]); // set the position to [100,100]
 
         // Animate slider circle
-        animateLayer (toneCurveAnchorPointLayer, "Position", setting.keyTimes, [anchorPointInitialPosition, anchorPointFinalPosition]);
+        animateLayer (toneCurveAnchorPointLayer, "Position", setting.animation.setting.keyTimes, [anchorPointInitialPosition, anchorPointFinalPosition]);
 
     }
 
@@ -536,9 +536,9 @@ function createToneCurveValuesComposition (setting) {
     for (var a = setting.settingValue.length - 1; a >= 0; a --) {
 
         // Create Tone Curve Value Layer
-        var toneCurveValueLayer = createToneCurveValueLayer (toneCurveValuesComposition, [setting.settingValue[a][0], setting.settingValue[a][1]], setting.keyTimes, toneCurveValueReferencePosition, toneCurveValuesCompositionParameters.text.anchorPosition, toneCurveValuesCompositionParameters.text.justification);
+        var toneCurveValueLayer = createToneCurveValueLayer (toneCurveValuesComposition, [setting.settingValue[a][0], setting.settingValue[a][1]], setting.animation.setting.keyTimes, toneCurveValueReferencePosition, toneCurveValuesCompositionParameters.text.anchorPosition, toneCurveValuesCompositionParameters.text.justification);
 
-        // var toneCurveValueLayer = createToneCurveValueLayer (toneCurveValuesComposition, [setting.defaultValue, setting.settingValue], setting.keyTimes, toneCurveValueReferencePosition, toneCurveValuesCompositionParameters.text.anchorPosition, toneCurveValuesCompositionParameters.text.justification);
+        // var toneCurveValueLayer = createToneCurveValueLayer (toneCurveValuesComposition, [setting.defaultValue, setting.settingValue], setting.animation.setting.keyTimes, toneCurveValueReferencePosition, toneCurveValuesCompositionParameters.text.anchorPosition, toneCurveValuesCompositionParameters.text.justification);
 
         // Increase Y reference position
         toneCurveValueReferencePosition[1] += toneCurveValuesSpacing;

@@ -2,6 +2,8 @@
 //TODO
 // vibrance, saturation, color grading values gradient Colors
 
+#include ae-style.jsx
+
 // structure
 
 // var object1 = {
@@ -1366,5 +1368,5 @@ var lightroomPanels = {
 }
 
 
-groupTypes = ["Slider", "Tone Curve", "Color Mixer", "Color Grading"]
+// groupTypes = ["Slider", "Tone Curve", "Color Mixer", "Color Grading"]
 

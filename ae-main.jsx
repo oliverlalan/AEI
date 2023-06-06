@@ -21,12 +21,12 @@
 // Description: Project info
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var project = app.project;
-var projectPath = project.file.path;
-var projectFullName = project.file.fullName;
-var projectName = project.file.name;
-var projectNameNoExtension = projectName.substr(0, projectName.lastIndexOf('.'));
-var projectExtension = projectName.substr(projectName.lastIndexOf(".") + 1, projectName.length)
+// var project = app.project;
+// var projectPath = project.file.path;
+// var projectFullName = project.file.fullName;
+// var projectName = project.file.name;
+// var projectNameNoExtension = projectName.substr(0, projectName.lastIndexOf('.'));
+// var projectExtension = projectName.substr(projectName.lastIndexOf(".") + 1, projectName.length)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: Calls

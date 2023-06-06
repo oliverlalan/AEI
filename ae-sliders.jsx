@@ -96,7 +96,7 @@ function createSliderComposition (setting, style) {
             sliderCircleParameters.position = sliderBarParameters.anchorPoint;
             sliderCircleParameters.animation = {
                 position: {
-                keyTimes: setting.keyTimes,
+                keyTimes: setting.animation.setting.keyTimes,
                 keyValues:[sliderBarParameters.anchorPoint, [sliderBarParameters.vertices[0][0] + (setting.settingValue - setting.min) / (setting.max - setting.min) * sliderBarParameters.stroke.length, sliderBarParameters.vertices[0][1]]]
                 }
             };
@@ -120,7 +120,7 @@ function createSliderComposition (setting, style) {
             var sliderTextLabelLayer = createSliderTextLabelLayer (sliderComposition, setting, sliderTextLabelParameters.position, sliderTextLabelParameters.anchorPosition, sliderTextLabelParameters.justification);
             
             // Create Text Value Layer
-            var sliderTextValueLayer = createSliderTextValueLayer (sliderComposition, [setting.defaultValue, setting.settingValue], setting.keyTimes, sliderTextValueParameters.position, sliderTextValueParameters.anchorPosition, sliderTextValueParameters.justification);
+            var sliderTextValueLayer = createSliderTextValueLayer (sliderComposition, [setting.defaultValue, setting.settingValue], setting.animation.setting.keyTimes, sliderTextValueParameters.position, sliderTextValueParameters.anchorPosition, sliderTextValueParameters.justification);
 
             // Create Slider Bar Layer
             var sliderBarLayer = createSliderBarLayer (sliderComposition, setting, sliderBarParameters.vertices, sliderBarParameters.anchorPoint, sliderBarParameters.stroke.width)

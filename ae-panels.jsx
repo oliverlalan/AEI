@@ -36,7 +36,7 @@ function createDashboardComposition (dashboardData, style) {
 
             // Animate panel
             var keyValues = [panelsReferencePosition, [panelsReferencePosition[0] - dashboardCompositionParameters.width, panelsReferencePosition[1]]]
-            panelsCompositionLayer.position.setValuesAtTimes(panel.keyTimes, keyValues);
+            panelsCompositionLayer.position.setValuesAtTimes(panel.animation.swipeIn.keyTimes, keyValues);
 
             // Update X position of the next precomposition
             panelsReferencePosition[0] -= dashboardCompositionParameters.width;
@@ -109,7 +109,7 @@ function createPanelsComposition (dashboardData, style) {
 
                     // Animate panel
                     var keyValues = [dashboardReferencePosition, [dashboardReferencePosition[0], dashboardReferencePosition[1] - panelCompositionParameters.height]]
-                    panelCompositionLayer.position.setValuesAtTimes(group.keyTimes, keyValues);
+                    panelCompositionLayer.position.setValuesAtTimes(group.animation.swipeIn.keyTimes, keyValues);
 
                     // Update Y position of the next precomposition
                     dashboardReferencePosition[1] -= panelCompositionParameters.height;
@@ -204,14 +204,6 @@ function createPanelComposition (panel, style) {
             // Position the precomposition in the group composition
             setAnchorPosition(groupCompositionLayer, "topLeft");
             groupCompositionLayer.position.setValue(panelReferencePosition);
-
-            // Animate group
-            // TODO: Move animation to dashboard, is the whole panel layer what has to move
-            // var keyValues = [panelReferencePosition, [0, panelReferencePosition[1] + panelCompositionParameters.height]]
-            // groupCompositionLayer.position.setValuesAtTimes(group.keyTimes, keyValues);
-            // groupCompositionLayer.position.setValuesAtTimes(keyTimes, keyValues);
-            // groupCompositionLayer.property("ADBE Root Vectors Group").property("ADBE Vector Group").property("ADBE Vector Transform Group").property("Position").setValuesAtTimes(sliderCircleParameters.animation.position.keyTimes, sliderCircleParameters.animation.position.keyValues);
-
 
             // Update Y position of the next precomposition
             panelReferencePosition[1] += panelCompositionParameters.height;

@@ -178,7 +178,7 @@ function addTextValueLayer (targetComposition, textLayerParameters, setting) {
     textLayer.position.setValue(textLayerParameters.position.reference);
 
     // Add an expression to the text layer's Source Text property
-    textLayer.property("Source Text").expression = "Math.round(easeOut(time, " + setting.keyTimes[0] + ", " + setting.keyTimes[1] + ", " + setting.defaultValue + ", " + setting.settingValue + "))";
+    textLayer.property("Source Text").expression = "Math.round(easeOut(time, " + setting.animation.setting.keyTimes[0] + ", " + setting.animation.setting.keyTimes[1] + ", " + setting.defaultValue + ", " + setting.settingValue + "))";
 
     // Select the text layer
     // textLayer.selected = true;

@@ -20,13 +20,15 @@ var x = 3;
 
 function createInterpolatedFiles (image) {
 
+    // Where images will be created
+    var targetDirectory = image.directory + "Animation/";
+
     // Load 
     var settings = image.settings;
 
     // Create a copy of the original file with the corresponding name.
-    sourceFile = new File(image.path);
     var xmpMeta = loadXMPMeta(image.path);
-    var xmpMetaReference = resetSettings(image);
+    var xmpMetaReference = resetSettings(xmpMeta);
 
     // For each panel
     for (var panelKey in settings.panels){
@@ -41,27 +43,6 @@ function createInterpolatedFiles (image) {
             // For each frame between the animated keyFrames
             for (var f = group.keyFrames[0]; f < group.keyFrames[1]; f++) {
 
-                // Read original file
-                
-
-                // Create target file named acording to corresponding keyFrame
-                var targetFilePath = image.directory + "Animation/" + image.name + "_" + f + '.' + image.extension;
-                targetFile = new File(targetFilePath);
-                // sourceFile.copy(targetFile);
-
-                // Create a XMP file 
-                var xmpFile = new File (targetFilePath);
-                xmpFile.open('r');
-                xmpFile.encoding = 'UTF8';
-                xmpFile.lineFeed = 'unix';
-                xmpFile.open('r', "TEXT", "????");
-
-                var xmpInitial = xmpFile.read();
-                xmpFile.close();
-
-                xmpMeta = new XMPMeta (xmpInitial);
-                // xmpMeta = xmpFile.getXMP();
-
                 // For each setting
                 for (var settingKey in group.settings) {
 
@@ -69,39 +50,31 @@ function createInterpolatedFiles (image) {
 
                     var newInterpolatedValue = f - group.keyFrames[0];
 
-                    // TODO: Update 
-
+                    // Update XMPMeta values
                     if ( setting.crsName.match("ToneCurvePV2012") ){
 
                         for (j=0; j<setting.settingValue.length; j++) {
 
-                            xmpMeta.setArrayItem(ns, setting.crsName, j+1, setting.settingValue[j][0] + ", " + setting.settingValue[j][1]);
+                            xmpMetaReference.setArrayItem(ns, setting.crsName, j+1, setting.settingValue[j][0] + ", " + setting.settingValue[j][1]);
 
                         }
 
                     } else {
 
-                        xmpMeta.setProperty(ns, setting.crsName, setting.interpolatedValues[newInterpolatedValue]);
+                        xmpMetaReference.setProperty(ns, setting.crsName, setting.interpolatedValues[newInterpolatedValue]);
 
                     }
 
-                    // updateXMPSetting(xmpMeta, setting, setting.interpolatedValues[newInterpolatedValue]);
-
                 }
 
+                // Create target file named acording to corresponding keyFrame and save it
+                var targetFilePath = targetDirectory + image.name + "_" + f + '.' + image.extension;
+                var xmpFile = new File (targetFilePath);
                 xmpFile.open('w');
                 xmpFile.encoding = 'UTF8';
                 xmpFile.lineFeed = 'unix';
-                xmpFile.write(xmpMeta.serialize());
+                xmpFile.write(xmpMetaReference.serialize());
                 xmpFile.close();
-
-                // // Write xmp on file
-                // if (xmpFile.canPutXMP( xmpMeta )) {
-                //     xmpFile.putXMP( xmpMeta );
-                // }
-
-                // // Close file
-                // xmpFile.closeFile()
 
             }
 
