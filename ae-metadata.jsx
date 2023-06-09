@@ -4,8 +4,8 @@
 #include ae-defaultParameters.jsx
 
 // Calls
-// var image = loadImageFromPath("/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram Photos/Scripts/Test/2022-11-23_13-19-00.xmp");
-// var t = 3;
+var image = loadImageFromPath("/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram Photos/Scripts/Test/2022-11-23_13-19-00.xmp");
+var t = 3;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: Creates a dictionary with all the settings from the file stored in the path provided.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -253,6 +253,8 @@ function ImageSettings (xmpMeta) {
         
     }
 
+    this.duration = referenceKeyFrame;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -322,10 +324,15 @@ function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, 
 
     } else {
         
-        this.settingValue = xmpMeta.getProperty(ns, this.crsName).value;
+        this.settingValue = parseFloat(xmpMeta.getProperty(ns, this.crsName).value);
         this.defaultValue = defaultValue;
-        this.interpolatedValues = interpolateValues(this.defaultValue, this.settingValue, interpolationSteps, 2);
         this.relativePosition = (this.settingValue - this.min) / (this.max - this.min); // Relative settingValue using min and max. From 0 to 1.
+
+        if ( this.displayName.match("Hue") && this.panel.match("Color Grading")) {
+            this.interpolatedValues = interpolateValues(this.settingValue, this.settingValue, interpolationSteps, 2);
+        } else {
+            this.interpolatedValues = interpolateValues(this.defaultValue, this.settingValue, interpolationSteps, 2);
+        }
 
         if (this.settingValue == this.defaultValue) {
 
