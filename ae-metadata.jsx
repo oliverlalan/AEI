@@ -19,8 +19,10 @@ function loadImageFromPath (filePath) {
     image.fullName = filePath.substr(filePath.lastIndexOf("/") + 1, filePath.length);
     image.name = image.fullName.substr(0, image.fullName.lastIndexOf("."));
     image.extension = filePath.substr(filePath.lastIndexOf(".") + 1, filePath.length);
+    image.xmp = image.name + ".xmp";
+    image.xmpPath = image.directory + image.xmp
 
-    var xmpMeta = loadXMPMeta (filePath);
+    var xmpMeta = loadXMPMeta (image.xmpPath);
     image.settings = new ImageSettings(xmpMeta);
 
     return image;
