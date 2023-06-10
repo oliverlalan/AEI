@@ -116,8 +116,8 @@ function createColorGradeCircleComposition (settings) {
     var colorGradeCircleComposition = project.items.addComp(compositionName, colorGradeCircleCompositionParameters.width, colorGradeCircleCompositionParameters.height, colorGradeCircleCompositionParameters.pixelAspect, colorGradeCircleCompositionParameters.duration, colorGradeCircleCompositionParameters.frameRate);
     
     // Create Color Grade Background
-    // var colorGradeCircleBackground = addColorGradeCircleBackground (colorGradeCircleComposition, colorGradeCircleBackgroundParameters);
-    var colorGradeCircleBackground = addShapeLayer(colorGradeCircleComposition, colorGradeCircleBackgroundParameters, [colorGradeCircleCompositionParameters.width / 2, colorGradeCircleCompositionParameters.height / 2]);
+    var colorGradeCircleBackground = addColorGradeCircleBackground (colorGradeCircleComposition, colorGradeCircleBackgroundParameters);
+    // var colorGradeCircleBackground = addShapeLayer(colorGradeCircleComposition, colorGradeCircleBackgroundParameters, [colorGradeCircleCompositionParameters.width / 2, colorGradeCircleCompositionParameters.height / 2]);
 
     // Create Color Grade Selector
     var colorGradeCircleSelector = createColorGradeCircleSelector (colorGradeCircleComposition, settings);
@@ -163,7 +163,7 @@ function createColorGradeCircleSelector (targetComposition, settings) {
     var colorGradeCircleSelector = addShapeLayer(targetComposition, colorGradeCircleSelectorParameters, center);
 
     // Animate
-    animateLayer (colorGradeCircleSelector, "Position", settings.hue.keyTimes, [initialPosition, finalPosition])
+    animateLayer (colorGradeCircleSelector, "Position", settings.hue.animation.setting.keyTimes, [initialPosition, finalPosition])
 
     return colorGradeCircleSelector;
 
@@ -177,8 +177,8 @@ function createColorGradeCircleSelector (targetComposition, settings) {
 
 function createColorGradeSlidersComposition (group, style) {
 
-    var groupName = settingsGroup.displayName;
-    var settings = settingsGroup.settings;
+    var groupName = group.displayName;
+    var settings = group.settings;
 
     // Reset reference position
     var groupReferencePosition = [45,0];
