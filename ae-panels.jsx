@@ -118,11 +118,6 @@ function createPanelsComposition (dashboardData, style) {
 
             }
 
-            // Animate panel horizontally: This goes out in the dashboard placeholder
-            // panelCompositionLayer.position.setValuesAtTimes([referenceKeyFrame, referenceKeyFrame + referenceAnimationKeyFramesIncrement], [[panelsCompositionParameters.position[0], panelsCompositionParameters.position[1]], [panelsCompositionParameters.position[0], panelsCompositionParameters.position[1] - dashboardTitleParameters.height]]);
-            // panelCompositionLayer.position.setTemporalEaseAtKey(1, [defaultAnimationParameters.easeIn], [defaultAnimationParameters.easeOut]);
-            // panelCompositionLayer.position.setTemporalEaseAtKey(2, [defaultAnimationParameters.easeIn], [defaultAnimationParameters.easeOut]);
-
             // Update X position of the next panel precomposition
             dashboardReferencePosition[0] += panelComposition.width;
             dashboardReferencePosition[1] = 0;
@@ -215,30 +210,3 @@ function createPanelComposition (panel, style) {
     return panelComposition;
 
 }
-
-
-
-    
-    // // Incrase dashboard reference position
-    // panelsCompositionParameters.position[1] += dashboardTitleParameters.height;
-
-    // // Update referenceKeyFrame
-    // referenceKeyFrame += referenceAnimationKeyFramesIncrement;
-
-
-
-
-// function createPanel (settingsPanel) {
-    
-//     switch(settingsPanel.settingsGroup) {
-
-//         case ""
-//     }
-
-// }
-
-// "Tone Curve", "Color Mix", "Color Grading"
-
-// sliderWithLabels
-// sliderWithNoLabels
-// colorGrading
