@@ -4,8 +4,8 @@
 #include ae-defaultParameters.jsx
 
 // Calls
-var image = loadImageFromPath("/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram Photos/Scripts/Test/2022-11-23_13-19-00.xmp");
-var t = 3;
+// var image = loadImageFromPath("/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram Photos/Scripts/Test/2022-11-23_13-19-00.xmp");
+// var t = 3;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: Creates a dictionary with all the settings from the file stored in the path provided.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,14 +64,14 @@ function ImageSettings (xmpMeta) {
     this.name = "Dashboard";
     this.xmpMeta = xmpMeta;
 
-    this.isCustom = false;
-    this.customPanels = 1;
+    this.isCustomItem = false;
+    this.customItems = 1;
     // this.title = {};
     // this.title.keyTimes = [];
 
     // Animation: Time dashboard stays in place
     // this.title.keyTimes.push(referenceKeyFrame, referenceKeyFrame + referenceSwipeFrames);
-    referenceKeyFrame += referenceKeyFramesIncrement;
+    referenceKeyFrame += panelSwipeInFrames * 2;
 
     // Set dashboard
     if (!this.hasOwnProperty("panels")) {
@@ -90,8 +90,9 @@ function ImageSettings (xmpMeta) {
             // Initialize
             this.panels[panelKey] = {
                 displayName : panel.displayName,
-                isCustom : false,
-                customGroups : 1,
+                items: 1,
+                isCustomItem : false,
+                customItems : 1,
                 animation: {
                     swipeIn: {
                         keyFrames : [referenceKeyFrame, referenceKeyFrame + panelSwipeInFrames]
@@ -130,8 +131,9 @@ function ImageSettings (xmpMeta) {
                 this.panels[panelKey].groups[groupKey] = {
                     displayName : group.displayName,
                     groupType : group.groupType,
-                    isCustom : false,
-                    customSettings : 0,
+                    items: 0,
+                    isCustomItem : false,
+                    customItems : 0,
                     animation: {
                         swipeIn: {
                             keyFrames : [referenceKeyFrame, referenceKeyFrame + groupSwipeInFrames],
@@ -166,7 +168,7 @@ function ImageSettings (xmpMeta) {
                 try {
                     
                     // Add setting
-                    this.panels[panelKey].groups[groupKey].settings[settingKey] = new Setting (xmpMeta, setting.displayName, setting.crsName, setting.min, setting.max, setting.defaultValue, setting.panel, setting.group, setting.fillType, setting.gradientFill, setting.solidColor, setting.gradientColors);
+                    this.panels[panelKey].groups[groupKey].settings[settingKey] = new Setting (xmpMeta, setting.displayName, setting.crsName, setting.min, setting.max, setting.defaultValue, setting.panel, setting.group, setting.fillType, setting.ffx, setting.solidColor, setting.gradientColors);
                     
                     this.panels[panelKey].groups[groupKey].settings[settingKey].animation = {
                         setting : {
@@ -183,15 +185,17 @@ function ImageSettings (xmpMeta) {
                     // Compute animation duration and keyTimes
                     for (keyValue in this.panels[panelKey].groups[groupKey].settings[settingKey].animation) {
                         this.panels[panelKey].groups[groupKey].settings[settingKey].animation[keyValue].duration = this.panels[panelKey].groups[groupKey].settings[settingKey].animation[keyValue].keyFrames[1] - this.panels[panelKey].groups[groupKey].settings[settingKey].animation[keyValue].keyFrames[0];
-                        this.panels[panelKey].groups[groupKey].settings[settingKey].animation[keyValue].keyTimes = this.panels[panelKey].groups[groupKey].settings[settingKey].animation[keyValue].keyFrames / projectFPS;
+                        this.panels[panelKey].groups[groupKey].settings[settingKey].animation[keyValue].keyTimes = this.panels[panelKey].groups[groupKey].settings[settingKey].animation[keyValue].keyFrames / settingAnimationFrames;
                     }
 
                     // Update group properties
-                    if(this.panels[panelKey].groups[groupKey].settings[settingKey].isCustom == true) {
+                    this.panels[panelKey].groups[groupKey].items += 1;
+
+                    if(this.panels[panelKey].groups[groupKey].settings[settingKey].isCustomItem == true) {
                         
                         // Update group properties
-                        this.panels[panelKey].groups[groupKey].isCustom = true;
-                        this.panels[panelKey].groups[groupKey].customSettings += 1;
+                        this.panels[panelKey].groups[groupKey].isCustomItem = true;
+                        this.panels[panelKey].groups[groupKey].customItems += 1;
 
                     }
 
@@ -200,16 +204,18 @@ function ImageSettings (xmpMeta) {
             }
 
             // Update panel properties
-            if(this.panels[panelKey].groups[groupKey].isCustom == true) {
+            this.panels[panelKey].items += 1;
+
+            if(this.panels[panelKey].groups[groupKey].isCustomItem == true) {
 
                 // Update panel properties
-                this.panels[panelKey].isCustom = true;
-                this.panels[panelKey].customGroups += 1;
+                this.panels[panelKey].isCustomItem = true;
+                this.panels[panelKey].customItems += 1;
 
                 // Compute animation duration and keyTimes
                 for (keyValue in this.panels[panelKey].groups[groupKey].animation) {
                     this.panels[panelKey].groups[groupKey].animation[keyValue].duration = this.panels[panelKey].groups[groupKey].animation[keyValue].keyFrames[1] - this.panels[panelKey].groups[groupKey].animation[keyValue].keyFrames[0];
-                    this.panels[panelKey].groups[groupKey].animation[keyValue].keyTimes = this.panels[panelKey].groups[groupKey].animation[keyValue].keyFrames / projectFPS;
+                    this.panels[panelKey].groups[groupKey].animation[keyValue].keyTimes = this.panels[panelKey].groups[groupKey].animation[keyValue].keyFrames / settingAnimationFrames;
                 }
 
                 // Update reference time
@@ -225,20 +231,20 @@ function ImageSettings (xmpMeta) {
         }
 
         // Update panel properties
-        if(this.panels[panelKey].isCustom == true) {
+        if(this.panels[panelKey].isCustomItem == true) {
 
-            this.isCustom = true;
-            this.customPanels += 1;
+            this.isCustomItem = true;
+            this.customItems += 1;
 
             // Animation Settings Animation TODO: Compute panelDuration properly
-            var panelDuration = (groupSwipeInFrames + groupHoldFrames + settingAnimationFrames + settingHoldFrames) * (this.panels[panelKey].customGroups - 1);
+            var panelDuration = (groupSwipeInFrames + groupHoldFrames + settingAnimationFrames + settingHoldFrames) * (this.panels[panelKey].customItems - 1);
             this.panels[panelKey].animation.panel.keyFrames =  [this.panels[panelKey].animation.hold.keyFrames[1], this.panels[panelKey].animation.hold.keyFrames[1] + panelDuration];
             this.panels[panelKey].animation.swipeOut.keyFrames = [this.panels[panelKey].animation.panel.keyFrames[1], this.panels[panelKey].animation.panel.keyFrames[1] + panelSwipeInFrames];
             this.panels[panelKey].animation.full.keyFrames = [this.panels[panelKey].animation.swipeIn.keyFrames[0], this.panels[panelKey].animation.swipeOut.keyFrames[1]];
 
             for (keyValue in this.panels[panelKey].animation) {
                 this.panels[panelKey].animation[keyValue].duration =this.panels[panelKey].animation[keyValue].keyFrames[1] - this.panels[panelKey].animation[keyValue].keyFrames[0];
-                this.panels[panelKey].animation[keyValue].keyTimes = this.panels[panelKey].animation[keyValue].keyFrames / projectFPS;
+                this.panels[panelKey].animation[keyValue].keyTimes = this.panels[panelKey].animation[keyValue].keyFrames / settingAnimationFrames;
             }
 
             // Update reference time
@@ -261,7 +267,7 @@ function ImageSettings (xmpMeta) {
 // Description: Creates a dictionary with all the settings from the file stored in the path provided.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, group, fillType, gradientFill, solidColor, gradientColors) {
+function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, group, fillType, ffx, solidColor, gradientColors) {
 
     this.displayName = displayName; // Setting display name, as it appears in Lightroom
     this.crsName = crsName;         // Setting name, according to Camera Raw settings
@@ -273,12 +279,12 @@ function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, 
     this.panel = panel;
     this.group = group;
     this.fillType = fillType;
-    this.gradientFill = gradientFill;
+    this.ffx = ffx;
     this.solidColor = hexToRgb(solidColor);
 
-    this.isCustom = false;
+    this.isCustomItem = false;
 
-    if(this.settingValue != this.defaultValue) { this.isCustom = true};
+    if(this.settingValue != this.defaultValue) { this.isCustomItem = true};
 
     // loop through each element in the array and apply the function
     for (var color = 0; color < gradientColors.length; color++) {
@@ -302,23 +308,23 @@ function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, 
             var defaultOutputValue = defaultInputValue;
             this.defaultValue.push([defaultInputValue, defaultOutputValue]);
 
-            var interpolatedInputValue = interpolateValues(defaultInputValue, inputValue, interpolationSteps, 2);
-            var interpolatedOutputValue = interpolateValues(defaultOutputValue, outputValue, interpolationSteps, 2);
+            var interpolatedInputValue = interpolateValues(defaultInputValue, inputValue, settingAnimationFrames, 2);
+            var interpolatedOutputValue = interpolateValues(defaultOutputValue, outputValue, settingAnimationFrames, 2);
             this.interpolatedValues.push([interpolatedInputValue, interpolatedOutputValue]);
 
-            // var inputValueRelativePosition = interpolateValues(defaultInputValue, inputValue, interpolationSteps, 2);
-            // var outputValueRelativePosition = interpolateValues(defaultOutputValue, outputValue, interpolationSteps, 2);
+            // var inputValueRelativePosition = interpolateValues(defaultInputValue, inputValue, settingAnimationFrames, 2);
+            // var outputValueRelativePosition = interpolateValues(defaultOutputValue, outputValue, settingAnimationFrames, 2);
             // this.relativePosition = this.settingValue - this.min / this.max - this.min; // Relative settingValue using min and max. From 0 to 1.
 
         }
 
         if (arraysEqual(this.settingValue, this.defaultValue)) {
 
-            this.isCustom = false;
+            this.isCustomItem = false;
 
         } else {
 
-            this.isCustom = true;
+            this.isCustomItem = true;
 
         }
 
@@ -329,18 +335,18 @@ function Setting (xmpMeta, displayName, crsName, min, max, defaultValue, panel, 
         this.relativePosition = (this.settingValue - this.min) / (this.max - this.min); // Relative settingValue using min and max. From 0 to 1.
 
         if ( this.displayName.match("Hue") && this.panel.match("Color Grading")) {
-            this.interpolatedValues = interpolateValues(this.settingValue, this.settingValue, interpolationSteps, 2);
+            this.interpolatedValues = interpolateValues(this.settingValue, this.settingValue, settingAnimationFrames, 2);
         } else {
-            this.interpolatedValues = interpolateValues(this.defaultValue, this.settingValue, interpolationSteps, 2);
+            this.interpolatedValues = interpolateValues(this.defaultValue, this.settingValue, settingAnimationFrames, 2);
         }
 
         if (this.settingValue == this.defaultValue) {
 
-            this.isCustom = false;
+            this.isCustomItem = false;
 
         } else {
 
-            this.isCustom = true;
+            this.isCustomItem = true;
 
         }
 
@@ -423,7 +429,7 @@ function resetSettings (xmpMeta) {
 
                 }
 
-                setting.isCustom = false;
+                setting.isCustomItem = false;
 
             }
 
@@ -455,7 +461,7 @@ function loadSettings (xmpMeta) {
                 if (setting.hasOwnProperty(innerKey)) {
 
                     try {
-                        var settingValues = new Setting (xmpMeta, setting.displayName, setting.crsName, setting.min, setting.max, setting.defaultValue, setting.panel, setting.group, setting.fillType, setting.gradientFill, setting.solidColor, setting.gradientColors);
+                        var settingValues = new Setting (xmpMeta, setting.displayName, setting.crsName, setting.min, setting.max, setting.defaultValue, setting.panel, setting.group, setting.fillType, setting.ffx, setting.solidColor, setting.gradientColors);
 
                         imageSettings[key] = settingValues;
 
