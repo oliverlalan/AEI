@@ -2,17 +2,22 @@ var settingTest = {
                         temperature: {
                             displayName:    "Temperature",    
                             crsName:        "Temperature",
-                            min:            +1000,
-                            max:            +10000,
-                            defaultValue:   +4500,
+                            min:            -100,
+                            max:            +100,
+                            defaultValue:   0,
                             panel:          "Basic",
                             group:          "White Balance",
                             fillType:       "gradient",
                             gradientFill:   "saturation",
+                            ffx: ["SMH"], 
                             solidColor:     sliderBarSolidFillColor,
                             gradientColors: ["006cff", "ffc800"],
-                            settingValue:   +7500,
-                            keyTimes:       [1,4]
+                            settingValue:   +35,
+                            animation:{
+                                setting:{
+                                    keyTimes:       [1,4]
+                                }
+                            }
                         },
                         tint: {
                             displayName:    "Tint",    
@@ -27,6 +32,51 @@ var settingTest = {
                             gradientColors: ["00d904", "ff0099"]
                         }
                     }
+var groupTest = {
+    displayName: "Midtones",
+    groupType: "Color Grading",
+    settings: {
+        hue: {
+            displayName:    "Hue",    
+            crsName:        "ColorGradeMidtoneHue",
+            min:            0,
+            max:            +359,
+            defaultValue:   0,
+            panel:          "Color Grading",
+            group:          "Midtone",
+            fillType:       "gradient",
+            ffx:            ["hue-rainbow"],
+            solidColor:     sliderBarSolidFillColor,
+            gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
+        },
+        saturation: {
+            displayName:    "Saturation",    
+            crsName:        "ColorGradeMidtoneSat",
+            min:            0,
+            max:            +100,
+            defaultValue:   0,
+            panel:          "Color Grading",
+            group:          "Midtone",
+            fillType:       "gradient",
+            ffx:            ["saturation-rainbow"],
+            solidColor:     sliderBarSolidFillColor,
+            gradientColors: [rainbow.red, rainbow.orange, rainbow.yellow, rainbow.green, rainbow.aqua, rainbow.blue, rainbow.purple, rainbow.magenta]
+        },
+        luminance: {
+            displayName:    "Luminance",    
+            crsName:        "ColorGradeMidtoneLum",
+            min:            -100,
+            max:            +100,
+            defaultValue:   0,
+            panel:          "Color Grading",
+            group:          "Midtone",
+            fillType:       "gradient",
+            ffx:            ["SMH"],
+            solidColor:     sliderBarSolidFillColor,
+            gradientColors: [sliderBarDarkFillColor, sliderBarLightFillColor]
+        }
+    }
+}
 
 var lightroomPanelsTestData = {
     displayName: "Test",
