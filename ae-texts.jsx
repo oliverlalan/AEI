@@ -37,42 +37,7 @@ function createToneCurveValueLayer (targetComposition, valuesInterval, timesInte
 
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Description: 
-// DEPRECATED
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function createSliderTextLabelLayer (targetComposition, setting, position, anchorPosition, justification) {
-
-    text = setting.displayName
-
-    if(sliderTextParameters.fontCapitalization) { text = text.toString().toUpperCase() };
-
-    // Create a new text layer
-    var textLayer = targetComposition.layers.addText(text);
-    textLayer.name = "Slider Label";
-
-    // Set the font properties
-    var textProperties = textLayer.property("Source Text").value;
-    textProperties.resetCharStyle();
-    textProperties.fontSize = sliderTextParameters.fontSize;
-    textProperties.fillColor = sliderTextParameters.fontColor;
-    textProperties.font = sliderTextParameters.fontName;
-    textProperties.tracking = sliderTextParameters.fontTracking;
-
-    // Set justification
-    textProperties.justification = justification;
-
-    // Set the text properties back to the layer
-    textLayer.property("Source Text").setValue(textProperties);
-
-    // Set the position and anchor point
-    setAnchorPosition(textLayer, anchorPosition);
-    textLayer.position.setValue(position);
-
-    return textLayer;
-
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
@@ -187,24 +152,24 @@ function addTextValueLayer (targetComposition, textLayerParameters, setting) {
 
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
-// Call: createGroupTitleComposition (groupName)
-// TODO: Define universal function createTitleComposition (groupName, compositionParameters)
+// Call: createGroupTitleComposition (groupParameters)
+// TODO: Define universal function createTitleComposition (groupParameters)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function createGroupTitleComposition (groupName) {
+function createGroupTitleComposition (groupParameters) {
 
     // Create Title Composition
-    var groupTitleCompositionName = "Title: " + groupName;
-    var groupTitleComposition = project.items.addComp(groupTitleCompositionName, groupTitleCompositionParameters.width, groupTitleCompositionParameters.height, groupTitleCompositionParameters.pixelAspect, groupTitleCompositionParameters.duration, groupTitleCompositionParameters.frameRate);
+    var groupTitleComposition = project.items.addComp(groupParameters.title.name, groupParameters.title.width, groupParameters.title.height, groupParameters.composition.pixelAspect, groupParameters.composition.duration, groupParameters.composition.frameRate);
 
     // Create Title Layer
-    var groupTitleLayer = createGroupTitleLayer (groupTitleComposition, groupName);
+    var groupTitleLayer = createGroupTitleLayer (groupTitleComposition, groupParameters.title.name);
 
     // Set the position and anchor point
-    setAnchorPosition(groupTitleLayer, groupTitleCompositionParameters.anchorPosition);
-    groupTitleLayer.position.setValue(groupTitleCompositionParameters.position);
+    setAnchorPosition(groupTitleLayer, groupParameters.title.anchorPosition);
+    groupTitleLayer.position.setValue(groupParameters.title.position.reference);
 
     return groupTitleComposition;
 
@@ -289,3 +254,63 @@ function createDashboardTitleLayer (targetComposition, text)  {
     return textLayer;
 
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DEPRECATED CODE
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// function createSliderTextLabelLayer (targetComposition, setting, position, anchorPosition, justification) {
+
+//     text = setting.displayName
+
+//     if(sliderTextParameters.fontCapitalization) { text = text.toString().toUpperCase() };
+
+//     // Create a new text layer
+//     var textLayer = targetComposition.layers.addText(text);
+//     textLayer.name = "Slider Label";
+
+//     // Set the font properties
+//     var textProperties = textLayer.property("Source Text").value;
+//     textProperties.resetCharStyle();
+//     textProperties.fontSize = sliderTextParameters.fontSize;
+//     textProperties.fillColor = sliderTextParameters.fontColor;
+//     textProperties.font = sliderTextParameters.fontName;
+//     textProperties.tracking = sliderTextParameters.fontTracking;
+
+//     // Set justification
+//     textProperties.justification = justification;
+
+//     // Set the text properties back to the layer
+//     textLayer.property("Source Text").setValue(textProperties);
+
+//     // Set the position and anchor point
+//     setAnchorPosition(textLayer, anchorPosition);
+//     textLayer.position.setValue(position);
+
+//     return textLayer;
+
+// }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+// Call: createGroupTitleComposition (groupName)
+// DEPRECATED
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// function createGroupTitleComposition (groupName) {
+
+//     // Create Title Composition
+//     var groupTitleCompositionName = "Title: " + groupName;
+//     var groupTitleComposition = project.items.addComp(groupTitleCompositionName, groupTitleCompositionParameters.width, groupTitleCompositionParameters.height, groupTitleCompositionParameters.pixelAspect, groupTitleCompositionParameters.duration, groupTitleCompositionParameters.frameRate);
+
+//     // Create Title Layer
+//     var groupTitleLayer = createGroupTitleLayer (groupTitleComposition, groupName);
+
+//     // Set the position and anchor point
+//     setAnchorPosition(groupTitleLayer, groupTitleCompositionParameters.anchorPosition);
+//     groupTitleLayer.position.setValue(groupTitleCompositionParameters.position);
+
+//     return groupTitleComposition;
+
+// }
