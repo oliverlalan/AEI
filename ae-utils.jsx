@@ -157,13 +157,13 @@ function checkIfCustom (object) {
   var custom = false;
   for (var key in object) {
     if (object.hasOwnProperty(key)) {
-      if (object[key].isCustom == true) {
+      if (object[key].isCustomItem == true) {
         custom = true;
         break;
       }
     }
   }
-  object.isCustom = custom;
+  object.isCustomItem = custom;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,5 +183,29 @@ function placeFile (filePath, targetComposition) {
     fileLayer.property("Position").setValue([targetComposition.width / 2, targetComposition.height / 2]);
 
     return fileLayer;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Description: 
+// Call: loadFFXFile("/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram Photos/Design - Reel/Assets/", "SMH");
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function loadFFXFile(filePath, effectName) {
+
+    // Path
+    var assetsFolder = new Folder(filePath);
+    var assetFilesList = assetsFolder.getFiles();
+
+    for ( var a = 0; a < assetFilesList.length; a++ ) {
+
+        var assetFile = assetFilesList[a];
+        var test = assetFile.displayName.match(effectName);
+
+        if(assetFile.displayName.match(effectName)) {
+            return assetFile.displayName.match(effectName).input;
+        }
+
+    }
 
 }
