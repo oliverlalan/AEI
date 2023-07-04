@@ -1,16 +1,36 @@
 #target photoshop
 
+// Libraries
 #include ae-metadata.jsx
 
-// open a camera raw file returning the camera raw action desc
+// Paths and files
 var filePath = "/d/OneDrive/Arturo%20-%20Personal/%C3%93liver%20Lalan/Instagram Photos/Scripts/Test/2023-05-02_14-28-03-2.arw";
 var workingPath = "/e/Temporal/";
-
-// Load image settings
 var image = loadImageFromPath(filePath);
 
-// Create files
-createAnimationJPEGs (image);
+// Calls
+createPhotoEditVideo (image);
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Function: resizeImageToFitWidthOrHeight
+// Usage: Renders a video out of the images
+// Input: doc, targetWidth, targetHeight
+// Return: activeDocument is now resized
+///////////////////////////////////////////////////////////////////////////////
+function createPhotoEditVideo (image) {
+
+    // Create files
+    createAnimationJPEGs (image);
+
+    // Create animation
+    createFrameAnimationDocument (image);
+
+    //call it like this
+    exportVideo (image);
+
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,7 +58,7 @@ function createAnimationJPEGs (image) {
             if (f == 0) {
 
                 // Create new frame
-                createFrameJPEG (image, xmpMetaFrame, f);
+                createFrameJPEG (image, xmpMetaFrame, f, false);
 
             } else {
 
@@ -56,7 +76,7 @@ function createAnimationJPEGs (image) {
             if (f == panel.animation.swipeIn.keyFrames[0]) {
 
                 // Create new frame
-                createFrameJPEG (image, xmpMetaFrame, f);
+                createFrameJPEG (image, xmpMetaFrame, f, false);
 
             } else {
 
@@ -77,7 +97,7 @@ function createAnimationJPEGs (image) {
                 if (f == group.animation.swipeIn.keyFrames[0]) {
 
                     // Create new frame
-                    createFrameJPEG (image, xmpMetaFrame, f);
+                    createFrameJPEG (image, xmpMetaFrame, f, false);
 
                 } else {
 
@@ -116,7 +136,7 @@ function createAnimationJPEGs (image) {
                 }
 
                 // Create target file named acording to corresponding keyFrame and save it
-                createFrameJPEG (image, xmpMetaFrame, f);
+                createFrameJPEG (image, xmpMetaFrame, f, false);
 
             }
 
@@ -132,51 +152,56 @@ function createAnimationJPEGs (image) {
 // Input: image, xmpMeta, frame
 // Return: A frame jpg file has been created
 ///////////////////////////////////////////////////////////////////////////////
-function createFrameJPEG (image, xmpMeta, frame) {
+function createFrameJPEG (image, xmpMeta, frame, referenceFrame) {
 
-    // Create target file named acording to corresponding keyFrame and save it
-    var xmpFramePath = workingPath + image.name + "/Source/" + frame + '.xmp';
-    writeXMPFrameFile(xmpMeta, xmpFramePath);
+    // Create xmp file named acording to corresponding keyFrame and save it
+    var xmpFrameDirectory = getDirectory(workingPath + image.name + "/Source/");
+    var xmpFramePath = xmpFrameDirectory.fullName + "/" + frame + '.xmp';
+    var xmpFrameFile = writeXMPFrameFile(xmpMeta, xmpFramePath);
 
-    // Copy reference file
-    var frameFilePath = workingPath + image.name + "/Source/" + frame + '.' + image.extension;
-    var frameFile = new File(frameFilePath);
-
-    // Duplicate the original file to the destination folder
+    // Create a copy of the reference file
     var referenceFile = new File(image.path);
+    var frameFileDirectory = getDirectory(workingPath + image.name + "/Source/");
+    var frameFilePath = frameFileDirectory.fullName + "/" + frame + '.' + image.extension;
+    var frameFile = new File(frameFilePath);
     referenceFile.copy(frameFile);
 
     // Open the target file
     openCameraRaw(frameFilePath);
 
     // Save file
-    var frameJPEGPath = workingPath + image.name + "/JPEG/" + frame + '.' + '.jpg';
-    saveFileAsJPEG(frameJPEGPath);
+    var frameJPEGDirectory = getDirectory(workingPath + image.name + "/JPEG/");
+    var frameJPEGPath = frameJPEGDirectory.fullName + "/" + frame + '.jpg';
+    var frameJPEGFile = new File(frameJPEGPath);
+    saveFileAsJPEG(frameJPEGFile);
 
     // Close file
     app.activeDocument.close( SaveOptions.DONOTSAVECHANGES );
 
-    // Delete file
-    frameFile.remove();
+    // Delete file if is not reference
+    if( !referenceFrame) {
+        xmpFrameFile.remove();
+        frameFile.remove();
+    }
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Function: duplicatePreviousFrameJPEG
-// Usage: Duplicates the previous frame jpg
-// Input: image, frame
-// Return: previous frame jpg file has been duplicate
+// Function: writeXMPFrameFile
+// Usage: Writes an XMP frame file using the xmpMeta object in the specified path
+// Input: xmpMeta, filePath
+// Return: xmp file is written in the given path
 ///////////////////////////////////////////////////////////////////////////////
-function duplicatePreviousFrameJPEG (image, frame) {
-                    
-    // Copy reference file
-    var frameFilePath = image.directory + "Animation/JPEG/" + image.name + "_" + frame + '.jpg';
-    var frameFile = new File(frameFilePath);
+function writeXMPFrameFile (xmpMeta, filePath) {
 
-    // Duplicate the previous the destination folder
-    var previousFrameFilePath = image.directory + "Animation/JPEG/" + image.name + "_" + (frame - 1) + '.jpg';
-    var previousFrameFile = new File(previousFrameFilePath);
-    previousFrameFile.copy(frameFile);
+    var xmpFile = new File (filePath);
+    xmpFile.open('w');
+    xmpFile.encoding = 'UTF8';
+    xmpFile.lineFeed = 'unix';
+    xmpFile.write(xmpMeta.serialize());
+    xmpFile.close();
+
+    return xmpFile;
 
 }
 
@@ -220,18 +245,18 @@ function openCameraRaw ( filePath ) {
 // Input: filePath
 // Return: File is now saved as jpg in the specified path
 ///////////////////////////////////////////////////////////////////////////////
-function saveFileAsJPEG ( filePath ) {
+function saveFileAsJPEG ( file ) {
 
-    var historyState = app.activeDocument.activeHistoryState;
+    // var historyState = app.activeDocument.activeHistoryState;
     app.activeDocument.flatten();
     app.activeDocument.bitsPerChannel = BitsPerChannelType.EIGHT;
     RemoveAlphaChannels();
     ConvertTosRGBProfile();
     resizeImageToFitWidthOrHeight(app.activeDocument, 1080, 1920)
 
-    exportPhotoAsJPEG( filePath, 10, true );
+    exportPhotoAsJPEG( file, 10, true );
 
-    app.activeDocument.activeHistoryState = historyState;
+    // app.activeDocument.activeHistoryState = historyState;
 
 }
 
@@ -241,12 +266,33 @@ function saveFileAsJPEG ( filePath ) {
 // Input: fileName, quality, embedColorProfile
 // Return: File is now saved as jpg with the specified parameters
 ///////////////////////////////////////////////////////////////////////////////
-function exportPhotoAsJPEG ( fileName, quality, embedColorProfile ) {
+function exportPhotoAsJPEG ( file, quality, embedColorProfile ) {
 
 	var jpegOptions = new JPEGSaveOptions();
 	jpegOptions.quality = quality;
 	jpegOptions.embedColorProfile = embedColorProfile;
-	app.activeDocument.saveAs( File( fileName ), jpegOptions );
+	app.activeDocument.saveAs( file, jpegOptions );
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Function: duplicatePreviousFrameJPEG
+// Usage: Duplicates the previous frame jpg
+// Input: image, frame
+// Return: previous frame jpg file has been duplicate
+///////////////////////////////////////////////////////////////////////////////
+function duplicatePreviousFrameJPEG (image, frame) {
+                    
+    // Copy reference file
+    var frameJPEGDirectory = getDirectory(workingPath + image.name + "/JPEG/");
+    var frameJPEGPath = frameJPEGDirectory.fullName + "/" + frame + '.jpg';
+    var frameJPEGFile = new File(frameJPEGPath);
+
+    // Duplicate the previous the destination folder
+    var previousFrameFileDirectory = getDirectory(workingPath + image.name + "/JPEG/");
+    var previousFrameFilePath = previousFrameFileDirectory.fullName + "/" + (frame - 1) + '.jpg';
+    var previousFrameFile = new File(previousFrameFilePath);
+    previousFrameFile.copy(frameJPEGFile);
 
 }
 
@@ -276,23 +322,6 @@ function RemoveAlphaChannels() {
 function ConvertTosRGBProfile() {
 
 	app.activeDocument.convertProfile("sRGB IEC61966-2.1", Intent.RELATIVECOLORIMETRIC, true, true);
-
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Function: writeXMPFrameFile
-// Usage: Writes an XMP frame file using the xmpMeta object in the specified path
-// Input: xmpMeta, filePath
-// Return: xmp file is written in the given path
-///////////////////////////////////////////////////////////////////////////////
-function writeXMPFrameFile (xmpMeta, filePath) {
-
-    var xmpFile = new File (filePath);
-    xmpFile.open('w');
-    xmpFile.encoding = 'UTF8';
-    xmpFile.lineFeed = 'unix';
-    xmpFile.write(xmpMeta.serialize());
-    xmpFile.close();
 
 }
 
@@ -330,52 +359,237 @@ function resizeImageToFitWidthOrHeight(doc, targetWidth, targetHeight) {
 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Function: createFrameAnimationDocument
+// Usage: Creates a frame animation document importing all the frame JPEGs
+// Input: image
+// Return: A frame animation document is created
+///////////////////////////////////////////////////////////////////////////////
+function createFrameAnimationDocument(image) {
 
-function createAnimationVideo (image) {
+    // Path
+    var framesFolderDirectory = workingPath + image.name + "/JPEG/";
+    var framesFolder = getDirectory(framesFolderDirectory);
+    var frameFilesList = framesFolder.getFiles();
+
+    // Create a new working document with the dimensions of the first image if it does not exist yet
+    var animationDocumentName = image.name + "_0-" + image.settings.duration;
+
+    for ( var frame = 0; frame < frameFilesList.length; frame++ ) {
+
+        var frameFile = new File(frameFilesList[frame])
+
+        // Create Frame Animation if first frame. Else, add files as frames
+        if ( frame == 0 ) {
+
+            // Get dimensions
+            var frameDocument = app.open(frameFile);
+        
+            var docWidth = frameDocument.width;
+            var docHeight = frameDocument.height;
+            var docResolution = frameDocument.resolution;
+
+            frameDocument.close(SaveOptions.DONOTSAVECHANGES);
+
+            // Create a new video timeline
+            var animationDocument = app.documents.add(docWidth, docHeight, docResolution, animationDocumentName);
+
+            // Place frame image as layer 
+            var frameLayer = addFile (frameFile);
+
+            // Create a frame animation
+            makeFrameAnimation();
+
+        } else {
+
+            // Place frame image as layer 
+            var frameLayer = addFile (frameFile);
+
+        }
+        
+    }
+
+    // Iterate over all frames and show each
+    for ( var frame = 0; frame < frameFilesList.length; frame++ ) {
+
+        // Create new frame 
+        addFrameToAnimation();
+
+        // Select frame
+        selectAnimationFrame (frame);
+
+        // Only show that frame
+        showSelectedLayer( frame, true);
+
+    }
 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Function: makeFrameAnimation
+// Usage: Creates a frame animation in the active document
+// Input: <none>
+// Return: Frame animation created for the current document
+///////////////////////////////////////////////////////////////////////////////
+function makeFrameAnimation() {
 
-// Create frame animation
-// =======================================================
-function createFrameAnimation() {
     var idmakeFrameAnimation = stringIDToTypeID( "makeFrameAnimation" );
     executeAction( idmakeFrameAnimation, undefined, DialogModes.NO );
+
+    var idsetd = charIDToTypeID( "setd" );
+        var desc1577 = new ActionDescriptor();
+        var idnull = charIDToTypeID( "null" );
+            var ref153 = new ActionReference();
+            var idLyr = charIDToTypeID( "Lyr " );
+            var idOrdn = charIDToTypeID( "Ordn" );
+            var idTrgt = charIDToTypeID( "Trgt" );
+            ref153.putEnumerated( idLyr, idOrdn, idTrgt );
+        desc1577.putReference( idnull, ref153 );
+        var idT = charIDToTypeID( "T   " );
+            var desc1578 = new ActionDescriptor();
+            var idanimationPropagate = stringIDToTypeID( "animationPropagate" );
+            desc1578.putBoolean( idanimationPropagate, false );
+        var idLyr = charIDToTypeID( "Lyr " );
+        desc1577.putObject( idT, idLyr, desc1578 );
+    executeAction( idsetd, desc1577, DialogModes.NO );
+
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Function: getDirectory
+// Usage: Checks if the input directory exists. If not, creates it.
+// Input: directoryPath
+// Return: directory Folder file
+///////////////////////////////////////////////////////////////////////////////
+function getDirectory (directoryPath) {
 
-// Create new frame
-// =======================================================
+    // Create a new File object for the directory
+    var directory = new Folder(directoryPath);
+
+    // Check if the directory already exists
+    if (!directory.exists) {
+        // Create the directory if it doesn't exist
+        directory.create();
+    }
+
+    return directory;
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Function: addFile
+// Usage: Places the file as layer in the activeDocument
+// Input: file
+// Return: Returns the layer places from the input file
+///////////////////////////////////////////////////////////////////////////////
+function addFile (file) {
+
+    var desc = new ActionDescriptor();
+    desc.putPath(charIDToTypeID('null'), file);
+    desc.putUnitDouble(charIDToTypeID("Scl "), charIDToTypeID("#Prc"), 100);
+    executeAction(charIDToTypeID('Plc '), desc, DialogModes.NO);
+
+    return app.activeDocument.activeLayer;
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Function: addFrameToAnimation
+// Usage: Creates a new frame to the frame animation of the current document
+// Input: <none>
+// Return: New frame created from the one selected
+///////////////////////////////////////////////////////////////////////////////
 function addFrameToAnimation() {
+    
     var idDplc = charIDToTypeID( "Dplc" );
-    var desc634 = new ActionDescriptor();
-    var idnull = charIDToTypeID( "null" );
-        var ref80 = new ActionReference();
-        var idanimationFrameClass = stringIDToTypeID( "animationFrameClass" );
-        var idOrdn = charIDToTypeID( "Ordn" );
-        var idTrgt = charIDToTypeID( "Trgt" );
-        ref80.putEnumerated( idanimationFrameClass, idOrdn, idTrgt );
-    desc634.putReference( idnull, ref80 );
-executeAction( idDplc, desc634, DialogModes.NO );
+        var desc634 = new ActionDescriptor();
+        var idnull = charIDToTypeID( "null" );
+            var ref80 = new ActionReference();
+            var idanimationFrameClass = stringIDToTypeID( "animationFrameClass" );
+            var idOrdn = charIDToTypeID( "Ordn" );
+            var idTrgt = charIDToTypeID( "Trgt" );
+            ref80.putEnumerated( idanimationFrameClass, idOrdn, idTrgt );
+        desc634.putReference( idnull, ref80 );
+    executeAction( idDplc, desc634, DialogModes.NO );
+
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Function: selectAnimationFrame
+// Usage: Selects the frame by its number
+// Input: frameNumber
+// Return: The corresponding frames is returned
+///////////////////////////////////////////////////////////////////////////////
+function selectAnimationFrame (frameNumber) {
+
+    var idslct = charIDToTypeID( "slct" );
+        var desc307 = new ActionDescriptor();
+        var idnull = charIDToTypeID( "null" );
+            var ref32 = new ActionReference();
+            var idanimationFrameClass = stringIDToTypeID( "animationFrameClass" );
+            ref32.putIndex( idanimationFrameClass, frameNumber + 1 );
+        desc307.putReference( idnull, ref32 );
+    executeAction( idslct, desc307, DialogModes.NO );
+
+}
 
 ///////////////////////////////////////////////////////////////////////////////
-// Function: resizeImageToFitWidthOrHeight
-// Usage: Renders a video out of the images
-// Input: doc, targetWidth, targetHeight
-// Return: activeDocument is now resized
+// Function: showSelectedLayer
+// Usage: Show the selected layer
+// Input: layerName, showOnlyThisLayer
+// Return: A frame jpg file has been created
 ///////////////////////////////////////////////////////////////////////////////
-function export2(directory, name2, ameFormatName, amePresetName, useDocumentSize, frameRate, manage, selectedFrames, quality, Z3DPrefHighQualityErrorThreshold) {
-	var s2t = function (s) {
+function showSelectedLayer( layerName, showOnlyThisLayer) {
+
+    var actionDescriptor = new ActionDescriptor();
+        var layerDescriptor = new ActionList();
+            var reference = new ActionReference();
+            if(layerName) {
+                reference.putName( charIDToTypeID( "Lyr " ), layerName );
+            }   else{
+                reference.putEnumerated( charIDToTypeID( "Lyr " ), stringIDToTypeID("ordinal"), charIDToTypeID( "Trgt" ) );
+            }
+            layerDescriptor.putReference( reference );
+        actionDescriptor.putList( stringIDToTypeID("null"), layerDescriptor );
+    if(showOnlyThisLayer == true) {
+        actionDescriptor.putBoolean( charIDToTypeID( "TglO" ), true );
+    }
+    
+    try{
+        executeAction( charIDToTypeID( "Shw " ), actionDescriptor, DialogModes.NO );
+    } catch(e) {}
+    
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Function: exportVideo
+// Usage: Renders a video 
+// Input: image
+// Return: Video has been created
+///////////////////////////////////////////////////////////////////////////////
+function exportVideo(image) {
+
+    // Parameters
+    var videoDirectory = getDirectory(image.path + "/Video/");
+    var videoName = image.name + "_0-" + image.settings.duration + ".mp4";
+    var ameFormatName = "H.264";
+    var amePresetName = "1_High Quality.epr";
+    var useDocumentSize = true;
+    var frameRate = 30;
+    var manage = true;
+    var selectedFrames = true;
+    var quality = 1;
+    var Z3DPrefHighQualityErrorThreshold = 5;
+
+    var s2t = function (s) {
 		return app.stringIDToTypeID(s);
 	};
 
 	var descriptor = new ActionDescriptor();
 	var descriptor2 = new ActionDescriptor();
 
-	descriptor2.putPath( s2t( "directory" ), directory );
-	descriptor2.putString( s2t( "name" ), name2 );
+	descriptor2.putPath( s2t( "directory" ), videoDirectory );
+	descriptor2.putString( s2t( "name" ), videoName );
 	descriptor2.putString( s2t( "ameFormatName" ), ameFormatName );
 	descriptor2.putString( s2t( "amePresetName" ), amePresetName );
 	descriptor2.putBoolean( s2t( "useDocumentSize" ), useDocumentSize );
@@ -389,8 +603,5 @@ function export2(directory, name2, ameFormatName, amePresetName, useDocumentSize
 	descriptor2.putInteger( s2t( "Z3DPrefHighQualityErrorThreshold" ), Z3DPrefHighQualityErrorThreshold );
 	descriptor.putObject( s2t( "using" ), s2t( "videoExport" ), descriptor2 );
 	executeAction( s2t( "export" ), descriptor, DialogModes.NO );
-}
 
-//call it like this
-var minhapasta = File($.fileName).parent.fsName;
-export2(new File( minhapasta ), 'myvideo.mp4', "H.264", "1_High Quality.epr", true, 23.976, true, true, 1, 5);
+}
