@@ -30,25 +30,28 @@ if ( ExternalObject.AdobeXMPScript == undefined ) {
 
 var ns = XMPConst.NS_CAMERA_RAW //"http://ns.adobe.com/camera-raw-settings/1.0/";
 
-// Animation
-var projectFPS = interpolationSteps =  30;
-var tempo = 111;
-var framesPerBeat = 30;
-var referenceAnimationKeyFramesIncrement = framesPerBeat / projectFPS;
-var framesPerEase = 8;
+
+// Reference parameters
 var referenceKeyFrame = 0;
-var referenceKeyFramesIncrement = framesPerBeat;
-var panelSwipeInFrames = 12;
-var panelTitleHoldFrames = 22;
-var groupSwipeInFrames = 12;
-var groupHoldFrames = 12;
-var settingAnimationFrames = 24; // Frames for animation
-var settingHoldFrames = 6; // Frames to wait after setting animation
-// var referenceSwipeTime = 9 / 30;
-// var referenceHoldTime = 3 / 30;
-// var referenceAnimationTime = 18 / 30;
-// var nextKeyTime = referenceKeyTime + framesPerBeat;
 
+// Required parameters
+var musicBPM = 120;
+var projectFPS = 30;
+var projectDuration = 70; //TODO Compute based on image data
 
-var projectDuration = 50; //TODO Compute based on image data
+var framesPerBeat = 30; // TODO Refine framesPerBeat = projectFPS / (musicBPS * 60)
 
+// TODO Compute animation times based on proportions for groups and settings.
+
+// Animation
+var panelSwipeToHoldRatio = 2;
+var panelSwipeInFrames = (panelSwipeToHoldRatio * framesPerBeat) / (panelSwipeToHoldRatio + 1);
+var panelTitleHoldFrames = framesPerBeat - panelSwipeInFrames;
+
+var groupSwipeToHoldRatio = 2;
+var groupSwipeInFrames = (groupSwipeToHoldRatio * framesPerBeat) / (groupSwipeToHoldRatio + 1);
+var groupHoldFrames = framesPerBeat - groupSwipeInFrames;
+
+var settingAnimationToHoldRatio = 2;
+var settingAnimationFrames = (settingAnimationToHoldRatio * framesPerBeat) / (settingAnimationToHoldRatio + 1); // Frames for animation
+var settingHoldFrames = framesPerBeat - settingAnimationFrames; // Frames to wait after setting animation
