@@ -61,4 +61,4 @@ var toneCurveMaxOutput = 90;
 
 
 // Animation
-var interpolationSteps = 30;
+var settingAnimationFrames = 30;

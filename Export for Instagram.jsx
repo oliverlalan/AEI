@@ -626,11 +626,11 @@ function Setting(displayName, crsName, min, max, defaultValue) {
 
         if (arraysEqual(this.settingValue, this.defaultValue)) {
 
-            this.isCustom = false;
+            this.isCustomItem = false;
 
         } else {
 
-            this.isCustom = true;
+            this.isCustomItem = true;
 
         }
 
@@ -642,11 +642,11 @@ function Setting(displayName, crsName, min, max, defaultValue) {
 
         if (this.settingValue == this.defaultValue) {
 
-            this.isCustom = false;
+            this.isCustomItem = false;
 
         } else {
 
-            this.isCustom = true;
+            this.isCustomItem = true;
 
         }
 
@@ -837,7 +837,7 @@ function resetSettings (filePath, settingsArray) {
 
             }
 
-            settingsArray[i].isCustom = false;
+            settingsArray[i].isCustomItem = false;
 
         }
 
@@ -877,7 +877,7 @@ function resetSettings (filePath, settingsArray) {
 
             }
 
-            settingsArray[i].isCustom = false;
+            settingsArray[i].isCustomItem = false;
 
         }
 

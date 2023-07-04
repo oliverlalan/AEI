@@ -306,19 +306,19 @@ function Setting (displayName, crsName, min, max, defaultValue) {
             var defaultOutputValue = defaultInputValue;
             this.defaultValue.push([defaultInputValue, defaultOutputValue]);
 
-            var interpolatedInputValue = interpolateValues(defaultInputValue, inputValue, interpolationSteps, 2);
-            var interpolatedOutputValue = interpolateValues(defaultOutputValue, outputValue, interpolationSteps, 2);
+            var interpolatedInputValue = interpolateValues(defaultInputValue, inputValue, settingAnimationFrames, 2);
+            var interpolatedOutputValue = interpolateValues(defaultOutputValue, outputValue, settingAnimationFrames, 2);
             this.interpolatedValues.push([interpolatedInputValue, interpolatedOutputValue]);
 
         }
 
         if (arraysEqual(this.settingValue, this.defaultValue)) {
 
-            this.isCustom = false;
+            this.isCustomItem = false;
 
         } else {
 
-            this.isCustom = true;
+            this.isCustomItem = true;
 
         }
 
@@ -326,15 +326,15 @@ function Setting (displayName, crsName, min, max, defaultValue) {
         
         this.settingValue = xmpMeta.getProperty(ns, this.crsName);
         this.defaultValue = defaultValue;
-        this.interpolatedValues = interpolateValues(this.defaultValue, this.settingValue, interpolationSteps, 2);
+        this.interpolatedValues = interpolateValues(this.defaultValue, this.settingValue, settingAnimationFrames, 2);
 
         if (this.settingValue == this.defaultValue) {
 
-            this.isCustom = false;
+            this.isCustomItem = false;
 
         } else {
 
-            this.isCustom = true;
+            this.isCustomItem = true;
 
         }
 
@@ -460,7 +460,7 @@ function updateXMPSetting(xmpMetaObject, settingName, newSettingValue) {
 
     }
 
-    settingName.isCustom = false; // TODO Check if setting value is equal to default to determine
+    settingName.isCustomItem = false; // TODO Check if setting value is equal to default to determine
 
     return xmpMetaObject;
 
@@ -482,7 +482,7 @@ function updateXmpArray (settingsArray) {
     // Create array if does not exist.
     var xmpArray = [new XMPMeta(app.activeDocument.xmpMetadata.rawData)]
 
-    for (step = 0; step < interpolationSteps; step ++) {
+    for (step = 0; step < settingAnimationFrames; step ++) {
 
         var currentArrayItem = xmpArray[xmpArray.length - 1];
 
@@ -519,7 +519,7 @@ function createXmpArray() {
 
 function createInterpolatedFiles (settingsArray) {
 
-    for (step = 0; step < interpolationSteps; step ++) {
+    for (step = 0; step < settingAnimationFrames; step ++) {
 
         // Create a copy of the original file with the corresponding name.
         sourceFile = new File(docRefFullName);
