@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
-// Call: createDashboardComposition (dashboardData, "horizontalSliderWithLabelOnLeft")
+// Call: createDashboardComposition (dashboardData, "horizontalSlider")
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function createDashboardComposition (dashboardData, style) {
@@ -18,7 +18,7 @@ function createDashboardComposition (dashboardData, style) {
     var panelsComposition = createPanelsComposition (dashboardData, style);
 
     // Add background
-    var dashboardBackgroundLayer = dashboardComposition.layers.addSolid([46/255, 46/255, 46/255], "Dashboard Background", dashboardCompositionParameters.width, dashboardCompositionParameters.height, dashboardCompositionParameters.pixelAspect);
+    // var dashboardBackgroundLayer = dashboardComposition.layers.addSolid([46/255, 46/255, 46/255], "Dashboard Background", dashboardCompositionParameters.width, dashboardCompositionParameters.height, dashboardCompositionParameters.pixelAspect);
 
     // Include the precomposition created in the group composition
     var panelsCompositionLayer = dashboardComposition.layers.add(panelsComposition);
@@ -32,7 +32,7 @@ function createDashboardComposition (dashboardData, style) {
 
         var panel = panels[panelKey];
 
-        if (panel.isCustom == true) {
+        if (panel.isCustomItem == true) {
 
             // Animate panel
             var keyValues = [panelsReferencePosition, [panelsReferencePosition[0] - dashboardCompositionParameters.width, panelsReferencePosition[1]]]
@@ -51,7 +51,7 @@ function createDashboardComposition (dashboardData, style) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
-// Call: createPanelsComposition (dashboardData, "horizontalSliderWithLabelOnLeft")
+// Call: createPanelsComposition (dashboardData, "horizontalSlider")
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function createPanelsComposition (dashboardData, style) {
@@ -66,7 +66,7 @@ function createPanelsComposition (dashboardData, style) {
     var panelsCompositionsFolder = project.items.addFolder(panelsName + " Pre-Compositions");
 
     // Create panels composition 
-    var panelsComposition = project.items.addComp(panelsName, panelsCompositionParameters.width * dashboardData.customPanels, panelsCompositionParameters.height, panelsCompositionParameters.pixelAspect, panelsCompositionParameters.duration, panelsCompositionParameters.frameRate);
+    var panelsComposition = project.items.addComp(panelsName, panelsCompositionParameters.width * dashboardData.customItems, panelsCompositionParameters.height, panelsCompositionParameters.pixelAspect, panelsCompositionParameters.duration, panelsCompositionParameters.frameRate);
 
     // Create title
     var panelsTitleComposition = createDashboardTitleComposition ("Settings");
@@ -75,7 +75,7 @@ function createPanelsComposition (dashboardData, style) {
     var panelsTitleCompositionLayer = panelsComposition.layers.add(panelsTitleComposition);
 
     // Position the precomposition in the group composition
-    setAnchorPosition(panelsTitleCompositionLayer, "topLeft");
+    setAnchorPosition(panelsTitleCompositionLayer, "middleCenter");
     panelsTitleCompositionLayer.position.setValue(dashboardReferencePosition);
 
     // Update X position of the next precomposition
@@ -85,7 +85,7 @@ function createPanelsComposition (dashboardData, style) {
 
         var panel = panels[panelKey];
 
-        if (panel.isCustom == true) {
+        if (panel.isCustomItem == true) {
 
             // Create each panel precomposition
             var panelComposition = createPanelComposition (panel, style);
@@ -105,7 +105,7 @@ function createPanelsComposition (dashboardData, style) {
 
                 var group = panel.groups[groupKey];
 
-                if (group.isCustom == true) {
+                if (group.isCustomItem == true) {
 
                     // Animate panel
                     var keyValues = [dashboardReferencePosition, [dashboardReferencePosition[0], dashboardReferencePosition[1] - panelCompositionParameters.height]]
@@ -132,7 +132,7 @@ function createPanelsComposition (dashboardData, style) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Description: 
-// Call: createPanelComposition (imageSettings.panels.colorMixer, "horizontalSliderWithLabelOnLeft")
+// Call: createPanelComposition (imageSettings.panels.colorMixer, "horizontalSlider")
 // TODO: Define styles
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -142,13 +142,13 @@ function createPanelComposition (panel, style) {
     var groups = panel.groups;
 
     // Reset reference position
-    var panelReferencePosition = [0,0];
+    var panelReferencePosition = [panelCompositionParameters.width / 2, panelCompositionParameters.height / 2];
 
     // Create folder to store each slider
     var panelCompositionsFolder = project.items.addFolder(panelName + " Pre-Compositions");
 
     // Create group composition 
-    var panelComposition = project.items.addComp(panelName, panelCompositionParameters.width, panelCompositionParameters.height * panel.customGroups, panelCompositionParameters.pixelAspect, panelCompositionParameters.duration, panelCompositionParameters.frameRate);
+    var panelComposition = project.items.addComp(panelName, panelCompositionParameters.width, panelCompositionParameters.height * panel.customItems, panelCompositionParameters.pixelAspect, panelCompositionParameters.duration, panelCompositionParameters.frameRate);
 
     // Create title
     var panelTitleComposition = createDashboardTitleComposition (panelName);
@@ -157,7 +157,7 @@ function createPanelComposition (panel, style) {
     var panelTitleCompositionLayer = panelComposition.layers.add(panelTitleComposition);
 
     // Position the precomposition in the group composition
-    setAnchorPosition(panelTitleCompositionLayer, "topLeft");
+    setAnchorPosition(panelTitleCompositionLayer, "middleCenter");
     panelTitleCompositionLayer.position.setValue(panelReferencePosition);
 
     // Update Y position of the next precomposition
@@ -167,7 +167,7 @@ function createPanelComposition (panel, style) {
 
         var group = groups[groupKey];
 
-        if (group.isCustom == true) {
+        if (group.isCustomItem == true) {
 
             // Create each precomposition
             switch(group.groupType) {
@@ -197,7 +197,7 @@ function createPanelComposition (panel, style) {
             var groupCompositionLayer = panelComposition.layers.add(groupComposition);
 
             // Position the precomposition in the group composition
-            setAnchorPosition(groupCompositionLayer, "topLeft");
+            setAnchorPosition(groupCompositionLayer, "middleCenter");
             groupCompositionLayer.position.setValue(panelReferencePosition);
 
             // Update Y position of the next precomposition
