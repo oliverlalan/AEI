@@ -1253,7 +1253,7 @@ var lightroomPanels = {
                 groupType: "Slider",
                 settings: {
                     shadowTintCalibration: {
-                        displayName:    "Shadow Tint",    
+                        displayName:    "Tint",    
                         crsName:        "ShadowTint",
                         min:            -100,
                         max:            +100,
@@ -1272,7 +1272,7 @@ var lightroomPanels = {
                 groupType: "Slider",
                 settings: {
                     redHueCalibration: {
-                        displayName:    "Red Hue",    
+                        displayName:    "Hue",    
                         crsName:        "RedHue",
                         min:            -100,
                         max:            +100,
@@ -1285,7 +1285,7 @@ var lightroomPanels = {
                         gradientColors: ["ed145b", "f26522"]
                     },
                     redSaturationCalibration: {
-                        displayName:    "Red Saturation",    
+                        displayName:    "Saturation",    
                         crsName:        "RedSaturation",
                         min:            -100,
                         max:            +100,
@@ -1304,7 +1304,7 @@ var lightroomPanels = {
                 groupType: "Slider",
                 settings: {
                     greenHueCalibration: {
-                        displayName:    "Green Hue",    
+                        displayName:    "Hue",    
                         crsName:        "GreenHue",
                         min:            -100,
                         max:            +100,
@@ -1317,7 +1317,7 @@ var lightroomPanels = {
                         gradientColors: ["fff200", "39b54a"]
                     },
                     greenSaturationCalibration: {
-                        displayName:    "Green Saturation",    
+                        displayName:    "Saturation",    
                         crsName:        "GreenSaturation",
                         min:            -100,
                         max:            +100,
@@ -1336,7 +1336,7 @@ var lightroomPanels = {
                 groupType: "Slider",
                 settings: {
                     blueHueCalibration: {
-                        displayName:    "Blue Hue",    
+                        displayName:    "Hue",    
                         crsName:        "BlueHue",
                         min:            -100,
                         max:            +100,
@@ -1349,7 +1349,7 @@ var lightroomPanels = {
                         gradientColors: ["0072bc", "2e3192"]
                     },
                     blueSaturationCalibration: {
-                        displayName:    "Blue Saturation",    
+                        displayName:    "Saturation",    
                         crsName:        "BlueSaturation",
                         min:            -100,
                         max:            +100,

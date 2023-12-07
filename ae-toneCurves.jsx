@@ -184,7 +184,7 @@ function createToneCurveValuesComposition (parameters) {
     for (var a = parameters.textValues.length - 1; a >= 0; a --) {
 
         // Create Tone Curve Value Layer
-        var toneCurveValueLayer = createToneCurveValueLayer (toneCurveValuesComposition, parameters.textValues[a].keyValues, parameters.textValues[a].keyTimes, toneCurveValueReferencePosition, parameters.textValues[a].anchorPosition, parameters.textValues[a].justification);
+        var toneCurveValueLayer = createToneCurveValueLayer (toneCurveValuesComposition, parameters.textValues[a].keyValues, parameters.textValues[a].keyTimes, toneCurveValueReferencePosition, parameters.textValues[a].anchorPosition, parameters.textValues[a]);
 
         // Increase Y reference position
         toneCurveValueReferencePosition[1] += toneCurveValuesSpacing;

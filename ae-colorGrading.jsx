@@ -116,7 +116,7 @@ function createColorGradeSlidersComposition (group, style) {
     var groupCompositionsFolder = project.items.addFolder(group.displayName + " Pre-Compositions");
 
     // Create group composition 
-    var groupComposition = project.items.addComp(group.displayName, 360, 270, colorGradeSlidersCompositionParameters.pixelAspect, colorGradeSlidersCompositionParameters.duration, colorGradeSlidersCompositionParameters.frameRate);
+    var groupComposition = project.items.addComp(group.displayName, 360, 270, compositionDefaultParameters.pixelAspect, compositionDefaultParameters.duration, compositionDefaultParameters.frameRate);
 
     for (settingKey in settings) {
 

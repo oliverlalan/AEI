@@ -2,6 +2,12 @@ var groupCompositionWidth = 810;
 var gridPixels = 45;
 
 
+var compositionDefaultParameters = {
+    pixelAspect: 1,
+    duration: projectDuration,
+    frameRate: projectFPS
+}
+
 // Main composition: Includes the photo edit animation and the dashboard
 var mainCompositionParameters = {
     width: 1080,
@@ -90,7 +96,7 @@ var panelTitleParameters = {
         bottom: 0,
         left: 0
     },
-    anchorPosition: "topLeft",
+    anchorPosition: "middleCenter",
     fontSize: 30, 
     fontColor: hexToRgb("FFFFFF"),
     fontName: "WorkSansRoman-Medium",
@@ -172,7 +178,7 @@ function GridParameters (compositionWidth, compositionHeight) {
         },
         effects: {
             grid: {
-                anchor: [(toneCurveBackgroundParameters.width) / gridSections - 0.5, (toneCurveBackgroundParameters.width) / gridSections - 0.5],
+                anchor: [(compositionWidth) / gridSections - 0.5, (compositionHeight) / gridSections - 0.5],
                 corner: [-1, -1],
                 border: 2
             },
@@ -211,6 +217,10 @@ function ToneCurveGraphParameters (compositionWidth, compositionHeight, setting)
         pixelAspect: 1,
         frameRate: projectFPS,
         duration: projectDuration,
+        layerOptions: {
+            continuouslyRasterize: true,
+            motionBlur: true
+        }
     }
 
     this.background = {
@@ -229,10 +239,9 @@ function ToneCurveGraphParameters (compositionWidth, compositionHeight, setting)
                 type: "gradient",
                 gradient: {
                     type: 1,
-                    start: [-compositionWidth / 2, -compositionWidth / 2],
-                    end: [compositionWidth / 2, compositionWidth / 2]
+                    start: [-background.width / 2, -background.height / 2],
+                    end: [background.width / 2, background.height / 2]
                 },
-                color: hexToRgb(toneCurveSolidBackgroundcolor),
                 opacity: 100
             }
         }
@@ -257,7 +266,7 @@ function ToneCurveGraphParameters (compositionWidth, compositionHeight, setting)
             stroke: {
                 color: hexToRgb(toneCurvePathStrokecolor),
                 opacity: 100,
-                width: 3,
+                width: 4,
                 cap: 2
             },
             offset: {
@@ -282,13 +291,14 @@ function ToneCurveGraphParameters (compositionWidth, compositionHeight, setting)
         },
         shape: {
             type: "path",
+            width: background.width,
+            height: background.height,
             path: setting.defaultValue,
             animation: {
                 keyTimes: setting.animation.setting.keyTimes,
                 keyValues: [setting.defaultValue, setting.settingValue]
             },
             position: {
-
                 reference: [compositionWidth / 2, compositionHeight / 2],
             },
             fill: {
@@ -297,7 +307,7 @@ function ToneCurveGraphParameters (compositionWidth, compositionHeight, setting)
             stroke: {
                 color: hexToRgb(toneCurvePathStrokecolor),
                 opacity: 100,
-                width: 6,
+                width: 8,
                 cap: 2
             }
         },
@@ -332,8 +342,8 @@ function ToneCurveGraphParameters (compositionWidth, compositionHeight, setting)
             },
             shape: {
                 type: "ellipse",
-                width: 21,
-                height: 21,
+                width: 24,
+                height: 24,
                 fill: {
                     type: "solid",
                     color: hexToRgb(circleSelectorFillColor),
@@ -437,7 +447,6 @@ function ColorGradeCircleParameters (compositionWidth, compositionHeight, settin
                     start: [0, 0],
                     end: [compositionWidth / 2, 0]
                 },
-                color: hexToRgb(circleSelectorFillColor),
                 opacity: 100
             },
             // stroke: {
@@ -559,7 +568,15 @@ function GroupParameters (group) {
         pixelAspect: 1,
         frameRate: projectFPS,
         duration: projectDuration,
-        padding: compositionPadding
+        padding: compositionPadding,
+        // effects: {
+        //     shadow: {
+        //         opacity: 0.35 * 255,
+        //         direction: 180,
+        //         distance: 2,
+        //         softness: 8,
+        //     }
+        // }
     }
 
     this.background = {
@@ -600,14 +617,6 @@ function GroupParameters (group) {
             },
             offset: {
                 amount: - shapeStrokeWidth / 2
-            }
-        },
-        effects: {
-            shadow: {
-                opacity: 0.35 * 255,
-                direction: 180,
-                distance: 2,
-                softness: 8,
             }
         }
     }
@@ -730,7 +739,6 @@ function HorizontalStackedSlider(compositionWidth, compositionHeight, setting) {
                     start: [-sliderBarLength / 2, 0],
                     end: [sliderBarLength / 2, 0]
                 },
-                color: hexToRgb(sliderBarSolidFillColor),
                 opacity: 100
             },
             stroke: {
@@ -951,7 +959,6 @@ function HorizontalSlider(compositionWidth, compositionHeight, setting) {
                     start: [-sliderBarLength / 2, 0],
                     end: [sliderBarLength / 2, 0]
                 },
-                color: hexToRgb(sliderBarSolidFillColor),
                 opacity: 100
             },
             stroke: {

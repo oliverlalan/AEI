@@ -75,7 +75,7 @@ function createPanelsComposition (dashboardData, style) {
     var panelsTitleCompositionLayer = panelsComposition.layers.add(panelsTitleComposition);
 
     // Position the precomposition in the group composition
-    setAnchorPosition(panelsTitleCompositionLayer, "middleCenter");
+    setAnchorPosition(panelsTitleCompositionLayer, "topLeft");
     panelsTitleCompositionLayer.position.setValue(dashboardReferencePosition);
 
     // Update X position of the next precomposition

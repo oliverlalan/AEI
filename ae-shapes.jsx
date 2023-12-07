@@ -51,7 +51,7 @@ function addShapeLayer(targetComposition, shapeLayerParameters) {
             var shapePath = shape.property("ADBE Vectors Group").addProperty("ADBE Vector Shape - Group");
 
             // Create shape object
-            var smoothCurve = getSmoothCurve(shapeLayerParameters.shape.path);
+            var smoothCurve = getSmoothCurve(shapeLayerParameters.shape.path, shapeLayerParameters.shape.width);
             var smoothPath = new Shape();
             smoothPath.vertices = smoothCurve;
             smoothPath.closed = false;
@@ -89,13 +89,13 @@ function addShapeLayer(targetComposition, shapeLayerParameters) {
         if (shapeLayerParameters.shape.hasOwnProperty('animation')) {
 
             // Create initial shape object
-            var initialSmoothCurve = getSmoothCurve(shapeLayerParameters.shape.animation.keyValues[0]);
+            var initialSmoothCurve = getSmoothCurve(shapeLayerParameters.shape.animation.keyValues[0], shapeLayerParameters.shape.width);
             var initialShape = new Shape();
             initialShape.vertices = initialSmoothCurve;
             initialShape.closed = false;
 
             // Create final shape object 
-            var finalSmoothCurve = getSmoothCurve(shapeLayerParameters.shape.animation.keyValues[1]);
+            var finalSmoothCurve = getSmoothCurve(shapeLayerParameters.shape.animation.keyValues[1], shapeLayerParameters.shape.width);
             var finalShape = new Shape();
             finalShape.vertices = finalSmoothCurve;
             finalShape.closed = false;
@@ -126,6 +126,8 @@ function addShapeLayer(targetComposition, shapeLayerParameters) {
             var shapeFill = shape.property("ADBE Vectors Group").addProperty("ADBE Vector Graphic - G-Fill");
             shapeFill.property("ADBE Vector Grad Start Pt").setValue(shapeLayerParameters.shape.fill.gradient.start);
             shapeFill.property("ADBE Vector Grad End Pt").setValue(shapeLayerParameters.shape.fill.gradient.end);
+            shapeFill.property("ADBE Vector Fill Opacity").setValue(shapeLayerParameters.shape.fill.opacity);
+
         break;
 
         case "none":
@@ -152,6 +154,7 @@ function addShapeLayer(targetComposition, shapeLayerParameters) {
                 var shapeFill = shape.property("ADBE Vectors Group").property("Gradient Fill");
                 shapeFill.property("ADBE Vector Grad Start Pt").setValue(shapeLayerParameters.shape.fill.gradient.start);
                 shapeFill.property("ADBE Vector Grad End Pt").setValue(shapeLayerParameters.shape.fill.gradient.end);
+                shapeFill.property("ADBE Vector Fill Opacity").setValue(shapeLayerParameters.shape.fill.opacity);
             }
 
         }
@@ -262,7 +265,7 @@ function addShapeLayer(targetComposition, shapeLayerParameters) {
 }
 
 
-function getSmoothCurve(pointsArray) {
+function getSmoothCurve(pointsArray, normalizationValue) {
 
     // Create points Array
     var pX = []                 // x values
@@ -294,7 +297,7 @@ function getSmoothCurve(pointsArray) {
         }
 
         // Normalize values according to the size of the composition and invert Y
-        smoothCurve.push([i / 256 * toneCurveBackgroundParameters.width, - smoothPoint / 256 * toneCurveBackgroundParameters.height + toneCurveBackgroundParameters.height]);
+        smoothCurve.push([i / 256 * normalizationValue, - smoothPoint / 256 * normalizationValue + normalizationValue]);
 
     }
 

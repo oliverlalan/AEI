@@ -3,7 +3,7 @@
 // Call: createSliderTextValueLayer (sliderComposition, [setting.defaultValue, setting.settingValue], [sliderTextParameters.animation.start, sliderTextParameters.animation.end], sliderTextValueParameters.position, sliderTextValueParameters.anchorPosition, sliderTextValueParameters.justification)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function createToneCurveValueLayer (targetComposition, valuesInterval, timesInterval, position, anchorPosition, justification) {
+function createToneCurveValueLayer (targetComposition, valuesInterval, timesInterval, position, anchorPosition, parameters) {
 
     // Create a new text layer
     var textLayer = targetComposition.layers.addText("Tone Curve Value");
@@ -11,13 +11,13 @@ function createToneCurveValueLayer (targetComposition, valuesInterval, timesInte
     // Set the font properties
     var textProperties = textLayer.property("Source Text").value;
     textProperties.resetCharStyle();
-    textProperties.fontSize = toneCurveValuesCompositionParameters.text.fontSize;
-    textProperties.fillColor = toneCurveValuesCompositionParameters.text.fontColor;
-    textProperties.font = toneCurveValuesCompositionParameters.text.fontName;
-    textProperties.tracking = toneCurveValuesCompositionParameters.text.fontTracking;
+    textProperties.fontSize = parameters.fontSize;
+    textProperties.fillColor = parameters.fontColor;
+    textProperties.font = parameters.fontName;
+    textProperties.tracking = parameters.fontTracking;
 
     // Set justification
-    textProperties.justification = justification;
+    textProperties.justification = parameters.justification;
 
     // Set the text properties back to the layer
     textLayer.property("Source Text").setValue(textProperties);
